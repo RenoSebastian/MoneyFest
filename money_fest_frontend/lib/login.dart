@@ -89,7 +89,7 @@ class Login extends StatelessWidget {
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Container(
                               height: 35, // Ubah tinggi sesuai kebutuhan
                               decoration: BoxDecoration(
@@ -143,7 +143,7 @@ class Login extends StatelessWidget {
                                 context, '/dashboard');
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.transparent,
+                            backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),

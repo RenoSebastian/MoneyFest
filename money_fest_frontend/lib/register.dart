@@ -55,11 +55,11 @@ class Register extends StatelessWidget {
 
   Widget _buildRegisterText() {
     return Positioned(
-      top: 25,
+      top: 37.5, // Changed top value to 37.5
       child: Text(
         'Register',
         style: TextStyle(
-          fontSize: 24,
+          fontSize: 24, // Changed fontSize value to 24
           color: Colors.white,
           fontFamily: 'Poppins',
         ),

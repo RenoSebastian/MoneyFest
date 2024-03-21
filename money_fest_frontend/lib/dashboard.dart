@@ -5,7 +5,7 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Color.fromRGBO(25, 23, 61, 1), // Warna biru dongker
+      color: const Color.fromRGBO(25, 23, 61, 1), // Warna biru dongker
       child: const Center(
         child: Text(
           'Ini Dashboard',

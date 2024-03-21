@@ -54,12 +54,12 @@ class Register extends StatelessWidget {
   }
 
   Widget _buildRegisterText() {
-    return const Positioned(
-      top: 50, // Changed top value
+    return Positioned(
+      top: 37.5, // Changed top value to 37.5
       child: Text(
         'Register',
         style: TextStyle(
-          fontSize: 25,
+          fontSize: 24, // Changed fontSize value to 24
           color: Colors.white,
           fontFamily: 'Poppins',
         ),
@@ -69,7 +69,7 @@ class Register extends StatelessWidget {
 
   Widget _buildRegisterLink(BuildContext context) {
     return Positioned(
-      bottom: 100, // Changed bottom value
+      bottom: 70,
       child: GestureDetector(
         onTap: () {
           Navigator.pushNamed(context, '/');
@@ -89,37 +89,26 @@ class Register extends StatelessWidget {
 
   Widget _buildInputFields() {
     return Positioned(
-      bottom: 150, // Changed bottom value
+      bottom: 95,
       child: Container(
         width: 280,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            _buildTextField('Email',
-                fontFamily: 'Poppins-Regular',
-                fontSize: 14,
-                obscureText: false),
-            const SizedBox(height: 10),
-            _buildTextField('Username',
-                fontFamily: 'Poppins-Regular',
-                fontSize: 14,
-                obscureText: false),
-            const SizedBox(height: 10),
-            _buildTextField('Nick Name',
-                fontFamily: 'Poppins-Regular',
-                fontSize: 14,
-                obscureText: false),
-            const SizedBox(height: 10),
-            _buildTextField('Password',
-                fontFamily: 'Poppins-Regular', fontSize: 14, obscureText: true),
+            _buildTextField('Email', false),
+            SizedBox(height: 10),
+            _buildTextField('Username', true),
+            SizedBox(height: 10),
+            _buildTextField('Nick Name', true),
+            SizedBox(height: 10),
+            _buildTextField('Password', true),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String hintText,
-      {String? fontFamily, bool obscureText = false, required int fontSize}) {
+  Widget _buildTextField(String hintText, bool obscureText) {
     return Container(
       height: 35,
       decoration: BoxDecoration(
@@ -129,24 +118,23 @@ class Register extends StatelessWidget {
       child: TextField(
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
+          hintStyle: TextStyle(
             color: Color.fromRGBO(123, 120, 170, 1),
             fontSize: 14,
           ),
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
         obscureText: obscureText,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.white),
       ),
     );
   }
 
   Widget _buildSubmitButton(BuildContext context) {
     return Positioned(
-      bottom: 30, // Changed bottom value
+      bottom: 25,
       child: Container(
         width: 124,
         height: 36,
@@ -168,7 +156,7 @@ class Register extends StatelessWidget {
             Navigator.pushReplacementNamed(context, '/dashboard');
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.transparent,
+            primary: Colors.transparent,
             shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25),

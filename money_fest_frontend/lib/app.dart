@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'profile.dart';
+import 'budget.dart';
 import 'register.dart';
 import 'dashboard.dart';
 import 'login.dart';
@@ -15,6 +17,8 @@ class MoneyFestApp extends StatelessWidget {
         '/': (BuildContext context) => const Login(),
         '/dashboard': (BuildContext context) => const Dashboard(),
         '/register': (BuildContext context) => const Register(),
+        '/budget': (BuildContext context) => const Budget(),
+        '/profile': (BuildContext context) => const Profile(),
       },
     );
   }

@@ -5,11 +5,12 @@ class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  int _selectedMonthIndex = 0; // Indeks bulan yang dipilih
+  int _selectedMonthIndex = 0;
 
   final List<String> _months = [
     'Jan',
@@ -41,7 +42,7 @@ class _DashboardState extends State<Dashboard> {
                 top: 30,
                 left: 20,
                 child: IconButton(
-                  icon: Icon(Icons.home, color: Colors.white),
+                  icon: const Icon(Icons.home, color: Colors.white),
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -57,20 +58,20 @@ class _DashboardState extends State<Dashboard> {
                     _buildBarChart(),
                     const SizedBox(height: 16),
                     _buildNotesContainer(),
-                    const SizedBox(height: 20), // Jarak antara catatan dan daftar tombol bulan
+                    const SizedBox(height: 20),
                     _buildMonthButtons(),
                   ],
                 ),
               ),
               Positioned(
-                bottom: 0,
-                left: 0,
+                bottom: -9,
+                left: 2,
                 right: 0,
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
                     Image.asset(
-                      'images/tabBar.png', // Sesuaikan dengan path gambar Anda
+                      'assets/images/tabBar.png',
                       fit: BoxFit.contain,
                       width: MediaQuery.of(context).size.width,
                       height: 100,
@@ -82,25 +83,47 @@ class _DashboardState extends State<Dashboard> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Center(
-                              child: Image.asset('images/home.png', width: 50, height: 50), // Ganti path gambar dengan yang sesuai
+                            InkWell(
+                              onTap: () {
+                                // Navigate to budget route
+                                Navigator.pushNamed(context, '/dashboard');
+                              },
+                              child: Image.asset(
+                                'assets/images/home.png',
+                                width: 50,
+                                height: 50,
+                              ),
                             ),
-                            Center(
-                              child: Image.asset('images/card.png', width: 50, height: 50), // Ganti path gambar dengan yang sesuai
+                            InkWell(
+                              onTap: () {
+                                // Navigate to budget route
+                                Navigator.pushNamed(context, '/budget');
+                              },
+                              child: Image.asset(
+                                'assets/images/card.png',
+                                width: 50,
+                                height: 50,
+                              ),
                             ),
-                            Center(
-                              child: Image.asset('images/profile.png', width: 50, height: 50), // Ganti path gambar dengan yang sesuai
+                            InkWell(
+                              onTap: () {
+                                // Navigate to budget route
+                                Navigator.pushNamed(context, '/profile');
+                              },
+                              child: Image.asset(
+                                'assets/images/profile.png',
+                                width: 50,
+                                height: 50,
+                              ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 25), // Tambahkan jarak sebesar 5 ke bawah
+                        const SizedBox(height: 25),
                       ],
                     ),
                   ],
                 ),
               ),
-
-
             ],
           ),
         ),
@@ -109,7 +132,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildReportText() {
-    return Text(
+    return const Text(
       'Report',
       style: TextStyle(
         fontSize: 25,
@@ -120,13 +143,13 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildBarChart() {
-    return Container(
-      width: 400,
+    return SizedBox(
+      width: 350,
       height: 300,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
-          maxY: 100, // Set max Y value
+          maxY: 100,
           barTouchData: BarTouchData(enabled: false),
           titlesData: FlTitlesData(
             show: true,
@@ -158,6 +181,13 @@ class _DashboardState extends State<Dashboard> {
                 color: Color.fromRGBO(123, 120, 170, 1),
                 fontSize: 14,
               ),
+              getTitles: (value) {
+                if (value % 10 == 0) {
+                  return value.toInt().toString();
+                } else {
+                  return '';
+                }
+              },
             ),
           ),
           gridData: FlGridData(
@@ -166,7 +196,7 @@ class _DashboardState extends State<Dashboard> {
             horizontalInterval: 25,
             checkToShowHorizontalLine: (value) => value % 25 == 0,
             getDrawingHorizontalLine: (value) => FlLine(
-              color: Color.fromRGBO(239, 239, 241, 0.298),
+              color: const Color.fromARGB(255, 255, 255, 255),
               strokeWidth: 1,
             ),
           ),
@@ -175,7 +205,7 @@ class _DashboardState extends State<Dashboard> {
               x: 0,
               barRods: [
                 BarChartRodData(
-                  y: 25, // Set Y value to 25%
+                  y: 25,
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   colors: [
@@ -186,19 +216,18 @@ class _DashboardState extends State<Dashboard> {
                 ),
               ],
             ),
-
             BarChartGroupData(
               x: 1,
               barRods: [
                 BarChartRodData(
-                  y: 50, // Set Y value to 50%
+                  y: 50,
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   colors: [
-                      Colors.blue[900]!,
-                      Colors.lightBlue[300]!,
-                      Colors.lightBlue[100]!,
-                    ],
+                    Colors.blue[900]!,
+                    Colors.lightBlue[300]!,
+                    Colors.lightBlue[100]!,
+                  ],
                 ),
               ],
             ),
@@ -206,7 +235,7 @@ class _DashboardState extends State<Dashboard> {
               x: 2,
               barRods: [
                 BarChartRodData(
-                  y: 75, // Set Y value to 75%
+                  y: 75,
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   colors: [
@@ -218,13 +247,13 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
             BarChartGroupData(
-              x: 3, // Perbaikan: Mengubah nilai x menjadi 3
+              x: 3,
               barRods: [
                 BarChartRodData(
-                  y: 100, // Set Y value to 100%
+                  y: 100,
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
-                  colors:[
+                  colors: [
                     Colors.blue[900]!,
                     Colors.lightBlue[300]!,
                     Colors.lightBlue[100]!,
@@ -246,7 +275,7 @@ class _DashboardState extends State<Dashboard> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
@@ -261,9 +290,9 @@ class _DashboardState extends State<Dashboard> {
           Text(
             'Selamat, anda telah berada di zona bebas finansial, mari hemat dan hidup bahagia bersama MoneyFest!',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 12,
               color: Color.fromRGBO(25, 23, 61, 1),
-              fontFamily: 'Poppins',
+              fontFamily: 'Poppins-Regular',
             ),
           ),
         ],
@@ -271,41 +300,23 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-    Widget _buildMonthButtonsContainer() {
-    return Container(
-      height: 110,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.grey, // Warna garis luar (stroke)
-          width: 1, // Ketebalan garis luar
-        ),
-      ),
-      child: _buildMonthButtons(), // Panggil fungsi yang telah Anda buat sebelumnya
-    );
-  }
-
-
   Widget _buildMonthButtons() {
-  return Positioned(
-    top: MediaQuery.of(context).size.height / 2 - 20, // Set ke tengah vertikal
-    left: 0,
-    right: 0,
-    child: Column(
+    return Column(
       children: [
-        Container(
+        SizedBox(
           height: 40,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center, // Pusatkan secara horizontal
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
                 onPressed: _selectedMonthIndex > 0
                     ? () {
                         setState(() {
                           _selectedMonthIndex--;
                         });
                       }
-                    : null, // Tombol tidak aktif jika sudah di bulan pertama
+                    : null,
               ),
               Expanded(
                 child: ListView.builder(
@@ -321,20 +332,20 @@ class _DashboardState extends State<Dashboard> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          primary: _selectedMonthIndex == index
+                          backgroundColor: _selectedMonthIndex == index
                               ? Colors.blue
-                              : Color.fromRGBO(25, 23, 61, 1), // Mengubah warna menjadi transparan
-                          side: BorderSide(
-                            color: Colors.grey, // Tetap menggunakan warna abu-abu untuk border
-                            width: 1, // Ketebalan border
+                              : const Color.fromRGBO(25, 23, 61, 1),
+                          side: const BorderSide(
+                            color: Colors.grey,
+                            width: 1,
                           ),
                         ),
                         child: Text(
                           _months[index],
                           style: TextStyle(
                             color: _selectedMonthIndex == index
-                                ? Colors.white // Ganti warna teks menjadi putih jika dipilih
-                                : Color.fromARGB(255, 132, 125, 125), // Ganti warna teks menjadi hitam jika tidak dipilih
+                                ? Colors.white
+                                : const Color.fromARGB(255, 132, 125, 125),
                           ),
                         ),
                       ),
@@ -343,21 +354,20 @@ class _DashboardState extends State<Dashboard> {
                 ),
               ),
               IconButton(
-                icon: Icon(Icons.arrow_forward),
-                onPressed: _selectedMonthIndex < _months.length - 5
+                icon: const Icon(Icons.arrow_forward),
+                onPressed: _selectedMonthIndex < _months.length - 1
                     ? () {
                         setState(() {
-                          _selectedMonthIndex += 5;
+                          _selectedMonthIndex++;
                         });
                       }
-                    : null, // Tombol tidak aktif jika sudah di bulan terakhir
+                    : null,
               ),
             ],
           ),
         ),
-        SizedBox(height: 80), // Tambahkan jarak sebesar lima di bawah daftar tombol bulan
+        const SizedBox(height: 80),
       ],
-    ),
-  );
-}
+    );
+  }
 }

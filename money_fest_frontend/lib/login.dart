@@ -20,7 +20,7 @@ class Login extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Image.asset(
-                  'MoneyFestLogo.png',
+                  'assets/MoneyFestLogo.png',
                   width: 260,
                   height: 260,
                 ),
@@ -28,7 +28,8 @@ class Login extends StatelessWidget {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    Image.asset('images/Base.png', width: 314, height: 273),
+                    Image.asset('assets/images/Base.png',
+                        width: 314, height: 273),
                     const Positioned(
                       top: 25,
                       child: Text(
@@ -80,7 +81,7 @@ class Login extends StatelessWidget {
                                   ),
                                   border: InputBorder.none,
                                   contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 16),
+                                      horizontal: 20, vertical: 12),
                                   alignLabelWithHint:
                                       true, // Membuat teks selaras dengan hint
                                 ),

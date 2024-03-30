@@ -61,6 +61,10 @@ flutter:
       fonts:
         - asset: fonts/poppins-regular.ttf
           weight: 700
+  assets:
+    - assets/MoneyFestLogo.png
+    - assets/images/Base.png
+    - assets/images/Base2.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

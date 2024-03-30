@@ -30,7 +30,7 @@ class Register extends StatelessWidget {
 
   Widget _buildLogo() {
     return Image.asset(
-      'MoneyFestLogo.png',
+      'assets/MoneyFestLogo.png',
       width: 160,
       height: 160,
     );
@@ -50,7 +50,7 @@ class Register extends StatelessWidget {
   }
 
   Widget _buildBackgroundImage() {
-    return Image.asset('images/Base2.png', height: 450);
+    return Image.asset('assets/images/Base2.png', height: 450);
   }
 
   Widget _buildRegisterText() {
@@ -89,7 +89,7 @@ class Register extends StatelessWidget {
 
   Widget _buildInputFields() {
     return Positioned(
-      bottom: 120, // Changed bottom value
+      bottom: 150, // Changed bottom value
       child: Container(
         width: 280,
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -135,11 +135,13 @@ class Register extends StatelessWidget {
           ),
           border: InputBorder.none,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         ),
         obscureText: obscureText,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(
+          color: Colors.white,
+        ),
       ),
     );
   }

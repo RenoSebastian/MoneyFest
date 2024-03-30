@@ -30,7 +30,7 @@ class Register extends StatelessWidget {
 
   Widget _buildLogo() {
     return Image.asset(
-      'MoneyFestLogo.png',
+      'assets/MoneyFestLogo.png',
       width: 160,
       height: 160,
     );
@@ -50,16 +50,16 @@ class Register extends StatelessWidget {
   }
 
   Widget _buildBackgroundImage() {
-    return Image.asset('images/Base2.png', height: 450);
+    return Image.asset('assets/images/Base2.png', height: 450);
   }
 
   Widget _buildRegisterText() {
-    return Positioned(
-      top: 37.5, // Changed top value to 37.5
+    return const Positioned(
+      top: 50, // Changed top value
       child: Text(
         'Register',
         style: TextStyle(
-          fontSize: 24, // Changed fontSize value to 24
+          fontSize: 25,
           color: Colors.white,
           fontFamily: 'Poppins',
         ),
@@ -69,7 +69,7 @@ class Register extends StatelessWidget {
 
   Widget _buildRegisterLink(BuildContext context) {
     return Positioned(
-      bottom: 70,
+      bottom: 100, // Changed bottom value
       child: GestureDetector(
         onTap: () {
           Navigator.pushNamed(context, '/');
@@ -89,26 +89,37 @@ class Register extends StatelessWidget {
 
   Widget _buildInputFields() {
     return Positioned(
-      bottom: 95,
+      bottom: 150, // Changed bottom value
       child: Container(
         width: 280,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            _buildTextField('Email', false),
-            SizedBox(height: 10),
-            _buildTextField('Username', true),
-            SizedBox(height: 10),
-            _buildTextField('Nick Name', true),
-            SizedBox(height: 10),
-            _buildTextField('Password', true),
+            _buildTextField('Email',
+                fontFamily: 'Poppins-Regular',
+                fontSize: 14,
+                obscureText: false),
+            const SizedBox(height: 10),
+            _buildTextField('Username',
+                fontFamily: 'Poppins-Regular',
+                fontSize: 14,
+                obscureText: false),
+            const SizedBox(height: 10),
+            _buildTextField('Nick Name',
+                fontFamily: 'Poppins-Regular',
+                fontSize: 14,
+                obscureText: false),
+            const SizedBox(height: 10),
+            _buildTextField('Password',
+                fontFamily: 'Poppins-Regular', fontSize: 14, obscureText: true),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(String hintText, bool obscureText) {
+  Widget _buildTextField(String hintText,
+      {String? fontFamily, bool obscureText = false, required int fontSize}) {
     return Container(
       height: 35,
       decoration: BoxDecoration(
@@ -118,23 +129,26 @@ class Register extends StatelessWidget {
       child: TextField(
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             color: Color.fromRGBO(123, 120, 170, 1),
             fontSize: 14,
           ),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         ),
         obscureText: obscureText,
         textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(
+          color: Colors.white,
+        ),
       ),
     );
   }
 
   Widget _buildSubmitButton(BuildContext context) {
     return Positioned(
-      bottom: 25,
+      bottom: 30, // Changed bottom value
       child: Container(
         width: 124,
         height: 36,
@@ -156,7 +170,7 @@ class Register extends StatelessWidget {
             Navigator.pushReplacementNamed(context, '/dashboard');
           },
           style: ElevatedButton.styleFrom(
-            primary: Colors.transparent,
+            backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25),

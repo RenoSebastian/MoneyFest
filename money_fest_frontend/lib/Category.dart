@@ -56,19 +56,9 @@ class _DashboardState extends State<Dashboard> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildReportText(),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildCategoryButton(),
-                        SizedBox(width: 8),
-                        Text('Assigned', style: TextStyle(color: Colors.white)),
-                        SizedBox(width: 8),
-                        Text('Available',
-                            style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
                     const SizedBox(height: 8),
+                    _buildBalanceText(),
+                    const SizedBox(height: 16),
                     _buildMonthSelector(),
                     const SizedBox(height: 8),
                     Row(
@@ -280,18 +270,89 @@ class _DashboardState extends State<Dashboard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Hello World"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                "Close",
-                style: TextStyle(color: Colors.black),
-              ),
+          contentPadding: EdgeInsets.zero,
+          content: Card(
+            margin: EdgeInsets.zero,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Add your own Fest",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Align nama box ke kiri
+                    children: [
+                      Text(
+                        "Target Type",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 2.0),
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                value: 'Option 1',
+                                items: <String>[
+                                  'Option 1',
+                                  'Option 2',
+                                  'Option 3',
+                                  'Option 4'
+                                ].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  // Add your dropdown onChanged logic here
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      "Close",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

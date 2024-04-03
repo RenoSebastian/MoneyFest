@@ -9,17 +9,15 @@ class Budget extends StatelessWidget {
       children: [
         // Background Container
         Container(
-          color: const Color.fromRGBO(25, 23, 61,
-              1), // Ganti dengan warna latar belakang yang Anda inginkan
+          color: const Color.fromRGBO(25, 23, 61, 1),
         ),
         const Center(
           child: Text(
             "Budget",
             style: TextStyle(
-              fontSize: 40, // Sesuaikan ukuran font sesuai kebutuhan Anda
+              fontSize: 40,
               fontWeight: FontWeight.bold,
-              color: Colors
-                  .white, // Sesuaikan dengan warna yang sesuai dengan gambar latar belakang Anda
+              color: Colors.white,
             ),
           ),
         ),
@@ -31,6 +29,16 @@ class Budget extends StatelessWidget {
             onPressed: () {
               Navigator.pushNamed(context, '/dashboard');
             },
+          ),
+        ),
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/');
+            },
+            child: const Icon(Icons.add),
           ),
         ),
       ],

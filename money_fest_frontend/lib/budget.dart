@@ -323,20 +323,14 @@ class _BudgetState extends State<Budget> {
                                 border: Border.all(color: Colors.grey),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: 'Option 1',
-                                items: <String>[
-                                  'Option 1',
-                                  'Option 2',
-                                  'Option 3',
-                                  'Option 4'
-                                ].map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText:
+                                      'Option 1', // Nilai default atau yang sedang dipilih
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10.0),
+                                ),
                                 onChanged: (String? newValue) {
                                   // Add your dropdown onChanged logic here
                                 },

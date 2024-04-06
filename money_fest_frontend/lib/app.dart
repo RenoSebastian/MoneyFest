@@ -14,9 +14,9 @@ class MoneyFestApp extends StatelessWidget {
       title: 'MoneyFest',
       initialRoute: '/',
       routes: {
-        '/': (BuildContext context) => const Login(),
+        '/': (BuildContext context) => Login(),
         '/dashboard': (BuildContext context) => const Dashboard(),
-        '/register': (BuildContext context) => const Register(),
+        '/register': (BuildContext context) => Register(),
         '/budget': (BuildContext context) => const Budget(),
         '/profile': (BuildContext context) => const Profile(),
       },

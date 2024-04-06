@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
@@ -326,6 +326,7 @@ class MonthSelector extends StatefulWidget {
   }) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _MonthSelectorState createState() => _MonthSelectorState();
 }
 

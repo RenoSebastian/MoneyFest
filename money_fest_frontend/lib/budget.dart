@@ -202,7 +202,7 @@ class _BudgetState extends State<Budget> {
             border: Border(
               bottom: BorderSide(
                 color: isSelected
-                    ? Color.fromRGBO(0, 255, 191, 1)
+                    ? const Color.fromRGBO(0, 255, 191, 1)
                     : Colors.grey, // Warna biru-hijau neon ketika ditekan
                 width: 4.0, // Ubah lebar garis sesuai kebutuhan Anda
               ),
@@ -217,7 +217,7 @@ class _BudgetState extends State<Budget> {
             style: TextStyle(
               fontSize: 18,
               color: isSelected
-                  ? Color.fromARGB(255, 255, 255, 255)
+                  ? const Color.fromARGB(255, 255, 255, 255)
                   : const Color.fromARGB(255, 158, 158,
                       158), // Warna teks sesuai dengan garis saat ditekan
             ),
@@ -238,8 +238,8 @@ class _BudgetState extends State<Budget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCategoryButton(),
-            Text('Assigned', style: TextStyle(color: Colors.white)),
-            Text('Available', style: TextStyle(color: Colors.white)),
+            const Text('Assigned', style: TextStyle(color: Colors.white)),
+            const Text('Available', style: TextStyle(color: Colors.white)),
           ],
         ),
         // Add your savings content here
@@ -254,8 +254,8 @@ class _BudgetState extends State<Budget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCategoryButton(),
-            Text('Assigned', style: TextStyle(color: Colors.white)),
-            Text('Available', style: TextStyle(color: Colors.white)),
+            const Text('Assigned', style: TextStyle(color: Colors.white)),
+            const Text('Available', style: TextStyle(color: Colors.white)),
           ],
         ),
         // Add your instalment content here
@@ -287,8 +287,8 @@ class _BudgetState extends State<Budget> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     "Add your own Fest",
                     textAlign: TextAlign.center,
@@ -303,26 +303,27 @@ class _BudgetState extends State<Budget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Target Type",
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 2.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 2.0),
                               margin: const EdgeInsets.symmetric(horizontal: 4),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               child: TextField(
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   hintText: 'Option 1',
                                   border: InputBorder.none,
                                   contentPadding:
@@ -336,20 +337,21 @@ class _BudgetState extends State<Budget> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
-                      Text(
+                      const SizedBox(height: 8),
+                      const Text(
                         "Cost",
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 2.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 2.0),
                               margin: const EdgeInsets.symmetric(horizontal: 4),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
@@ -358,7 +360,7 @@ class _BudgetState extends State<Budget> {
                               child: TextField(
                                 keyboardType: TextInputType
                                     .number, // Keyboard type for numbers
-                                decoration: InputDecoration(
+                                decoration: const InputDecoration(
                                   hintText: 'Enter cost',
                                   border: InputBorder.none,
                                   contentPadding:
@@ -381,7 +383,7 @@ class _BudgetState extends State<Budget> {
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text(
+                    child: const Text(
                       "Close",
                       style: TextStyle(color: Colors.black),
                     ),

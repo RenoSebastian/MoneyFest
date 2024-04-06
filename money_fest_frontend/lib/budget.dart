@@ -28,7 +28,7 @@ class _BudgetState extends State<Budget> {
   ];
 
   // Dummy balance data, replace with your actual balance data
-  final String _balance = 'Rp. 5.000.000,00';
+  final String _balance = 'Add your balance';
 
   @override
   Widget build(BuildContext context) {
@@ -152,28 +152,135 @@ class _BudgetState extends State<Budget> {
   }
 
   Widget _buildReportText() {
-    return const Column(
+    return Positioned(
+      top: 20,
+      left: 0,
+      right: 0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            ),
+          ),
+          Text(
+            'Budget',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.white,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          PopupMenuButton<String>(
+            icon: Icon(
+              Icons.more_vert,
+              color: Colors.white,
+            ),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Text('Logout'),
+              ),
+            ],
+            onSelected: (String? value) {
+              if (value == 'logout') {
+                _logout();
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _logout() {
+    Navigator.pushNamed(context, '/login');
+  }
+
+  Widget _buildBalanceText() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Budget',
-          style: TextStyle(
-            fontSize: 25,
+          _balance,
+          style: const TextStyle(
+            fontSize: 18,
             color: Colors.white,
             fontFamily: 'Poppins',
           ),
+        ),
+        IconButton(
+          icon: Image.asset(
+            'assets/images/plus.png',
+            width: 20, // Sesuaikan ukuran gambar sesuai kebutuhan Anda
+            height: 20, // Sesuaikan ukuran gambar sesuai kebutuhan Anda
+          ),
+          onPressed: () {
+            // Tampilkan pop-up "How many do you have?"
+            _showAddBalancePopup(context);
+          },
         ),
       ],
     );
   }
 
-  Widget _buildBalanceText() {
-    return Text(
-      _balance,
-      style: const TextStyle(
-        fontSize: 18,
-        color: Colors.white,
-        fontFamily: 'Poppins',
-      ),
+  void _showAddBalancePopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Add Balance",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Text('How many do you have?'),
+              SizedBox(height: 10), // Spasi antara elemen
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Jumlah Saldo',
+                  hintText: 'Masukkan jumlah saldo',
+                ),
+              ),
+              // Tambah elemen-elemen lainnya sesuai kebutuhan
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup popup
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Implementasi untuk menambahkan saldo
+                // Di sini Anda bisa memanggil fungsi atau method yang sesuai
+                Navigator.of(context).pop(); // Tutup popup setelah selesai
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -197,29 +304,30 @@ class _BudgetState extends State<Budget> {
             _isSavingsSelected = text == 'Savings';
           });
         },
-        child: Container(
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
                 color: isSelected
-                    ? const Color.fromRGBO(0, 255, 191, 1)
+                    ? Color.fromRGBO(13, 166, 194, 1)
                     : Colors.grey, // Warna biru-hijau neon ketika ditekan
                 width: 4.0, // Ubah lebar garis sesuai kebutuhan Anda
               ),
             ),
-          ),
-          padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).size.width *
-                  0.02), // Sesuaikan padding dengan lebar layar // Sesuaikan padding dengan kebutuhan Anda
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              color: isSelected
-                  ? const Color.fromARGB(255, 255, 255, 255)
-                  : const Color.fromARGB(255, 158, 158,
-                      158), // Warna teks sesuai dengan garis saat ditekan
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.width *
+                    0.02), // Sesuaikan padding dengan lebar layar // Sesuaikan padding dengan kebutuhan Anda
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                color: isSelected
+                    ? Color.fromARGB(255, 255, 255, 255)
+                    : const Color.fromARGB(255, 158, 158,
+                        158), // Warna teks sesuai dengan garis saat ditekan
+              ),
             ),
           ),
         ),
@@ -464,8 +572,8 @@ class _MonthSelectorState extends State<MonthSelector> {
                         gradient: widget.selectedMonthIndex == index
                             ? const LinearGradient(
                                 colors: [
-                                  Colors.blue,
-                                  Colors.green
+                                  Color.fromRGBO(13, 166, 194, 1),
+                                  Color.fromRGBO(33, 78, 226, 1)
                                 ], // Ubah warna gradient sesuai kebutuhan Anda
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,

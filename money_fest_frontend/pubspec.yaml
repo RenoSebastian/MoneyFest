@@ -69,6 +69,7 @@ flutter:
     - assets/images/Base3.png
     - assets/images/card.png
     - assets/images/home.png
+    - assets/images/plus.png
     - assets/images/profile.png
     - assets/images/tabBar.png
     - assets/images/User.png

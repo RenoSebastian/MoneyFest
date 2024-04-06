@@ -1,15 +1,66 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
 
 class Login extends StatelessWidget {
-  const Login({Key? key}) : super(key: key);
+  Login({Key? key}) : super(key: key);
+
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  Future<void> loginUser(BuildContext context) async {
+    const String apiUrl = 'http://10.0.2.2:8000/api/login';
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: {
+        'username': usernameController.text,
+        'password': passwordController.text,
+      },
+    );
+
+    final responseData = json.decode(response.body);
+    if (response.statusCode == 200) {
+      // Login berhasil, lakukan sesuatu
+      if (kDebugMode) {
+        print(responseData['message']);
+      }
+      // Navigasi ke halaman dashboard jika login berhasil
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      // Login gagal, tampilkan pesan kesalahan
+      if (kDebugMode) {
+        print(responseData['message']);
+      }
+      // Menampilkan pesan kesalahan menggunakan dialog
+      // ignore: use_build_context_synchronously
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: Text(responseData['message']),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(
-          top: 0,
-        ),
+        padding: const EdgeInsets.only(top: 0),
         child: Container(
           decoration: const BoxDecoration(
             color: Color.fromRGBO(25, 23, 61, 1),
@@ -42,7 +93,7 @@ class Login extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      bottom: 190, // Ubah nilai bottom sesuai kebutuhan
+                      bottom: 190,
                       child: GestureDetector(
                         onTap: () {
                           Navigator.pushNamed(context, '/register');
@@ -59,21 +110,22 @@ class Login extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      bottom: 95, // Ubah nilai bottom sesuai kebutuhan
+                      bottom: 95,
                       child: Container(
-                        width: 280, // Ubah lebar sesuai kebutuhan
+                        width: 280,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
                           children: [
                             Container(
-                              height: 35, // Ubah tinggi sesuai kebutuhan
+                              height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(25),
                                 color: const Color.fromRGBO(25, 23, 61, 1)
                                     .withOpacity(1),
                               ),
-                              child: const TextField(
-                                decoration: InputDecoration(
+                              child: TextField(
+                                controller: usernameController,
+                                decoration: const InputDecoration(
                                   hintText: 'Username/email',
                                   hintStyle: TextStyle(
                                     color: Color.fromRGBO(123, 120, 170, 1),
@@ -82,24 +134,23 @@ class Login extends StatelessWidget {
                                   border: InputBorder.none,
                                   contentPadding: EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 12),
-                                  alignLabelWithHint:
-                                      true, // Membuat teks selaras dengan hint
+                                  alignLabelWithHint: true,
                                 ),
-                                textAlign:
-                                    TextAlign.center, // Mengatur teks ke tengah
-                                style: TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ),
                             const SizedBox(height: 10),
                             Container(
-                              height: 35, // Ubah tinggi sesuai kebutuhan
+                              height: 35,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(25),
                                 color: const Color.fromRGBO(25, 23, 61, 1)
                                     .withOpacity(1),
                               ),
-                              child: const TextField(
-                                decoration: InputDecoration(
+                              child: TextField(
+                                controller: passwordController,
+                                decoration: const InputDecoration(
                                   hintText: 'Password',
                                   hintStyle: TextStyle(
                                     color: Color.fromRGBO(123, 120, 170, 1),
@@ -110,9 +161,8 @@ class Login extends StatelessWidget {
                                       horizontal: 20, vertical: 16),
                                 ),
                                 obscureText: true,
-                                textAlign:
-                                    TextAlign.center, // Mengatur teks ke tengah
-                                style: TextStyle(color: Colors.white),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ),
                           ],
@@ -133,15 +183,13 @@ class Login extends StatelessWidget {
                             ],
                           ),
                           border: Border.all(
-                            color: const Color.fromRGBO(
-                                67, 166, 208, 1), // warna garis pinggir
-                            width: 1, // ketebalan garis pinggir
+                            color: const Color.fromRGBO(67, 166, 208, 1),
+                            width: 1,
                           ),
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(
-                                context, '/dashboard');
+                            loginUser(context);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,

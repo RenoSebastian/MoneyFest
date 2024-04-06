@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ruleset name="Project">
+    <description>Project-wide rules</description>
+
+    <!-- Set standard -->
+    <arg name="standard" value="PSR2"/>
+
+    <!-- Exclude directories -->
+    <exclude-pattern>vendor/*</exclude-pattern>
+
+    <!-- Exclude files -->
+    <exclude-pattern>*/bootstrap/*</exclude-pattern>
+
+    <!-- Include directories -->
+    <file>app</file>
+    <file>tests</file>
+
+    <!-- Custom ruleset -->
+    <!--
+    <rule ref="MyCustomStandard.MyCustomRule"/>
+    -->
+
+    <!-- Severity levels -->
+    <!--
+    <rule ref="Generic.PHP.UpperCaseConstant"/>
+    <severity>5</severity>
+    -->
+
+    <!-- Ignored tags -->
+    <!--
+    <rule ref="Generic.Commenting.DocComment.TagGroupSpacing"/>
+    <severity>0</severity>
+    -->
+</ruleset>

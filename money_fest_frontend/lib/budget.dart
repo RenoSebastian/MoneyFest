@@ -301,8 +301,7 @@ class _BudgetState extends State<Budget> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Align nama box ke kiri
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "Target Type",
@@ -317,29 +316,56 @@ class _BudgetState extends State<Budget> {
                           Expanded(
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: 2.0),
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                value: 'Option 1',
-                                items: <String>[
-                                  'Option 1',
-                                  'Option 2',
-                                  'Option 3',
-                                  'Option 4'
-                                ].map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Option 1',
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10.0),
+                                ),
                                 onChanged: (String? newValue) {
                                   // Add your dropdown onChanged logic here
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Cost",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 2.0),
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              child: TextField(
+                                keyboardType: TextInputType
+                                    .number, // Keyboard type for numbers
+                                decoration: InputDecoration(
+                                  hintText: 'Enter cost',
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 10.0),
+                                ),
+                                onChanged: (String? newValue) {
+                                  // Handle changes in cost value here
                                 },
                               ),
                             ),

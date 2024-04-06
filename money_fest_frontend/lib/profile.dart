@@ -1,39 +1,209 @@
 import 'package:flutter/material.dart';
 
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
 
   @override
+  _ProfileState createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Background Container
-        Container(
-          color: const Color.fromRGBO(25, 23, 61,
-              1), // Ganti dengan warna latar belakang yang Anda inginkan
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          color: const Color.fromRGBO(25, 23, 61, 1),
         ),
-        const Center(
-          child: Text(
-            "Profile",
-            style: TextStyle(
-              fontSize: 40, // Sesuaikan ukuran font sesuai kebutuhan Anda
-              fontWeight: FontWeight.bold,
-              color: Colors
-                  .white, // Sesuaikan dengan warna yang sesuai dengan gambar latar belakang Anda
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            Expanded(
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  _buildBackgroundImage(),
+                  _buildInputFields(),
+                  _buildTabBar(),
+                  _buildUserImage(),
+                  _buildProfileText(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBackgroundImage() {
+    return Image.asset(
+      'assets/images/Base3.png',
+      width: 608,
+      height: 608,
+    );
+  }
+
+  Widget _buildInputFields() {
+  return Positioned(
+    bottom: 160,
+    child: Container(
+      width: 280,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          _buildTextField(),
+          SizedBox(height: 35), // Menambahkan jarak antara TextField
+          _buildTextField(),
+          SizedBox(height: 35), // Menambahkan jarak antara TextField
+          _buildTextField(),
+          SizedBox(height: 35), // Menambahkan jarak antara TextField
+        ],
+      ),
+    ),
+  );
+}
+
+
+  Widget _buildTextField({bool obscureText = false}) {
+    return Container(
+      height: 45,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: const Color.fromRGBO(25, 23, 61, 1).withOpacity(1),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: '',
+          labelText: '',
+          labelStyle: const TextStyle(color: Color.fromRGBO(123, 120, 170, 1)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        ),
+        obscureText: obscureText,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    return Positioned(
+      bottom: 0,
+      left: 2,
+      right: 0,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Image.asset(
+            'assets/images/tabBar.png',
+            fit: BoxFit.contain,
+            width: MediaQuery.of(context).size.width,
+            height: 100,
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      // Navigate to dashboard route
+                      Navigator.pushNamed(context, '/dashboard');
+                    },
+                    child: Image.asset(
+                      'assets/images/home.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      // Navigate to budget route
+                      Navigator.pushNamed(context, '/budget');
+                    },
+                    child: Image.asset(
+                      'assets/images/card.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      // Navigate to profile route
+                      Navigator.pushNamed(context, '/profile');
+                    },
+                    child: Image.asset(
+                      'assets/images/profile.png',
+                      width: 50,
+                      height: 50,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 25),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserImage() {
+    return Positioned(
+      top: 68,
+      right: 95,
+      child: Image.asset(
+        'assets/images/User.png',
+        width: 200,
+        height: 200,
+      ),
+    );
+  }
+
+  Widget _buildProfileText() {
+    return Positioned(
+      top: 20,
+      left: 0,
+      right: 0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.white,
             ),
           ),
-        ),
-        Positioned(
-          top: 30,
-          left: 20,
-          child: IconButton(
-            icon: const Icon(Icons.account_balance, color: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, '/dashboard');
-            },
+          Text(
+            'Profile',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 25,
+              color: Colors.white,
+              fontFamily: 'Poppins',
+            ),
           ),
-        ),
-      ],
+          IconButton(
+            onPressed: () {
+              // Tambahkan logika untuk menu titik tiga
+            },
+            icon: Icon(
+              Icons.more_vert,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

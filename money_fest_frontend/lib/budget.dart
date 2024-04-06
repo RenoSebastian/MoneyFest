@@ -4,6 +4,7 @@ class Budget extends StatefulWidget {
   const Budget({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _BudgetState createState() => _BudgetState();
 }
 
@@ -27,7 +28,7 @@ class _BudgetState extends State<Budget> {
   ];
 
   // Dummy balance data, replace with your actual balance data
-  String _balance = 'Rp. 5.000.000,00';
+  final String _balance = 'Rp. 5.000.000,00';
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +152,7 @@ class _BudgetState extends State<Budget> {
   }
 
   Widget _buildReportText() {
-    return Column(
+    return const Column(
       children: [
         Text(
           'Budget',
@@ -167,8 +168,8 @@ class _BudgetState extends State<Budget> {
 
   Widget _buildBalanceText() {
     return Text(
-      '$_balance',
-      style: TextStyle(
+      _balance,
+      style: const TextStyle(
         fontSize: 18,
         color: Colors.white,
         fontFamily: 'Poppins',
@@ -268,7 +269,7 @@ class _BudgetState extends State<Budget> {
         // Menampilkan pop-up saat tombol "Category +" ditekan
         _showCategoryPopup();
       },
-      child: Text(
+      child: const Text(
         'Category +',
         style: TextStyle(color: Colors.white),
       ),
@@ -400,13 +401,15 @@ class MonthSelector extends StatefulWidget {
   final int selectedMonthIndex;
   final Function(int) onMonthSelected;
 
-  MonthSelector({
+  const MonthSelector({
+    super.key,
     required this.months,
     required this.selectedMonthIndex,
     required this.onMonthSelected,
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _MonthSelectorState createState() => _MonthSelectorState();
 }
 
@@ -424,11 +427,11 @@ class _MonthSelectorState extends State<MonthSelector> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(2),
-      margin: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(2),
+      margin: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         border: Border.all(
-          color: Color.fromARGB(255, 158, 158, 158),
+          color: const Color.fromARGB(255, 158, 158, 158),
           width: 0.5,
         ),
         borderRadius: BorderRadius.circular(20),
@@ -437,7 +440,7 @@ class _MonthSelectorState extends State<MonthSelector> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: widget.selectedMonthIndex > 0
                 ? () => _scrollToMonth(widget.selectedMonthIndex - 1)
                 : null,
@@ -457,7 +460,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                       margin: const EdgeInsets.symmetric(horizontal: 8),
                       decoration: BoxDecoration(
                         gradient: widget.selectedMonthIndex == index
-                            ? LinearGradient(
+                            ? const LinearGradient(
                                 colors: [
                                   Colors.blue,
                                   Colors.green
@@ -483,7 +486,7 @@ class _MonthSelectorState extends State<MonthSelector> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.arrow_forward),
+            icon: const Icon(Icons.arrow_forward),
             onPressed: widget.selectedMonthIndex < widget.months.length - 1
                 ? () => _scrollToMonth(widget.selectedMonthIndex + 1)
                 : null,
@@ -496,7 +499,7 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _scrollToMonth(int index) {
     _scrollController.animateTo(
       index * 65.0,
-      duration: Duration(milliseconds: 550),
+      duration: const Duration(milliseconds: 550),
       curve: Curves.easeInOut,
     );
     widget.onMonthSelected(index);

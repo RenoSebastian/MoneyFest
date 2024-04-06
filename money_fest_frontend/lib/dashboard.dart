@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
@@ -209,9 +209,9 @@ class _DashboardState extends State<Dashboard> {
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   colors: [
-                    Colors.blue[900]!,
-                    Colors.lightBlue[300]!,
-                    Colors.lightBlue[100]!,
+                    const Color.fromRGBO(33, 78, 226, 1),
+                    const Color.fromRGBO(13, 166, 194, 1),
+                    const Color.fromARGB(255, 136, 217, 254),
                   ],
                 ),
               ],
@@ -224,9 +224,9 @@ class _DashboardState extends State<Dashboard> {
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   colors: [
-                    Colors.blue[900]!,
-                    Colors.lightBlue[300]!,
-                    Colors.lightBlue[100]!,
+                    const Color.fromRGBO(33, 78, 226, 1),
+                    const Color.fromRGBO(13, 166, 194, 1),
+                    const Color.fromARGB(255, 136, 217, 254),
                   ],
                 ),
               ],
@@ -239,9 +239,9 @@ class _DashboardState extends State<Dashboard> {
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   colors: [
-                    Colors.blue[900]!,
-                    Colors.lightBlue[300]!,
-                    Colors.lightBlue[100]!,
+                    const Color.fromRGBO(33, 78, 226, 1),
+                    const Color.fromRGBO(13, 166, 194, 1),
+                    const Color.fromARGB(255, 136, 217, 254),
                   ],
                 ),
               ],
@@ -254,9 +254,9 @@ class _DashboardState extends State<Dashboard> {
                   width: 35,
                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                   colors: [
-                    Colors.blue[900]!,
-                    Colors.lightBlue[300]!,
-                    Colors.lightBlue[100]!,
+                    const Color.fromRGBO(33, 78, 226, 1),
+                    const Color.fromRGBO(13, 166, 194, 1),
+                    const Color.fromARGB(255, 136, 217, 254),
                   ],
                 ),
               ],
@@ -301,73 +301,123 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildMonthButtons() {
-    return Column(
-      children: [
-        SizedBox(
-          height: 40,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: _selectedMonthIndex > 0
-                    ? () {
-                        setState(() {
-                          _selectedMonthIndex--;
-                        });
-                      }
-                    : null,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _months.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _selectedMonthIndex = index;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _selectedMonthIndex == index
-                              ? Colors.blue
-                              : const Color.fromRGBO(25, 23, 61, 1),
-                          side: const BorderSide(
-                            color: Colors.grey,
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          _months[index],
-                          style: TextStyle(
-                            color: _selectedMonthIndex == index
-                                ? Colors.white
-                                : const Color.fromARGB(255, 132, 125, 125),
-                          ),
+    return MonthSelector(
+      months: _months,
+      selectedMonthIndex: _selectedMonthIndex,
+      onMonthSelected: (index) {
+        setState(() {
+          _selectedMonthIndex = index;
+        });
+      },
+    );
+  }
+}
+
+class MonthSelector extends StatefulWidget {
+  final List<String> months;
+  final int selectedMonthIndex;
+  final Function(int) onMonthSelected;
+
+  const MonthSelector({
+    Key? key,
+    required this.months,
+    required this.selectedMonthIndex,
+    required this.onMonthSelected,
+  }) : super(key: key);
+
+  @override
+  _MonthSelectorState createState() => _MonthSelectorState();
+}
+
+class _MonthSelectorState extends State<MonthSelector> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController(
+      initialScrollOffset: (widget.selectedMonthIndex * 60).toDouble(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(2),
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: const Color.fromARGB(255, 158, 158, 158),
+          width: 0.5,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: widget.selectedMonthIndex > 0
+                ? () => _scrollToMonth(widget.selectedMonthIndex - 1)
+                : null,
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              controller: _scrollController,
+              child: Row(
+                children: widget.months.map((month) {
+                  final index = widget.months.indexOf(month);
+                  return GestureDetector(
+                    onTap: () => widget.onMonthSelected(index),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        gradient: widget.selectedMonthIndex == index
+                            ? const LinearGradient(
+                                colors: [
+                                  Color.fromRGBO(13, 166, 194, 1),
+                                  Color.fromRGBO(33, 78, 226, 1)
+                                ], // Ubah warna gradient sesuai kebutuhan Anda
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              )
+                            : null,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        month,
+                        style: TextStyle(
+                          color: widget.selectedMonthIndex == index
+                              ? Colors.white
+                              : const Color.fromARGB(255, 158, 158, 158),
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                }).toList(),
               ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward),
-                onPressed: _selectedMonthIndex < _months.length - 1
-                    ? () {
-                        setState(() {
-                          _selectedMonthIndex++;
-                        });
-                      }
-                    : null,
-              ),
-            ],
+            ),
           ),
-        ),
-        const SizedBox(height: 80),
-      ],
+          IconButton(
+            icon: const Icon(Icons.arrow_forward),
+            onPressed: widget.selectedMonthIndex < widget.months.length - 1
+                ? () => _scrollToMonth(widget.selectedMonthIndex + 1)
+                : null,
+          ),
+        ],
+      ),
     );
+  }
+
+  void _scrollToMonth(int index) {
+    _scrollController.animateTo(
+      index * 65.0,
+      duration: const Duration(milliseconds: 550),
+      curve: Curves.easeInOut,
+    );
+    widget.onMonthSelected(index);
   }
 }

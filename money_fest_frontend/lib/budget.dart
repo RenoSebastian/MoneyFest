@@ -315,6 +315,8 @@ class _BudgetState extends State<Budget> {
                 width: 4.0, // Ubah lebar garis sesuai kebutuhan Anda
               ),
             ),
+          ),
+          child: Padding(
             padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).size.width *
                     0.02), // Sesuaikan padding dengan lebar layar // Sesuaikan padding dengan kebutuhan Anda

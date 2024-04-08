@@ -4,7 +4,6 @@ class Budget extends StatefulWidget {
   const Budget({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _BudgetState createState() => _BudgetState();
 }
 
@@ -27,8 +26,8 @@ class _BudgetState extends State<Budget> {
     'Dec'
   ];
 
-  // Dummy balance data, replace with your actual balance data
-  final String _balance = 'Add your balance';
+  String _balance = 'Add your balance';
+  bool _balanceEntered = false; // Flag to check if balance has been entered
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +94,6 @@ class _BudgetState extends State<Budget> {
                           children: [
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/dashboard');
                               },
                               child: Image.asset(
@@ -106,7 +104,6 @@ class _BudgetState extends State<Budget> {
                             ),
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/budget');
                               },
                               child: Image.asset(
@@ -117,7 +114,6 @@ class _BudgetState extends State<Budget> {
                             ),
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/profile');
                               },
                               child: Image.asset(
@@ -207,22 +203,26 @@ class _BudgetState extends State<Budget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          _balance,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-            fontFamily: 'Poppins',
+        GestureDetector(
+          onTap: () {
+            _showEditBalancePopup(context);
+          },
+          child: Text(
+            _balance,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+              fontFamily: 'Poppins',
+            ),
           ),
         ),
         IconButton(
           icon: Image.asset(
             'assets/images/plus.png',
-            width: 20, // Sesuaikan ukuran gambar sesuai kebutuhan Anda
-            height: 20, // Sesuaikan ukuran gambar sesuai kebutuhan Anda
+            width: 20,
+            height: 20,
           ),
           onPressed: () {
-            // Tampilkan pop-up "How many do you have?"
             _showAddBalancePopup(context);
           },
         ),
@@ -247,36 +247,197 @@ class _BudgetState extends State<Budget> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
+                      color: Color(0xFF19173D),
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
                     ),
                   ),
                 ),
               ),
-              Text('How many do you have?'),
-              SizedBox(height: 10), // Spasi antara elemen
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Jumlah Saldo',
-                  hintText: 'Masukkan jumlah saldo',
+              Text(
+                'How many do you have?',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: Color(0xFF19173D).withOpacity(0.7),
                 ),
               ),
-              // Tambah elemen-elemen lainnya sesuai kebutuhan
+              SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  onChanged: (value) {
+                    setState(() {
+                      _balance = value;
+                      _balanceEntered = true;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(15.0),
+                  ),
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
             ],
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup popup
+                Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
-                // Implementasi untuk menambahkan saldo
-                // Di sini Anda bisa memanggil fungsi atau method yang sesuai
-                Navigator.of(context).pop(); // Tutup popup setelah selesai
+                Navigator.of(context).pop();
               },
-              child: Text('Save'),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromRGBO(13, 166, 194, 1),
+                      Color.fromRGBO(33, 78, 226, 1)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditBalancePopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Edit Balance",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFF19173D),
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                'How many do you have?',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: Color(0xFF19173D).withOpacity(0.7),
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  initialValue: _balance,
+                  onChanged: (value) {
+                    setState(() {
+                      _balance = value;
+                      _balanceEntered = true;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(15.0),
+                  ),
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _balance = 'Add your balance'; // Reset balance
+                  _balanceEntered = false; // Reset balance entered flag
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Reset',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromRGBO(13, 166, 194, 1),
+                      Color.fromRGBO(33, 78, 226, 1)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -311,15 +472,14 @@ class _BudgetState extends State<Budget> {
               bottom: BorderSide(
                 color: isSelected
                     ? Color.fromRGBO(13, 166, 194, 1)
-                    : Colors.grey, // Warna biru-hijau neon ketika ditekan
-                width: 4.0, // Ubah lebar garis sesuai kebutuhan Anda
+                    : Colors.grey,
+                width: 4.0,
               ),
             ),
           ),
           child: Padding(
             padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.width *
-                    0.02), // Sesuaikan padding dengan lebar layar // Sesuaikan padding dengan kebutuhan Anda
+                bottom: MediaQuery.of(context).size.width * 0.02),
             child: Text(
               text,
               textAlign: TextAlign.center,
@@ -327,8 +487,7 @@ class _BudgetState extends State<Budget> {
                 fontSize: 18,
                 color: isSelected
                     ? Color.fromARGB(255, 255, 255, 255)
-                    : const Color.fromARGB(255, 158, 158,
-                        158), // Warna teks sesuai dengan garis saat ditekan
+                    : const Color.fromARGB(255, 158, 158, 158),
               ),
             ),
           ),
@@ -376,7 +535,6 @@ class _BudgetState extends State<Budget> {
   Widget _buildCategoryButton() {
     return TextButton(
       onPressed: () {
-        // Menampilkan pop-up saat tombol "Category +" ditekan
         _showCategoryPopup();
       },
       child: const Text(
@@ -468,8 +626,7 @@ class _BudgetState extends State<Budget> {
                                 borderRadius: BorderRadius.circular(12.0),
                               ),
                               child: TextField(
-                                keyboardType: TextInputType
-                                    .number, // Keyboard type for numbers
+                                keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   hintText: 'Enter cost',
                                   border: InputBorder.none,
@@ -514,14 +671,13 @@ class MonthSelector extends StatefulWidget {
   final Function(int) onMonthSelected;
 
   const MonthSelector({
-    super.key,
+    Key? key,
     required this.months,
     required this.selectedMonthIndex,
     required this.onMonthSelected,
-  });
+  }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _MonthSelectorState createState() => _MonthSelectorState();
 }
 
@@ -576,7 +732,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                                 colors: [
                                   Color.fromRGBO(13, 166, 194, 1),
                                   Color.fromRGBO(33, 78, 226, 1)
-                                ], // Ubah warna gradient sesuai kebutuhan Anda
+                                ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               )

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Budget extends StatefulWidget {
   const Budget({Key? key}) : super(key: key);
@@ -28,7 +29,8 @@ class _BudgetState extends State<Budget> {
   ];
 
   // Dummy balance data, replace with your actual balance data
-  final String _balance = 'Add your balance';
+  String _balance = 'Add your balance';
+  String newBalance = '';
 
   @override
   Widget build(BuildContext context) {
@@ -207,12 +209,14 @@ class _BudgetState extends State<Budget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          _balance,
-          style: const TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-            fontFamily: 'Poppins',
+        FittedBox(
+          child: Text(
+            _balance,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+              fontFamily: 'Poppins',
+            ),
           ),
         ),
         IconButton(
@@ -231,6 +235,8 @@ class _BudgetState extends State<Budget> {
   }
 
   void _showAddBalancePopup(BuildContext context) {
+    String? newBalance;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -259,6 +265,9 @@ class _BudgetState extends State<Budget> {
                   labelText: 'Jumlah Saldo',
                   hintText: 'Masukkan jumlah saldo',
                 ),
+                onChanged: (value) {
+                  newBalance = value;
+                },
               ),
               // Tambah elemen-elemen lainnya sesuai kebutuhan
             ],
@@ -272,8 +281,16 @@ class _BudgetState extends State<Budget> {
             ),
             TextButton(
               onPressed: () {
-                // Implementasi untuk menambahkan saldo
-                // Di sini Anda bisa memanggil fungsi atau method yang sesuai
+                int? parsedBalance = int.tryParse(newBalance ?? '');
+                if (parsedBalance != null) {
+                  setState(() {
+                    _balance = NumberFormat.currency(
+                      locale: 'id',
+                      symbol: 'Rp. ',
+                      decimalDigits: 0,
+                    ).format(parsedBalance);
+                  });
+                }
                 Navigator.of(context).pop(); // Tutup popup setelah selesai
               },
               child: Text('Save'),
@@ -374,15 +391,58 @@ class _BudgetState extends State<Budget> {
   }
 
   Widget _buildCategoryButton() {
-    return TextButton(
-      onPressed: () {
-        // Menampilkan pop-up saat tombol "Category +" ditekan
-        _showCategoryPopup();
-      },
-      child: const Text(
-        'Category +',
-        style: TextStyle(color: Colors.white),
-      ),
+    bool _isCategoryVisible =
+        false; // Variable untuk mengatur apakah informasi kategori ditampilkan atau tidak
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _isCategoryVisible =
+                      !_isCategoryVisible; // Toggle visibility ketika tombol ditekan
+                });
+              },
+              child: const Text(
+                'Category +',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        if (_isCategoryVisible) // Menampilkan informasi kategori jika _isCategoryVisible true
+          Container(
+            width: MediaQuery.of(context)
+                .size
+                .width, // Lebarkan box sesuai lebar layar
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Add a category",
+                  style: TextStyle(color: Colors.black),
+                ),
+                Text(
+                  "Rp. 0",
+                  style: TextStyle(color: Colors.black),
+                ),
+                Text(
+                  "Rp. 5000.000",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 

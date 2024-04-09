@@ -12,6 +12,7 @@ class Budget extends StatefulWidget {
 class _BudgetState extends State<Budget> {
   int _selectedMonthIndex = 0;
   bool _isSavingsSelected = true; // default Savings is selected
+  List<Map<String, dynamic>> _categories = [];
 
   final List<String> _months = [
     'Jan',
@@ -365,8 +366,6 @@ class _BudgetState extends State<Budget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCategoryButton(),
-            const Text('Assigned', style: TextStyle(color: Colors.white)),
-            const Text('Available', style: TextStyle(color: Colors.white)),
           ],
         ),
         // Add your savings content here
@@ -391,181 +390,181 @@ class _BudgetState extends State<Budget> {
   }
 
   Widget _buildCategoryButton() {
-    bool _isCategoryVisible =
-        false; // Variable untuk mengatur apakah informasi kategori ditampilkan atau tidak
+    void _addCategoryRow() {
+      setState(() {
+        _categories.add({
+          'name': 'New Category',
+          'assigned': 0,
+          'available': newBalance,
+        });
+      });
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _isCategoryVisible =
-                      !_isCategoryVisible; // Toggle visibility ketika tombol ditekan
-                });
-              },
-              child: const Text(
-                'Category +',
-                style: TextStyle(color: Colors.white),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _categories.clear();
+            });
+          },
+          child: const Text(
+            'Reset',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        DataTable(
+          columns: [
+            DataColumn(
+              label: InkWell(
+                onTap: _addCategoryRow,
+                child: Text('Category', style: TextStyle(color: Colors.white)),
               ),
             ),
+            DataColumn(
+                label: Text('Assigned', style: TextStyle(color: Colors.white))),
+            DataColumn(
+                label:
+                    Text('Available', style: TextStyle(color: Colors.white))),
           ],
-        ),
-        if (_isCategoryVisible) // Menampilkan informasi kategori jika _isCategoryVisible true
-          Container(
-            width: MediaQuery.of(context)
-                .size
-                .width, // Lebarkan box sesuai lebar layar
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Add a category",
-                  style: TextStyle(color: Colors.black),
-                ),
-                Text(
-                  "Rp. 0",
-                  style: TextStyle(color: Colors.black),
-                ),
-                Text(
-                  "Rp. 5000.000",
-                  style: TextStyle(color: Colors.black),
-                ),
+          rows: _categories.map((category) {
+            return DataRow(
+              cells: [
+                DataCell(Text(category['name'],
+                    style: TextStyle(color: Colors.white))),
+                DataCell(Text('Rp. ${category['assigned']}',
+                    style: TextStyle(color: Colors.white))),
+                DataCell(Text('Rp. ${category['available']}',
+                    style: TextStyle(color: Colors.white))),
               ],
-            ),
-          ),
+            );
+          }).toList(),
+        ),
       ],
     );
   }
+}
 
-  void _showCategoryPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.zero,
-          content: Card(
-            margin: EdgeInsets.zero,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    "Add your own Fest",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+void _showCategoryPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        contentPadding: EdgeInsets.zero,
+        content: Card(
+          margin: EdgeInsets.zero,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "Add your own Fest",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Target Type",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.normal,
-                        ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Target Type",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 2.0),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 2.0),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                hintText: 'Option 1',
+                                border: InputBorder.none,
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10.0),
                               ),
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                  hintText: 'Option 1',
-                                  border: InputBorder.none,
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10.0),
-                                ),
-                                onChanged: (String? newValue) {
-                                  // Add your dropdown onChanged logic here
-                                },
-                              ),
+                              onChanged: (String? newValue) {
+                                // Add your dropdown onChanged logic here
+                              },
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Cost",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.normal,
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Cost",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 2.0),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 2.0),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: TextField(
+                              keyboardType: TextInputType
+                                  .number, // Keyboard type for numbers
+                              decoration: const InputDecoration(
+                                hintText: 'Enter cost',
+                                border: InputBorder.none,
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10.0),
                               ),
-                              child: TextField(
-                                keyboardType: TextInputType
-                                    .number, // Keyboard type for numbers
-                                decoration: const InputDecoration(
-                                  hintText: 'Enter cost',
-                                  border: InputBorder.none,
-                                  contentPadding:
-                                      EdgeInsets.symmetric(horizontal: 10.0),
-                                ),
-                                onChanged: (String? newValue) {
-                                  // Handle changes in cost value here
-                                },
-                              ),
+                              onChanged: (String? newValue) {
+                                // Handle changes in cost value here
+                              },
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      "Close",
-                      style: TextStyle(color: Colors.black),
+                        ),
+                      ],
                     ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    "Close",
+                    style: TextStyle(color: Colors.black),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
 }
 
 class MonthSelector extends StatefulWidget {

@@ -33,111 +33,109 @@ class _BudgetState extends State<Budget> {
   String _balance = 'Add your balance';
   String newBalance = '';
   bool _balanceEntered = false;
-  String _newCategoryName = '';
-  
 
-
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Container(
-      decoration: const BoxDecoration(
-        color: Color.fromRGBO(25, 23, 61, 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 50), // Sesuaikan dengan jarak yang diinginkan dari atas
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildReportText(),
-                  const SizedBox(height: 8),
-                  _buildBalanceText(),
-                  const SizedBox(height: 16),
-                  _buildMonthSelector(),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildOption('Savings', _isSavingsSelected),
-                      _buildOption('Instalment', !_isSavingsSelected),
-                    ],
-                  ),
-                  _buildContent()
-                ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(25, 23, 61, 1),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(
+              top: 50), // Sesuaikan dengan jarak yang diinginkan dari atas
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildReportText(),
+                    const SizedBox(height: 8),
+                    _buildBalanceText(),
+                    const SizedBox(height: 16),
+                    _buildMonthSelector(),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildOption('Savings', _isSavingsSelected),
+                        _buildOption('Instalment', !_isSavingsSelected),
+                      ],
+                    ),
+                    _buildContent()
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              bottom: -9,
-              left: 2,
-              right: 0,
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  Image.asset(
-                    'assets/images/tabBar.png',
-                    fit: BoxFit.contain,
-                    width: MediaQuery.of(context).size.width,
-                    height: 100,
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              // Navigate to budget route
-                              Navigator.pushNamed(context, '/dashboard');
-                            },
-                            child: Image.asset(
-                              'assets/images/home.png',
-                              width: 50,
-                              height: 50,
+              Positioned(
+                bottom: -9,
+                left: 2,
+                right: 0,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Image.asset(
+                      'assets/images/tabBar.png',
+                      fit: BoxFit.contain,
+                      width: MediaQuery.of(context).size.width,
+                      height: 100,
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                // Navigate to budget route
+                                Navigator.pushNamed(context, '/dashboard');
+                              },
+                              child: Image.asset(
+                                'assets/images/home.png',
+                                width: 50,
+                                height: 50,
+                              ),
                             ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              // Navigate to budget route
-                              Navigator.pushNamed(context, '/budget');
-                            },
-                            child: Image.asset(
-                              'assets/images/card.png',
-                              width: 50,
-                              height: 50,
+                            InkWell(
+                              onTap: () {
+                                // Navigate to budget route
+                                Navigator.pushNamed(context, '/budget');
+                              },
+                              child: Image.asset(
+                                'assets/images/card.png',
+                                width: 50,
+                                height: 50,
+                              ),
                             ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              // Navigate to budget route
-                              Navigator.pushNamed(context, '/profile');
-                            },
-                            child: Image.asset(
-                              'assets/images/profile.png',
-                              width: 50,
-                              height: 50,
+                            InkWell(
+                              onTap: () {
+                                // Navigate to budget route
+                                Navigator.pushNamed(context, '/profile');
+                              },
+                              child: Image.asset(
+                                'assets/images/profile.png',
+                                width: 50,
+                                height: 50,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 25),
-                    ],
-                  ),
-                ],
+                          ],
+                        ),
+                        const SizedBox(height: 25),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildReportText() {
     return Positioned(
@@ -177,273 +175,284 @@ Widget build(BuildContext context) {
     );
   }
 
- Widget _buildBalanceText() {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      GestureDetector(
-        onTap: () {
-          _showEditBalancePopup(context);
-        },
-        child: FittedBox(
-          child: Text(
-            _balance,
-            style: const TextStyle(
-              fontSize: 18,
-              color: Colors.white,
-              fontFamily: 'Poppins',
+  Widget _buildBalanceText() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showEditBalancePopup(context);
+          },
+          child: FittedBox(
+            child: Text(
+              _balance,
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.white,
+                fontFamily: 'Poppins',
+              ),
             ),
           ),
         ),
-      ),
-      IconButton(
-        icon: Image.asset(
-          'assets/images/plus.png',
-          width: 20,
-          height: 20,
+        IconButton(
+          icon: Image.asset(
+            'assets/images/plus.png',
+            width: 20,
+            height: 20,
+          ),
+          onPressed: () {
+            _showAddBalancePopup(context);
+          },
         ),
-        onPressed: () {
-          _showAddBalancePopup(context);
-        },
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 
   void _showAddBalancePopup(BuildContext context) {
-  String? newBalance;
+    String? newBalance;
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(
-                  "Add Balance",
-                  textAlign: TextAlign.center,
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Add Balance",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily:
+                          'Poppins', // Mengatur jenis font menjadi Poppins
+                      color: Color(0xFF19173D), // Warna teks
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                'How many do you have?',
+                style: TextStyle(
+                  fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
+                  fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
+                  color: Color(0xFF19173D).withOpacity(0.7), // Transparansi 70%
+                ),
+              ),
+              SizedBox(height: 10), // Spasi antara elemen
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFDAD9D9), // Warna abu muda
+                  borderRadius: BorderRadius.circular(8.0), // Radius sudut
+                ),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    border: InputBorder.none, // Menghapus border
+                    contentPadding: EdgeInsets.all(15.0), // Padding untuk teks
+                    hintText: 'Masukkan jumlah saldo',
+                    hintStyle: TextStyle(
+                      fontFamily:
+                          'Poppins', // Mengatur jenis font menjadi Poppins
+                      fontWeight:
+                          FontWeight.normal, // Mengatur teks menjadi normal
+                      color: Color(0xFF19173D)
+                          .withOpacity(0.5), // Transparansi 50%
+                    ),
+                  ),
+                  onChanged: (value) {
+                    newBalance = value;
+                  },
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
-                    color: Color(0xFF19173D), // Warna teks
+                    fontFamily:
+                        'Poppins', // Mengatur jenis font menjadi Poppins
+                    fontWeight:
+                        FontWeight.normal, // Mengatur teks menjadi normal
                   ),
                 ),
               ),
-            ),
-            Text(
-              'How many do you have?',
-              style: TextStyle(
-                fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
-                fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
-                color: Color(0xFF19173D).withOpacity(0.7), // Transparansi 70%
-              ),
-            ),
-            SizedBox(height: 10), // Spasi antara elemen
-            Container(
-              decoration: BoxDecoration(
-                color: Color(0xFFDAD9D9), // Warna abu muda
-                borderRadius: BorderRadius.circular(8.0), // Radius sudut
-              ),
-              child: TextFormField(
-                decoration: InputDecoration(
-                  border: InputBorder.none, // Menghapus border
-                  contentPadding: EdgeInsets.all(15.0), // Padding untuk teks
-                  hintText: 'Masukkan jumlah saldo',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
-                    fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
-                    color: Color(0xFF19173D).withOpacity(0.5), // Transparansi 50%
-                  ),
-                ),
-                onChanged: (value) {
-                  newBalance = value;
-                },
+              // Tambah elemen-elemen lainnya sesuai kebutuhan
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup popup
+              },
+              child: Text(
+                'Cancel',
                 style: TextStyle(
                   fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
                   fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
                 ),
               ),
             ),
-            // Tambah elemen-elemen lainnya sesuai kebutuhan
-          ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Tutup popup
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
-                fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              int? parsedBalance = int.tryParse(newBalance ?? '');
-              if (parsedBalance != null) {
-                setState(() {
-                  _balance = NumberFormat.currency(
-                    locale: 'id',
-                    symbol: 'Rp. ',
-                    decimalDigits: 0,
-                  ).format(parsedBalance);
-                });
-              }
-              Navigator.of(context).pop(); // Tutup popup setelah selesai
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0), // Atur radius sesuai keinginan
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromRGBO(13, 166, 194, 1),
-                    Color.fromRGBO(33, 78, 226, 1)
-                  ],
-                  // Ubah warna gradient sesuai kebutuhan Anda
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Save',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
-                    fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-void _showEditBalancePopup(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(
-                  "Edit Balance",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFF19173D),
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
-            ),
-            Text(
-              'How many do you have?',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.normal,
-                color: Color(0xFF19173D).withOpacity(0.7),
-              ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              decoration: BoxDecoration(
-                color: Color(0xFFDAD9D9),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextFormField(
-                initialValue: _balance.replaceAll('Rp. ', '').replaceAll('.', ''), // Remove currency symbol and dot
-                onChanged: (value) {
+            TextButton(
+              onPressed: () {
+                int? parsedBalance = int.tryParse(newBalance ?? '');
+                if (parsedBalance != null) {
                   setState(() {
-                    _balance = 'Rp. ' + NumberFormat.decimalPattern('id').format(int.parse(value)); // Format new balance with currency symbol and dot
-                    _balanceEntered = true;
+                    _balance = NumberFormat.currency(
+                      locale: 'id',
+                      symbol: 'Rp. ',
+                      decimalDigits: 0,
+                    ).format(parsedBalance);
                   });
-                },
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(15.0),
+                }
+                Navigator.of(context).pop(); // Tutup popup setelah selesai
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(
+                      20.0), // Atur radius sesuai keinginan
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromRGBO(13, 166, 194, 1),
+                      Color.fromRGBO(33, 78, 226, 1)
+                    ],
+                    // Ubah warna gradient sesuai kebutuhan Anda
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                keyboardType: TextInputType.number,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily:
+                          'Poppins', // Mengatur jenis font menjadi Poppins
+                      fontWeight:
+                          FontWeight.normal, // Mengatur teks menjadi normal
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditBalancePopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Edit Balance",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFF19173D),
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                'How many do you have?',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: Color(0xFF19173D).withOpacity(0.7),
+                ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  initialValue: _balance
+                      .replaceAll('Rp. ', '')
+                      .replaceAll('.', ''), // Remove currency symbol and dot
+                  onChanged: (value) {
+                    setState(() {
+                      _balance = 'Rp. ' +
+                          NumberFormat.decimalPattern('id').format(int.parse(
+                              value)); // Format new balance with currency symbol and dot
+                      _balanceEntered = true;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(15.0),
+                  ),
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _balance = 'Add your balance'; // Reset balance
+                  _balanceEntered = false; // Reset balance entered flag
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Reset',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.normal,
                 ),
               ),
             ),
-          ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _balance = 'Add your balance'; // Reset balance
-                _balanceEntered = false; // Reset balance entered flag
-              });
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Reset',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromRGBO(13, 166, 194, 1),
-                    Color.fromRGBO(33, 78, 226, 1)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromRGBO(13, 166, 194, 1),
+                      Color.fromRGBO(33, 78, 226, 1)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Save',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildMonthSelector() {
     return MonthSelector(
@@ -522,7 +531,7 @@ void _showEditBalancePopup(BuildContext context) {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildCategoryButton(),
+            const Text('Category +', style: TextStyle(color: Colors.white)),
             const Text('Assigned', style: TextStyle(color: Colors.white)),
             const Text('Available', style: TextStyle(color: Colors.white)),
           ],
@@ -539,6 +548,7 @@ void _showEditBalancePopup(BuildContext context) {
           'name': 'New Category',
           'assigned': 0,
           'available': newBalance,
+          'isEditing': false,
         });
       });
     }
@@ -562,7 +572,8 @@ void _showEditBalancePopup(BuildContext context) {
             DataColumn(
               label: InkWell(
                 onTap: _addCategoryRow,
-                child: Text('Category', style: TextStyle(color: Colors.white)),
+                child:
+                    Text('Category +', style: TextStyle(color: Colors.white)),
               ),
             ),
             DataColumn(
@@ -574,8 +585,30 @@ void _showEditBalancePopup(BuildContext context) {
           rows: _categories.map((category) {
             return DataRow(
               cells: [
-                DataCell(Text(category['name'],
-                    style: TextStyle(color: Colors.white))),
+                DataCell(
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        category['isEditing'] = true;
+                      });
+                    },
+                    child: category['isEditing']
+                        ? TextField(
+                            controller:
+                                TextEditingController(text: category['name']),
+                            onChanged: (value) {
+                              setState(() {
+                                category['name'] = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                            ),
+                          )
+                        : Text(category['name'],
+                            style: TextStyle(color: Colors.white)),
+                  ),
+                ),
                 DataCell(Text('Rp. ${category['assigned']}',
                     style: TextStyle(color: Colors.white))),
                 DataCell(Text('Rp. ${category['available']}',

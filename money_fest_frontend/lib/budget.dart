@@ -548,7 +548,7 @@ class _BudgetState extends State<Budget> {
           'name': 'New Category',
           'assigned': 0,
           'available': newBalance,
-          'isEditing': false,
+          'isEditing': true,
         });
       });
     }
@@ -603,7 +603,9 @@ class _BudgetState extends State<Budget> {
                             },
                             decoration: InputDecoration(
                               border: InputBorder.none,
+                              hintStyle: TextStyle(color: Colors.white),
                             ),
+                            style: TextStyle(color: Colors.white),
                           )
                         : Text(category['name'],
                             style: TextStyle(color: Colors.white)),

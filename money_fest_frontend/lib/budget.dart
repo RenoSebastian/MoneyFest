@@ -12,7 +12,7 @@ class Budget extends StatefulWidget {
 class _BudgetState extends State<Budget> {
   int _selectedMonthIndex = 0;
   bool _isSavingsSelected = true; // default Savings is selected
-  List<Map<String, dynamic>> _categories = [];
+  final List<Map<String, dynamic>> _categories = [];
 
   final List<String> _months = [
     'Jan',
@@ -32,6 +32,7 @@ class _BudgetState extends State<Budget> {
   // Dummy balance data, replace with your actual balance data
   String _balance = 'Add your balance';
   String newBalance = '';
+  // ignore: unused_field
   bool _balanceEntered = false;
 
   @override
@@ -149,12 +150,12 @@ class _BudgetState extends State<Budget> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               color: Colors.white,
             ),
           ),
-          Text(
+          const Text(
             'Budget',
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -164,7 +165,7 @@ class _BudgetState extends State<Budget> {
             ),
           ),
           PopupMenuButton<String>(
-            icon: Icon(
+            icon: const Icon(
               Icons.more_vert,
               color: Colors.white,
             ),
@@ -219,8 +220,8 @@ class _BudgetState extends State<Budget> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Center(
                   child: Text(
                     "Add Balance",
@@ -240,33 +241,35 @@ class _BudgetState extends State<Budget> {
                 style: TextStyle(
                   fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
                   fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
-                  color: Color(0xFF19173D).withOpacity(0.7), // Transparansi 70%
+                  color: const Color(0xFF19173D)
+                      .withOpacity(0.7), // Transparansi 70%
                 ),
               ),
-              SizedBox(height: 10), // Spasi antara elemen
+              const SizedBox(height: 10), // Spasi antara elemen
               Container(
                 decoration: BoxDecoration(
-                  color: Color(0xFFDAD9D9), // Warna abu muda
+                  color: const Color(0xFFDAD9D9), // Warna abu muda
                   borderRadius: BorderRadius.circular(8.0), // Radius sudut
                 ),
                 child: TextFormField(
                   decoration: InputDecoration(
                     border: InputBorder.none, // Menghapus border
-                    contentPadding: EdgeInsets.all(15.0), // Padding untuk teks
+                    contentPadding:
+                        const EdgeInsets.all(15.0), // Padding untuk teks
                     hintText: 'Masukkan jumlah saldo',
                     hintStyle: TextStyle(
                       fontFamily:
                           'Poppins', // Mengatur jenis font menjadi Poppins
                       fontWeight:
                           FontWeight.normal, // Mengatur teks menjadi normal
-                      color: Color(0xFF19173D)
+                      color: const Color(0xFF19173D)
                           .withOpacity(0.5), // Transparansi 50%
                     ),
                   ),
                   onChanged: (value) {
                     newBalance = value;
                   },
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily:
                         'Poppins', // Mengatur jenis font menjadi Poppins
                     fontWeight:
@@ -282,7 +285,7 @@ class _BudgetState extends State<Budget> {
               onPressed: () {
                 Navigator.of(context).pop(); // Tutup popup
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(
                   fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
@@ -308,7 +311,7 @@ class _BudgetState extends State<Budget> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(
                       20.0), // Atur radius sesuai keinginan
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [
                       Color.fromRGBO(13, 166, 194, 1),
                       Color.fromRGBO(33, 78, 226, 1)
@@ -318,8 +321,8 @@ class _BudgetState extends State<Budget> {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     'Save',
                     style: TextStyle(
@@ -348,8 +351,8 @@ class _BudgetState extends State<Budget> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Center(
                   child: Text(
                     "Edit Balance",
@@ -368,13 +371,13 @@ class _BudgetState extends State<Budget> {
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.normal,
-                  color: Color(0xFF19173D).withOpacity(0.7),
+                  color: const Color(0xFF19173D).withOpacity(0.7),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: Color(0xFFDAD9D9),
+                  color: const Color(0xFFDAD9D9),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: TextFormField(
@@ -383,18 +386,19 @@ class _BudgetState extends State<Budget> {
                       .replaceAll('.', ''), // Remove currency symbol and dot
                   onChanged: (value) {
                     setState(() {
+                      // ignore: prefer_interpolation_to_compose_strings
                       _balance = 'Rp. ' +
                           NumberFormat.decimalPattern('id').format(int.parse(
                               value)); // Format new balance with currency symbol and dot
                       _balanceEntered = true;
                     });
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.all(15.0),
                   ),
                   keyboardType: TextInputType.number,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.normal,
                   ),
@@ -411,7 +415,7 @@ class _BudgetState extends State<Budget> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Reset',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -426,7 +430,7 @@ class _BudgetState extends State<Budget> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20.0),
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [
                       Color.fromRGBO(13, 166, 194, 1),
                       Color.fromRGBO(33, 78, 226, 1)
@@ -435,8 +439,8 @@ class _BudgetState extends State<Budget> {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     'Save',
                     style: TextStyle(
@@ -475,12 +479,12 @@ class _BudgetState extends State<Budget> {
           });
         },
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
                 color: isSelected
-                    ? Color.fromRGBO(13, 166, 194, 1)
+                    ? const Color.fromRGBO(13, 166, 194, 1)
                     : Colors.grey, // Warna biru-hijau neon ketika ditekan
                 width: 4.0, // Ubah lebar garis sesuai kebutuhan Anda
               ),
@@ -496,7 +500,7 @@ class _BudgetState extends State<Budget> {
               style: TextStyle(
                 fontSize: 18,
                 color: isSelected
-                    ? Color.fromARGB(255, 255, 255, 255)
+                    ? const Color.fromARGB(255, 255, 255, 255)
                     : const Color.fromARGB(255, 158, 158,
                         158), // Warna teks sesuai dengan garis saat ditekan
               ),
@@ -526,14 +530,14 @@ class _BudgetState extends State<Budget> {
   }
 
   Widget _buildInstalment() {
-    return Column(
+    return const Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Category +', style: TextStyle(color: Colors.white)),
-            const Text('Assigned', style: TextStyle(color: Colors.white)),
-            const Text('Available', style: TextStyle(color: Colors.white)),
+            Text('Category +', style: TextStyle(color: Colors.white)),
+            Text('Assigned', style: TextStyle(color: Colors.white)),
+            Text('Available', style: TextStyle(color: Colors.white)),
           ],
         ),
         // Add your instalment content here
@@ -542,7 +546,7 @@ class _BudgetState extends State<Budget> {
   }
 
   Widget _buildCategoryButton() {
-    void _addCategoryRow() {
+    void addCategoryRow() {
       setState(() {
         _categories.add({
           'name': 'New Category',
@@ -571,14 +575,14 @@ class _BudgetState extends State<Budget> {
           columns: [
             DataColumn(
               label: InkWell(
-                onTap: _addCategoryRow,
-                child:
-                    Text('Category +', style: TextStyle(color: Colors.white)),
+                onTap: addCategoryRow,
+                child: const Text('Category +',
+                    style: TextStyle(color: Colors.white)),
               ),
             ),
-            DataColumn(
+            const DataColumn(
                 label: Text('Assigned', style: TextStyle(color: Colors.white))),
-            DataColumn(
+            const DataColumn(
                 label:
                     Text('Available', style: TextStyle(color: Colors.white))),
           ],
@@ -601,20 +605,20 @@ class _BudgetState extends State<Budget> {
                                 category['name'] = value;
                               });
                             },
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintStyle: TextStyle(color: Colors.white),
                             ),
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           )
                         : Text(category['name'],
-                            style: TextStyle(color: Colors.white)),
+                            style: const TextStyle(color: Colors.white)),
                   ),
                 ),
                 DataCell(Text('Rp. ${category['assigned']}',
-                    style: TextStyle(color: Colors.white))),
+                    style: const TextStyle(color: Colors.white))),
                 DataCell(Text('Rp. ${category['available']}',
-                    style: TextStyle(color: Colors.white))),
+                    style: const TextStyle(color: Colors.white))),
               ],
             );
           }).toList(),
@@ -624,6 +628,7 @@ class _BudgetState extends State<Budget> {
   }
 }
 
+// ignore: unused_element
 void _showCategoryPopup(BuildContext context) {
   showDialog(
     context: context,

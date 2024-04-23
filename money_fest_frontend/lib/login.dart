@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'user_data.dart'; // Import the UserData class
 
+// ignore: must_be_immutable
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
 
@@ -22,13 +25,15 @@ class Login extends StatelessWidget {
 
     final responseData = json.decode(response.body);
     if (response.statusCode == 200) {
-      // Login berhasil, lakukan sesuatu
+      final userId = responseData['dataUser']['id'];
+      // ignore: use_build_context_synchronously
+      Provider.of<UserData>(context, listen: false)
+          .setUserId(userId); // Set userId using Provider
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
       if (kDebugMode) {
         print(responseData['message']);
       }
-      // Navigasi ke halaman dashboard jika login berhasil
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/dashboard');
     } else {
       // Login gagal, tampilkan pesan kesalahan
       if (kDebugMode) {

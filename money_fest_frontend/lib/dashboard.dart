@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:money_fest_frontend/user_data.dart';
+import 'package:provider/provider.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -29,6 +31,9 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final userData = Provider.of<UserData>(context);
+    // ignore: unused_local_variable
+    final userId = userData.userId;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 0),

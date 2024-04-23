@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class Profile extends StatefulWidget {
-  const Profile({Key? key}) : super(key: key);
+  final int userId;
+  const Profile({Key? key, required this.userId}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -9,6 +13,37 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  String nickname = '';
+  String username = '';
+  String email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // ignore: unnecessary_null_comparison
+    if (widget.userId != null) {
+      fetchUserData(widget.userId);
+    }
+  }
+
+  Future<void> fetchUserData(int userId) async {
+    final apiUrl = 'http://10.0.2.2:8000/api/user/$userId';
+    final response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      final userData = json.decode(response.body);
+      setState(() {
+        nickname = userData['User']['NickName'];
+        username = userData['User']['username'];
+        email = userData['User']['email'];
+      });
+    } else {
+      if (kDebugMode) {
+        print('Failed to load user data');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,42 +85,77 @@ class _ProfileState extends State<Profile> {
   Widget _buildInputFields() {
     return Positioned(
       bottom: 160,
-      child: Container(
+      child: SizedBox(
         width: 280,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            _buildTextField(),
-            const SizedBox(height: 35), // Menambahkan jarak antara TextField
-            _buildTextField(),
-            const SizedBox(height: 35), // Menambahkan jarak antara TextField
-            _buildTextField(),
-            const SizedBox(height: 35), // Menambahkan jarak antara TextField
+            SizedBox(
+              height: 45,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: const Color.fromRGBO(25, 23, 61, 1).withOpacity(1),
+                ),
+                child: Center(
+                  child: Text(
+                    // ignore: unnecessary_string_interpolations
+                    '$nickname',
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: Colors.white.withOpacity(
+                          0.5), // Opacity value can be adjusted (0.0 to 1.0)
+                      fontFamily: 'Poppins-Regular',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 35),
+            SizedBox(
+              height: 45,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: const Color.fromRGBO(25, 23, 61, 1).withOpacity(1),
+                ),
+                child: Center(
+                  child: Text(
+                    // ignore: unnecessary_string_interpolations
+                    '$email',
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: Colors.white.withOpacity(
+                          0.5), // Opacity value can be adjusted (0.0 to 1.0)
+                      fontFamily: 'Poppins-Regular',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 35),
+            SizedBox(
+              height: 45,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: const Color.fromRGBO(25, 23, 61, 1).withOpacity(1),
+                ),
+                child: Center(
+                  child: Text(
+                    // ignore: unnecessary_string_interpolations
+                    '$username',
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: Colors.white.withOpacity(
+                          0.5), // Opacity value can be adjusted (0.0 to 1.0)
+                      fontFamily: 'Poppins-Regular',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 35),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({bool obscureText = false}) {
-    return Container(
-      height: 45,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: const Color.fromRGBO(25, 23, 61, 1).withOpacity(1),
-      ),
-      child: TextField(
-        decoration: const InputDecoration(
-          hintText: '',
-          labelText: '',
-          labelStyle: TextStyle(color: Color.fromRGBO(123, 120, 170, 1)),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        ),
-        obscureText: obscureText,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
         ),
       ),
     );
@@ -114,7 +184,6 @@ class _ProfileState extends State<Profile> {
                 children: [
                   InkWell(
                     onTap: () {
-                      // Navigate to dashboard route
                       Navigator.pushNamed(context, '/dashboard');
                     },
                     child: Image.asset(
@@ -125,7 +194,6 @@ class _ProfileState extends State<Profile> {
                   ),
                   InkWell(
                     onTap: () {
-                      // Navigate to budget route
                       Navigator.pushNamed(context, '/budget');
                     },
                     child: Image.asset(
@@ -136,7 +204,6 @@ class _ProfileState extends State<Profile> {
                   ),
                   InkWell(
                     onTap: () {
-                      // Navigate to profile route
                       Navigator.pushNamed(context, '/profile');
                     },
                     child: Image.asset(
@@ -195,7 +262,7 @@ class _ProfileState extends State<Profile> {
           ),
           IconButton(
             onPressed: () {
-              // Tambahkan logika untuk menu titik tiga
+              // Add logic for more options menu
             },
             icon: const Icon(
               Icons.more_vert,

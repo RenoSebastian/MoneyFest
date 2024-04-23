@@ -13,6 +13,7 @@ class _BudgetState extends State<Budget> {
   int _selectedMonthIndex = 0;
   bool _isSavingsSelected = true; // default Savings is selected
   final List<Map<String, dynamic>> _categories = [];
+  int _selectedCategoryIndex = -1;
 
   final List<String> _months = [
     'Jan',
@@ -545,18 +546,75 @@ class _BudgetState extends State<Budget> {
     );
   }
 
-  Widget _buildCategoryButton() {
-    void addCategoryRow() {
-      setState(() {
-        _categories.add({
-          'name': 'New Category',
-          'assigned': 0,
-          'available': newBalance,
-          'isEditing': true,
-        });
+  void _addSubCategory(int index) {
+    setState(() {
+      _categories[index]['subCategories'].add({
+        'name': 'New Subcategory',
+        'assigned': 0,
+        'available': 0,
       });
-    }
+    });
+  }
 
+  void _addCategoryRow(BuildContext context) {
+    setState(() {
+      _categories.add({
+        'name': 'New Category',
+        'assigned': 0,
+        'available': 0,
+        'isEditing': true,
+        'subCategories': [],
+        'isExpanded': false,
+      });
+    });
+  }
+
+  void _showCategoryNamePopup(BuildContext context, int index) {
+    String newCategoryName = _categories[index]['name'] ?? 'New Category';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Edit Category Name"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: TextEditingController(text: newCategoryName),
+                onChanged: (value) {
+                  newCategoryName = value;
+                },
+                decoration: InputDecoration(
+                  hintText: 'Enter new category name',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _categories[index]['name'] = newCategoryName;
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryButton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -571,183 +629,99 @@ class _BudgetState extends State<Budget> {
             style: TextStyle(color: Colors.white),
           ),
         ),
-        DataTable(
-          columns: [
-            DataColumn(
-              label: InkWell(
-                onTap: addCategoryRow,
-                child: const Text('Category +',
-                    style: TextStyle(color: Colors.white)),
-              ),
-            ),
-            const DataColumn(
-                label: Text('Assigned', style: TextStyle(color: Colors.white))),
-            const DataColumn(
-                label:
-                    Text('Available', style: TextStyle(color: Colors.white))),
-          ],
-          rows: _categories.map((category) {
-            return DataRow(
-              cells: [
-                DataCell(
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        category['isEditing'] = true;
-                      });
-                    },
-                    child: category['isEditing']
-                        ? TextField(
-                            controller:
-                                TextEditingController(text: category['name']),
-                            onChanged: (value) {
-                              setState(() {
-                                category['name'] = value;
-                              });
-                            },
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintStyle: TextStyle(color: Colors.white),
-                            ),
-                            style: const TextStyle(color: Colors.white),
-                          )
-                        : Text(category['name'],
-                            style: const TextStyle(color: Colors.white)),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columnSpacing: 10.0, // Atur jarak antar kolom
+            columns: [
+              DataColumn(
+                label: InkWell(
+                  onTap: () {
+                    _addCategoryRow(context);
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.arrow_drop_down, color: Colors.white),
+                      const SizedBox(width: 5),
+                      const Text('New Category',
+                          style: TextStyle(color: Colors.white)),
+                    ],
                   ),
                 ),
-                DataCell(Text('Rp. ${category['assigned']}',
-                    style: const TextStyle(color: Colors.white))),
-                DataCell(Text('Rp. ${category['available']}',
-                    style: const TextStyle(color: Colors.white))),
-              ],
-            );
-          }).toList(),
+              ),
+              const DataColumn(
+                label: Text('Assigned', style: TextStyle(color: Colors.white)),
+              ),
+              const DataColumn(
+                label: Text('Available', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+            rows: _categories.asMap().entries.map((entry) {
+              int index = entry.key;
+              Map<String, dynamic> category = entry.value;
+              bool _isEditing = category['isEditing'] ?? false;
+              String _editingCategoryName = category['name'] ?? '';
+              bool _isExpanded = category['isExpanded'] ?? false;
+
+              return DataRow(
+                cells: [
+                  DataCell(
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              category['isExpanded'] = !_isExpanded;
+                            });
+                          },
+                          child: Icon(
+                            _isExpanded
+                                ? Icons.arrow_drop_up
+                                : Icons.arrow_drop_down,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 5),
+                        InkWell(
+                          onTap: () {
+                            if (_isEditing) {
+                              _showCategoryNamePopup(context, index);
+                            } else {
+                              setState(() {
+                                category['isEditing'] = true;
+                              });
+                            }
+                          },
+                          child: _isEditing
+                              ? TextButton(
+                                  onPressed: () {
+                                    _showCategoryNamePopup(context, index);
+                                  },
+                                  child: Text(
+                                    _editingCategoryName,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              : Text(
+                                  _editingCategoryName,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  DataCell(Text('Rp. ${category['assigned']}',
+                      style: TextStyle(color: Colors.white))),
+                  DataCell(Text('Rp. ${category['available']}',
+                      style: TextStyle(color: Colors.white))),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
   }
-}
-
-// ignore: unused_element
-void _showCategoryPopup(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        contentPadding: EdgeInsets.zero,
-        content: Card(
-          margin: EdgeInsets.zero,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  "Add your own Fest",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Target Type",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 2.0),
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                hintText: 'Option 1',
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                              onChanged: (String? newValue) {
-                                // Add your dropdown onChanged logic here
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Cost",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 2.0),
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            child: TextField(
-                              keyboardType: TextInputType
-                                  .number, // Keyboard type for numbers
-                              decoration: const InputDecoration(
-                                hintText: 'Enter cost',
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                              onChanged: (String? newValue) {
-                                // Handle changes in cost value here
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text(
-                    "Close",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
 }
 
 class MonthSelector extends StatefulWidget {

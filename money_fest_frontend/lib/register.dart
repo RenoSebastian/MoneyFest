@@ -1,7 +1,11 @@
+import 'dart:async'; // tambahkan import dart:async
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'user_data.dart';
 
 class Register extends StatelessWidget {
   Register({Key? key}) : super(key: key);
@@ -25,19 +29,18 @@ class Register extends StatelessWidget {
     );
 
     if (response.statusCode == 200) {
-      // Registrasi berhasil
-      if (kDebugMode) {
-        print('Registrasi berhasil: ${response.body}');
-      }
-      // Navigasi ke halaman dashboard setelah registrasi berhasil
+      final responseData = json.decode(response.body);
+      final userId = responseData['data']
+          ['id']; // Ubah sesuai dengan struktur respons dari backend Anda
       // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/dashboard');
+      Provider.of<UserData>(context, listen: false).setUserId(userId);
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
     } else {
       // Registrasi gagal, tampilkan pesan kesalahan
       if (kDebugMode) {
         print('Registrasi gagal: ${response.body}');
       }
-      // Tampilkan pesan kesalahan kepada pengguna
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Registrasi gagal')));

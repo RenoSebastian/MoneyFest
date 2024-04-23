@@ -102,8 +102,8 @@ class _ProfileState extends State<Profile> {
                     '$nickname',
                     style: TextStyle(
                       fontSize: 17,
-                      color: Colors.white.withOpacity(
-                          0.5), // Opacity value can be adjusted (0.0 to 1.0)
+                      color: const Color.fromRGBO(123, 120, 170, 1).withOpacity(
+                          1.0), // Opacity value can be adjusted (0.0 to 1.0)
                       fontFamily: 'Poppins-Regular',
                     ),
                   ),
@@ -124,8 +124,8 @@ class _ProfileState extends State<Profile> {
                     '$email',
                     style: TextStyle(
                       fontSize: 17,
-                      color: Colors.white.withOpacity(
-                          0.5), // Opacity value can be adjusted (0.0 to 1.0)
+                      color: const Color.fromRGBO(123, 120, 170, 1).withOpacity(
+                          1.0), // Opacity value can be adjusted (0.0 to 1.0)
                       fontFamily: 'Poppins-Regular',
                     ),
                   ),
@@ -146,8 +146,8 @@ class _ProfileState extends State<Profile> {
                     '$username',
                     style: TextStyle(
                       fontSize: 17,
-                      color: Colors.white.withOpacity(
-                          0.5), // Opacity value can be adjusted (0.0 to 1.0)
+                      color: const Color.fromRGBO(123, 120, 170, 1).withOpacity(
+                          1.0), // Opacity value can be adjusted (0.0 to 1.0)
                       fontFamily: 'Poppins-Regular',
                     ),
                   ),
@@ -260,14 +260,89 @@ class _ProfileState extends State<Profile> {
               fontFamily: 'Poppins',
             ),
           ),
-          IconButton(
-            onPressed: () {
-              // Add logic for more options menu
-            },
-            icon: const Icon(
-              Icons.more_vert,
-              color: Colors.white,
+          PopupMenuButton(
+            offset: const Offset(0, 50), // Geser popup ke bawah sejauh 50 pixel
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0), // Mengatur melengkung
             ),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+              const PopupMenuItem(
+                value: 'logout',
+                child: Text(
+                  'Logout',
+                  style: TextStyle(
+                    fontFamily: 'Poppins-Regular',
+                    color: Color.fromRGBO(
+                        25, 23, 61, 1), // Ganti warna teks jika perlu
+                    fontSize: 16, // Ganti ukuran teks jika perlu
+                  ),
+                ),
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'logout') {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      backgroundColor: const Color.fromRGBO(
+                          255, 255, 255, 1), // Atur warna latar belakang
+                      title: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: Color.fromRGBO(
+                              25, 23, 61, 1), // Atur warna teks judul
+                          fontFamily: 'Poppins', // Atur jenis font teks judul
+                        ),
+                      ),
+                      content: const Text(
+                        "Are you sure want to logout?",
+                        style: TextStyle(
+                          color: Color.fromARGB(
+                              255, 72, 71, 75), // Atur warna teks konten
+                          fontFamily:
+                              'Poppins-Regular', // Atur jenis font teks konten
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text(
+                            "Yes",
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 72, 71,
+                                  75), // Atur warna teks tombol "Yes"
+                              fontFamily:
+                                  'Poppins-Regular', // Atur jenis font teks tombol "Yes"
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/');
+                          },
+                        ),
+                        TextButton(
+                          child: const Text(
+                            "Cancel",
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 72, 71,
+                                  75), // Atur warna teks tombol "Cancel"
+                              fontFamily:
+                                  'Poppins-Regular', // Atur jenis font teks tombol "Cancel"
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+            },
+
+            color: const Color.fromRGBO(
+                123, 120, 170, 1), // Set warna latar belakang
+            iconSize: 16, // Set ukuran ikon popup
           ),
         ],
       ),

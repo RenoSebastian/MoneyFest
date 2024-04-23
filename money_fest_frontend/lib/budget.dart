@@ -569,6 +569,93 @@ class _BudgetState extends State<Budget> {
     });
   }
 
+  void _showSubCategoryNamePopup(
+      BuildContext context, int categoryIndex, int subCategoryIndex) {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController assignedController = TextEditingController();
+
+    // Mengambil nilai nama dan assigned dari subkategori yang dipilih
+    String subCategoryName =
+        _categories[categoryIndex]['subCategories'][subCategoryIndex]['name'];
+    String subCategoryAssigned = _categories[categoryIndex]['subCategories']
+            [subCategoryIndex]['assigned']
+        .toString();
+
+    // Mengatur nilai awal dari controller sesuai dengan nilai subkategori yang dipilih
+    nameController.text = subCategoryName;
+    assignedController.text = _formatNumber(subCategoryAssigned);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Subcategory'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter subcategory name',
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: assignedController,
+                decoration: InputDecoration(
+                  hintText: 'Enter assigned value',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    assignedController.value = TextEditingValue(
+                      text: _formatNumber(value),
+                      selection: TextSelection.collapsed(
+                          offset: _formatNumber(value).length),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  // Mengambil nilai yang diinputkan oleh pengguna
+                  String newName = nameController.text;
+                  double newAssigned = double.tryParse(
+                          assignedController.text.replaceAll(',', '')) ??
+                      0.0;
+
+                  // Memperbarui nilai nama dan assigned dari subkategori yang dipilih
+                  _categories[categoryIndex]['subCategories'][subCategoryIndex]
+                      ['name'] = newName;
+                  _categories[categoryIndex]['subCategories'][subCategoryIndex]
+                      ['assigned'] = newAssigned;
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _formatNumber(dynamic value) {
+    final formatter = NumberFormat('#,###');
+    return formatter.format(value is int ? value.toDouble() : value);
+  }
+
   void _showCategoryNamePopup(BuildContext context, int index) {
     String newCategoryName = _categories[index]['name'] ?? 'New Category';
 
@@ -632,7 +719,7 @@ class _BudgetState extends State<Budget> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
-            columnSpacing: 10.0, // Atur jarak antar kolom
+            columnSpacing: 10.0,
             columns: [
               DataColumn(
                 label: InkWell(
@@ -643,8 +730,10 @@ class _BudgetState extends State<Budget> {
                     children: [
                       Icon(Icons.arrow_drop_down, color: Colors.white),
                       const SizedBox(width: 5),
-                      const Text('New Category',
-                          style: TextStyle(color: Colors.white)),
+                      const Text(
+                        'New Category',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ),
@@ -656,66 +745,133 @@ class _BudgetState extends State<Budget> {
                 label: Text('Available', style: TextStyle(color: Colors.white)),
               ),
             ],
-            rows: _categories.asMap().entries.map((entry) {
+            rows: _categories.asMap().entries.expand((entry) {
               int index = entry.key;
               Map<String, dynamic> category = entry.value;
               bool _isEditing = category['isEditing'] ?? false;
               String _editingCategoryName = category['name'] ?? '';
               bool _isExpanded = category['isExpanded'] ?? false;
+              List subCategories = category['subCategories'] ?? [];
 
-              return DataRow(
-                cells: [
-                  DataCell(
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              category['isExpanded'] = !_isExpanded;
-                            });
-                          },
-                          child: Icon(
-                            _isExpanded
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down,
-                            color: Colors.white,
+              List<DataRow> rows = [
+                DataRow(
+                  cells: [
+                    DataCell(
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              if (_isExpanded) {
+                                setState(() {
+                                  category['isExpanded'] = false;
+                                });
+                              } else {
+                                setState(() {
+                                  category['isExpanded'] = true;
+                                });
+                              }
+                            },
+                            child: Icon(
+                              _isExpanded
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 5),
-                        InkWell(
-                          onTap: () {
-                            if (_isEditing) {
-                              _showCategoryNamePopup(context, index);
-                            } else {
-                              setState(() {
-                                category['isEditing'] = true;
-                              });
-                            }
-                          },
-                          child: _isEditing
-                              ? TextButton(
-                                  onPressed: () {
-                                    _showCategoryNamePopup(context, index);
-                                  },
-                                  child: Text(
+                          SizedBox(width: 5),
+                          InkWell(
+                            onTap: () {
+                              if (_isEditing) {
+                                _showCategoryNamePopup(context, index);
+                              } else {
+                                setState(() {
+                                  category['isEditing'] = true;
+                                });
+                              }
+                            },
+                            child: _isEditing
+                                ? TextButton(
+                                    onPressed: () {
+                                      _showCategoryNamePopup(context, index);
+                                    },
+                                    child: Text(
+                                      _editingCategoryName,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                : Text(
                                     _editingCategoryName,
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                )
-                              : Text(
-                                  _editingCategoryName,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                        ),
-                      ],
+                          ),
+                          Spacer(),
+                          InkWell(
+                            onTap: () {
+                              if (_isExpanded) {
+                                _addSubCategory(index);
+                              } else {
+                                setState(() {
+                                  category['isExpanded'] = true;
+                                });
+                              }
+                            },
+                            child: Icon(Icons.add, color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  DataCell(Text('Rp. ${category['assigned']}',
-                      style: TextStyle(color: Colors.white))),
-                  DataCell(Text('Rp. ${category['available']}',
-                      style: TextStyle(color: Colors.white))),
-                ],
-              );
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['assigned'])}',
+                      style: TextStyle(color: Colors.white),
+                    )),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['available'])}',
+                      style: TextStyle(color: Colors.white),
+                    )),
+                  ],
+                ),
+              ];
+
+              if (_isExpanded) {
+                for (var subCategory in subCategories) {
+                  rows.add(DataRow(
+                    cells: [
+                      DataCell(
+                        Row(
+                          children: [
+                            SizedBox(width: 20),
+                            Icon(Icons.arrow_right, color: Colors.white),
+                            SizedBox(width: 5),
+                            InkWell(
+                              onTap: () {
+                                _showSubCategoryNamePopup(
+                                  context,
+                                  index,
+                                  subCategories.indexOf(subCategory),
+                                );
+                              },
+                              child: Text(
+                                subCategory['name'],
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['assigned'])}',
+                        style: TextStyle(color: Colors.white),
+                      )),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['available'])}',
+                        style: TextStyle(color: Colors.white),
+                      )),
+                    ],
+                  ));
+                }
+              }
+
+              return rows;
             }).toList(),
           ),
         ),

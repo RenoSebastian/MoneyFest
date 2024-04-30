@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'instalment.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Budget extends StatefulWidget {
   const Budget({Key? key}) : super(key: key);
@@ -36,6 +38,52 @@ class _BudgetState extends State<Budget> {
   String newBalance = '';
   // ignore: unused_field
   bool _balanceEntered = false;
+
+  Future<void> addCategory(String categoryName) async {
+    final url =
+        'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
+    final response = await http.post(
+      Uri.parse(url),
+      body: json.encode({'NamaKategori': categoryName}),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Kategori berhasil ditambahkan');
+    } else {
+      print('Gagal menambahkan kategori');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
+  }
+
+  Future<void> addSubCategory(
+      String categoryName, String subCategoryName, double assignedValue) async {
+    final url =
+        'http://10.0.2.2:8000/api/subkategori'; // Sesuaikan dengan URL backend Anda
+
+    // Buat payload untuk dikirim ke backend
+    Map<String, dynamic> payload = {
+      'NamaSub': subCategoryName,
+      'uang': assignedValue,
+      'kategori_name':
+          categoryName, // Mengirim nama kategori untuk mengidentifikasi kategori yang sesuai
+    };
+
+    final response = await http.post(
+      Uri.parse(url),
+      body: json.encode(payload),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Subkategori berhasil ditambahkan');
+    } else {
+      print('Gagal menambahkan subkategori');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -562,7 +610,8 @@ class _BudgetState extends State<Budget> {
                     assignedController.value = TextEditingValue(
                       text: _formatNumber(value),
                       selection: TextSelection.collapsed(
-                          offset: _formatNumber(value).length),
+                        offset: _formatNumber(value).length,
+                      ),
                     );
                   }
                 },
@@ -577,26 +626,27 @@ class _BudgetState extends State<Budget> {
               child: Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  String newName = nameController.text;
-                  double newAssigned = double.tryParse(
-                          assignedController.text.replaceAll(',', '')) ??
-                      0.0;
+              onPressed: () async {
+                String newName = nameController.text;
+                double newAssigned = double.tryParse(
+                        assignedController.text.replaceAll(',', '')) ??
+                    0.0;
 
+                setState(() {
+                  // Tambahkan subkategori ke kategori yang sesuai
                   _categories[index]['subCategories'].add({
                     'name': newName,
                     'assigned': newAssigned,
-                    // Add other properties as needed
+                    // Tambahkan properti lain yang diperlukan
                   });
-
-                  // Update total assigned for the category
-                  double totalAssigned = 0.0;
-                  _categories[index]['subCategories'].forEach((subCategory) {
-                    totalAssigned += subCategory['assigned'];
-                  });
-                  _categories[index]['assigned'] = totalAssigned;
                 });
+
+                // Ambil nama kategori
+                String categoryName = _categories[index]['name'];
+
+                // Panggil fungsi untuk menambahkan subkategori
+                await addSubCategory(categoryName, newName, newAssigned);
+
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
@@ -643,6 +693,8 @@ class _BudgetState extends State<Budget> {
                     'subCategories': [],
                     'isExpanded': false,
                   });
+
+                  addCategory(categoryName);
                 });
                 Navigator.of(context).pop();
               },

@@ -604,6 +604,13 @@ class _BudgetState extends State<Budget> {
                     'assigned': newAssigned,
                     // Add other properties as needed
                   });
+
+                  // Update total assigned for the category
+                  double totalAssigned = 0.0;
+                  _categories[index]['subCategories'].forEach((subCategory) {
+                    totalAssigned += subCategory['assigned'];
+                  });
+                  _categories[index]['assigned'] = totalAssigned;
                 });
                 Navigator.of(context).pop();
               },
@@ -742,6 +749,14 @@ class _BudgetState extends State<Budget> {
                       'assigned': newAssigned,
                       // Add other properties as needed
                     });
+
+                    // Update total assigned for the category
+                    double totalAssigned = 0.0;
+                    _categories[categoryIndex]['subCategories']
+                        .forEach((subCategory) {
+                      totalAssigned += subCategory['assigned'];
+                    });
+                    _categories[categoryIndex]['assigned'] = totalAssigned;
                   }
                 });
                 Navigator.of(context).pop();

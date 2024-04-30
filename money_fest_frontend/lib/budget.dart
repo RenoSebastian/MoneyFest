@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'instalment.dart';
 
 class Budget extends StatefulWidget {
   const Budget({Key? key}) : super(key: key);
@@ -513,7 +514,7 @@ class _BudgetState extends State<Budget> {
   }
 
   Widget _buildContent() {
-    return _isSavingsSelected ? _buildSavings() : _buildInstalment();
+    return _isSavingsSelected ? _buildSavings() : InstalmentContent();
   }
 
   Widget _buildSavings() {
@@ -526,22 +527,6 @@ class _BudgetState extends State<Budget> {
           ],
         ),
         // Add your savings content here
-      ],
-    );
-  }
-
-  Widget _buildInstalment() {
-    return const Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Category +', style: TextStyle(color: Colors.white)),
-            Text('Assigned', style: TextStyle(color: Colors.white)),
-            Text('Available', style: TextStyle(color: Colors.white)),
-          ],
-        ),
-        // Add your instalment content here
       ],
     );
   }

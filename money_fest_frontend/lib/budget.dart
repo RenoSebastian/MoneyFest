@@ -547,49 +547,14 @@ class _BudgetState extends State<Budget> {
   }
 
   void _addSubCategory(int index) {
-    setState(() {
-      _categories[index]['subCategories'].add({
-        'name': 'New Subcategory',
-        'assigned': 0,
-        'available': 0,
-      });
-    });
-  }
-
-  void _addCategoryRow(BuildContext context) {
-    setState(() {
-      _categories.add({
-        'name': 'New Category',
-        'assigned': 0,
-        'available': 0,
-        'isEditing': true,
-        'subCategories': [],
-        'isExpanded': false,
-      });
-    });
-  }
-
-  void _showSubCategoryNamePopup(
-      BuildContext context, int categoryIndex, int subCategoryIndex) {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController assignedController = TextEditingController();
-
-    // Mengambil nilai nama dan assigned dari subkategori yang dipilih
-    String subCategoryName =
-        _categories[categoryIndex]['subCategories'][subCategoryIndex]['name'];
-    String subCategoryAssigned = _categories[categoryIndex]['subCategories']
-            [subCategoryIndex]['assigned']
-        .toString();
-
-    // Mengatur nilai awal dari controller sesuai dengan nilai subkategori yang dipilih
-    nameController.text = subCategoryName;
-    assignedController.text = _formatNumber(subCategoryAssigned);
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        TextEditingController nameController = TextEditingController();
+        TextEditingController assignedController = TextEditingController();
+
         return AlertDialog(
-          title: Text('Edit Subcategory'),
+          title: Text('Add Subcategory'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -629,17 +594,155 @@ class _BudgetState extends State<Budget> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  // Mengambil nilai yang diinputkan oleh pengguna
                   String newName = nameController.text;
                   double newAssigned = double.tryParse(
                           assignedController.text.replaceAll(',', '')) ??
                       0.0;
 
-                  // Memperbarui nilai nama dan assigned dari subkategori yang dipilih
-                  _categories[categoryIndex]['subCategories'][subCategoryIndex]
-                      ['name'] = newName;
-                  _categories[categoryIndex]['subCategories'][subCategoryIndex]
-                      ['assigned'] = newAssigned;
+                  _categories[index]['subCategories'].add({
+                    'name': newName,
+                    'assigned': newAssigned,
+                    // Add other properties as needed
+                  });
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addCategoryRow(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController nameController = TextEditingController();
+
+        return AlertDialog(
+          title: Text('New Category'),
+          content: TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              hintText: 'Enter category name',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  String categoryName = nameController.text.isNotEmpty
+                      ? nameController.text
+                      : 'New Category';
+
+                  _categories.add({
+                    'name': categoryName,
+                    'assigned': 0,
+                    'available': 0,
+                    'isEditing': true,
+                    'subCategories': [],
+                    'isExpanded': false,
+                  });
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSubCategoryNamePopup(
+      BuildContext context, int categoryIndex, int subCategoryIndex) {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController assignedController = TextEditingController();
+
+    String subCategoryName = '';
+    String subCategoryAssigned = '';
+
+    if (subCategoryIndex != -1) {
+      subCategoryName =
+          _categories[categoryIndex]['subCategories'][subCategoryIndex]['name'];
+      subCategoryAssigned = _categories[categoryIndex]['subCategories']
+              [subCategoryIndex]['assigned']
+          .toString();
+    }
+
+    nameController.text = subCategoryName;
+    assignedController.text = subCategoryAssigned;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+              subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: 'Enter subcategory name',
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: assignedController,
+                decoration: InputDecoration(
+                  hintText: 'Enter assigned value',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    assignedController.value = TextEditingValue(
+                      text: _formatNumber(value),
+                      selection: TextSelection.collapsed(
+                          offset: _formatNumber(value).length),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  String newName = nameController.text;
+                  double newAssigned = double.tryParse(
+                          assignedController.text.replaceAll(',', '')) ??
+                      0.0;
+
+                  if (subCategoryIndex != -1) {
+                    _categories[categoryIndex]['subCategories']
+                        [subCategoryIndex]['name'] = newName;
+                    _categories[categoryIndex]['subCategories']
+                        [subCategoryIndex]['assigned'] = newAssigned;
+                  } else {
+                    _categories[categoryIndex]['subCategories'].add({
+                      'name': newName,
+                      'assigned': newAssigned,
+                      // Add other properties as needed
+                    });
+                  }
                 });
                 Navigator.of(context).pop();
               },
@@ -652,6 +755,9 @@ class _BudgetState extends State<Budget> {
   }
 
   String _formatNumber(dynamic value) {
+    if (value == null) {
+      return ''; // Atau nilai default lainnya sesuai dengan kebutuhan aplikasi Anda
+    }
     final formatter = NumberFormat('#,###');
     return formatter.format(value is int ? value.toDouble() : value);
   }
@@ -728,10 +834,10 @@ class _BudgetState extends State<Budget> {
                   },
                   child: Row(
                     children: [
-                      Icon(Icons.arrow_drop_down, color: Colors.white),
+                      Icon(Icons.add, color: Colors.white),
                       const SizedBox(width: 5),
                       const Text(
-                        'New Category',
+                        'Add Category',
                         style: TextStyle(color: Colors.white),
                       ),
                     ],
@@ -807,13 +913,7 @@ class _BudgetState extends State<Budget> {
                           Spacer(),
                           InkWell(
                             onTap: () {
-                              if (_isExpanded) {
-                                _addSubCategory(index);
-                              } else {
-                                setState(() {
-                                  category['isExpanded'] = true;
-                                });
-                              }
+                              _addSubCategory(index);
                             },
                             child: Icon(Icons.add, color: Colors.white),
                           ),

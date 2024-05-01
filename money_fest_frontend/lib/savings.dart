@@ -1,5 +1,6 @@
 // ignore_for_file: unused_field
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -18,7 +19,7 @@ class _SavingsContentState extends State<SavingsContent> {
   final int _selectedCategoryIndex = -1;
 
   Future<void> addCategory(String categoryName) async {
-    final url =
+    const url =
         'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
     final response = await http.post(
       Uri.parse(url),
@@ -27,11 +28,19 @@ class _SavingsContentState extends State<SavingsContent> {
     );
 
     if (response.statusCode == 200) {
-      print('Kategori berhasil ditambahkan');
+      if (kDebugMode) {
+        print('Kategori berhasil ditambahkan');
+      }
     } else {
-      print('Gagal menambahkan kategori');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      if (kDebugMode) {
+        print('Gagal menambahkan kategori');
+      }
+      if (kDebugMode) {
+        print('Response status: ${response.statusCode}');
+      }
+      if (kDebugMode) {
+        print('Response body: ${response.body}');
+      }
     }
   }
 
@@ -310,10 +319,10 @@ class _SavingsContentState extends State<SavingsContent> {
         TextEditingController nameController = TextEditingController();
 
         return AlertDialog(
-          title: Text('New Category'),
+          title: const Text('New Category'),
           content: TextField(
             controller: nameController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Enter category name',
             ),
           ),
@@ -322,7 +331,7 @@ class _SavingsContentState extends State<SavingsContent> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -344,7 +353,7 @@ class _SavingsContentState extends State<SavingsContent> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -383,14 +392,14 @@ class _SavingsContentState extends State<SavingsContent> {
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Enter subcategory name',
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               TextField(
                 controller: assignedController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Enter assigned value',
                 ),
                 keyboardType: TextInputType.number,
@@ -411,7 +420,7 @@ class _SavingsContentState extends State<SavingsContent> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -444,7 +453,7 @@ class _SavingsContentState extends State<SavingsContent> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );

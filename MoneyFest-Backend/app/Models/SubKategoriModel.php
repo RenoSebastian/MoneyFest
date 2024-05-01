@@ -50,20 +50,23 @@ class SubKategoriModel extends Model
 //         'uang',
 //     ];
 
-//     public static function boot()
-//     {
-//         parent::boot();
+//     protected static function boot()
+// {
+//     parent::boot();
 
-//         static::creating(function ($subKategori) {
-//             // Ambil kategori_id dari request saat ini jika ada
-//             if (!$subKategori->kategori_id && request()->has('kategori_id')) {
-//                 $subKategori->kategori_id = request()->input('kategori_id');
-//             }
-//         });
-//     }
+
+//     static::saved(function ($subKategori) {
+//         // Ambil kategori terkait
+//         $kategori = $subKategori->kategori;
+
+//         // Hitung total uang dari subkategori terkait dan update jumlah di kategori
+//         $kategori->jumlah = $kategori->subKategoris()->sum('uang');
+//         $kategori->save();
+//     });
+// }
 
 //     public function kategori()
 //     {
-//         return $this->belongsTo(Kategori::class, 'kategori_id');
+//         return $this->belongsTo(KategoriModel::class, 'kategori_id');
 //     }
 // }

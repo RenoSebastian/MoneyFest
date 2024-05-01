@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SavingsContent extends StatefulWidget {
   const SavingsContent({Key? key}) : super(key: key);
@@ -14,6 +16,24 @@ class SavingsContent extends StatefulWidget {
 class _SavingsContentState extends State<SavingsContent> {
   final List<Map<String, dynamic>> _categories = [];
   final int _selectedCategoryIndex = -1;
+
+  Future<void> addCategory(String categoryName) async {
+    final url =
+        'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
+    final response = await http.post(
+      Uri.parse(url),
+      body: json.encode({'NamaKategori': categoryName}),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Kategori berhasil ditambahkan');
+    } else {
+      print('Gagal menambahkan kategori');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -290,10 +310,10 @@ class _SavingsContentState extends State<SavingsContent> {
         TextEditingController nameController = TextEditingController();
 
         return AlertDialog(
-          title: const Text('New Category'),
+          title: Text('New Category'),
           content: TextField(
             controller: nameController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'Enter category name',
             ),
           ),
@@ -302,7 +322,7 @@ class _SavingsContentState extends State<SavingsContent> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -319,10 +339,12 @@ class _SavingsContentState extends State<SavingsContent> {
                     'subCategories': [],
                     'isExpanded': false,
                   });
+
+                  addCategory(categoryName);
                 });
                 Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+              child: Text('Save'),
             ),
           ],
         );
@@ -361,14 +383,14 @@ class _SavingsContentState extends State<SavingsContent> {
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Enter subcategory name',
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               TextField(
                 controller: assignedController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Enter assigned value',
                 ),
                 keyboardType: TextInputType.number,
@@ -389,7 +411,7 @@ class _SavingsContentState extends State<SavingsContent> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -422,7 +444,7 @@ class _SavingsContentState extends State<SavingsContent> {
                 });
                 Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+              child: Text('Save'),
             ),
           ],
         );

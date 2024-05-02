@@ -1,7 +1,10 @@
 // ignore_for_file: unused_field
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SavingsContent extends StatefulWidget {
   const SavingsContent({Key? key}) : super(key: key);
@@ -14,6 +17,32 @@ class SavingsContent extends StatefulWidget {
 class _SavingsContentState extends State<SavingsContent> {
   final List<Map<String, dynamic>> _categories = [];
   final int _selectedCategoryIndex = -1;
+
+  Future<void> addCategory(String categoryName) async {
+    const url =
+        'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
+    final response = await http.post(
+      Uri.parse(url),
+      body: json.encode({'NamaKategori': categoryName}),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      if (kDebugMode) {
+        print('Kategori berhasil ditambahkan');
+      }
+    } else {
+      if (kDebugMode) {
+        print('Gagal menambahkan kategori');
+      }
+      if (kDebugMode) {
+        print('Response status: ${response.statusCode}');
+      }
+      if (kDebugMode) {
+        print('Response body: ${response.body}');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +348,8 @@ class _SavingsContentState extends State<SavingsContent> {
                     'subCategories': [],
                     'isExpanded': false,
                   });
+
+                  addCategory(categoryName);
                 });
                 Navigator.of(context).pop();
               },

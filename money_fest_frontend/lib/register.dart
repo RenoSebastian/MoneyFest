@@ -50,10 +50,10 @@ class Register extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(25, 23, 61, 1),
+      backgroundColor: const Color.fromRGBO(25, 23, 61, 1),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Container(
             height: MediaQuery.of(context).size.height,
             decoration: const BoxDecoration(

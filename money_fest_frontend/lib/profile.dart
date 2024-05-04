@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class Profile extends StatefulWidget {
   final int userId;
@@ -16,6 +18,8 @@ class _ProfileState extends State<Profile> {
   String nickname = '';
   String username = '';
   String email = '';
+  String? profileImageUrl;
+  File? _image;
 
   @override
   void initState() {
@@ -36,14 +40,71 @@ class _ProfileState extends State<Profile> {
         nickname = userData['User']['NickName'];
         username = userData['User']['username'];
         email = userData['User']['email'];
+
+        // Penanganan untuk menghindari pembuatan URL dengan nilai null
+        String? imagePath = userData['User']['profile_image'];
+        if (imagePath != null) {
+          profileImageUrl = 'http://10.0.2.2:8000/storage/$imagePath';
+        } else {
+          // Atau jika imagePath null, set profileImageUrl menjadi null juga
+          profileImageUrl = null;
+        }
       });
+      if (kDebugMode) {
+        print('URL Gambar Profil: $profileImageUrl');
+      }
     } else {
       if (kDebugMode) {
-        print('Failed to load user data');
+        print('Gagal memuat data pengguna');
       }
     }
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+
+      const apiUrl = 'http://10.0.2.2:8000/api/update-profile-image';
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+      request.fields['user_id'] = widget.userId.toString();
+
+      // Tambahkan penanganan jika tidak ada gambar yang dipilih
+      if (_image != null) {
+        request.files.add(
+            await http.MultipartFile.fromPath('profile_image', _image!.path));
+      } else {
+        if (kDebugMode) {
+          print('Tidak ada gambar yang dipilih');
+        }
+        return;
+      }
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        // ignore: unused_local_variable
+        String responseBody = await response.stream.bytesToString();
+        if (kDebugMode) {
+          print('Foto profil berhasil diperbarui');
+        }
+      } else {
+        if (kDebugMode) {
+          print('Gagal memperbarui foto profil: ${response.reasonPhrase}');
+        }
+      }
+    } else {
+      if (kDebugMode) {
+        print('Pemilihan foto dibatalkan');
+      }
+    }
+  }
+
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +126,26 @@ class _ProfileState extends State<Profile> {
                   _buildTabBar(),
                   _buildUserImage(),
                   _buildProfileText(),
+                  Positioned(
+                    // Memindahkan tombol "Ganti Foto Profil" di bawah gambar profil
+                    top: 230,
+                    left: 165,
+                    child: ElevatedButton(
+                      onPressed: _pickImage,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets
+                            .zero, // Menghapus padding di dalam tombol
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize
+                            .min, // Menyusun widget ke dalam baris secara minimum
+                        children: [
+                          Icon(Icons
+                              .camera_alt), // Menggunakan ikon kamera untuk mengganti foto profil
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -226,11 +307,22 @@ class _ProfileState extends State<Profile> {
     return Positioned(
       top: 68,
       right: 95,
-      child: Image.asset(
-        'assets/images/User.png',
-        width: 200,
-        height: 200,
-      ),
+      child: _image != null
+          ? CircleAvatar(
+              radius: 100,
+              backgroundImage: FileImage(_image!),
+            )
+          : profileImageUrl != null
+              ? CircleAvatar(
+                  radius: 100,
+                  backgroundImage: NetworkImage(
+                      '$profileImageUrl'), // Gunakan profileImageUrl di sini
+                )
+              : Image.asset(
+                  'assets/images/User.png',
+                  width: 200,
+                  height: 200,
+                ),
     );
   }
 

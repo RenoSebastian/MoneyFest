@@ -26,8 +26,10 @@ class Login extends StatelessWidget {
     final responseData = json.decode(response.body);
     if (response.statusCode == 200) {
       final userId = responseData['dataUser']['id'];
+      // ignore: use_build_context_synchronously
       Provider.of<UserData>(context, listen: false)
           .setUserId(userId); // Set userId using Provider
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
       if (kDebugMode) {
         print(responseData['message']);
@@ -38,6 +40,7 @@ class Login extends StatelessWidget {
         print(responseData['message']);
       }
       // Menampilkan pesan kesalahan menggunakan dialog
+      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -61,10 +64,10 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(25, 23, 61, 1),
+      backgroundColor: const Color.fromRGBO(25, 23, 61, 1),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
               horizontal: 16.0), // Adjust horizontal padding
           child: Container(
             height: MediaQuery.of(context)

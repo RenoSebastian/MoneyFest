@@ -9,7 +9,6 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
@@ -30,8 +29,12 @@ class User extends Authenticatable
     ];
 
     public function order()
-{
-    return $this->hasMany(Order::class);
-}
+    {
+        return $this->hasMany(Order::class);
+    }
 
+    public function balances()
+    {
+        return $this->hasMany(BalanceModel::class);
+    }
 }

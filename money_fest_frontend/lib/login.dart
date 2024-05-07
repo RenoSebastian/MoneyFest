@@ -1,65 +1,11 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
-import 'package:http/http.dart' as http;
-import 'user_data.dart'; // Import the UserData class
+import 'package:money_fest_frontend/services/auth_service.dart'; // Import the AuthService class
 
-// ignore: must_be_immutable
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
 
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  Future<void> loginUser(BuildContext context) async {
-    const String apiUrl = 'http://10.0.2.2:8000/api/login';
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      body: {
-        'username': usernameController.text,
-        'password': passwordController.text,
-      },
-    );
-
-    final responseData = json.decode(response.body);
-    if (response.statusCode == 200) {
-      final userId = responseData['dataUser']['id'];
-      // ignore: use_build_context_synchronously
-      Provider.of<UserData>(context, listen: false)
-          .setUserId(userId); // Set userId using Provider
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
-      if (kDebugMode) {
-        print(responseData['message']);
-      }
-    } else {
-      // Login gagal, tampilkan pesan kesalahan
-      if (kDebugMode) {
-        print(responseData['message']);
-      }
-      // Menampilkan pesan kesalahan menggunakan dialog
-      // ignore: use_build_context_synchronously
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Error"),
-            content: Text(responseData['message']),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +140,10 @@ class Login extends StatelessWidget {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            loginUser(context);
+                            AuthService().loginUser(
+                                context,
+                                usernameController.text,
+                                passwordController.text);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,

@@ -1,11 +1,5 @@
-import 'dart:async'; // tambahkan import dart:async
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
-import 'user_data.dart';
+import 'services/auth_service.dart'; // Import the AuthService class
 
 class Register extends StatelessWidget {
   Register({Key? key}) : super(key: key);
@@ -14,38 +8,6 @@ class Register extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController nickNameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  Future<void> register(String email, String username, String nickName,
-      String password, BuildContext context) async {
-    final url = Uri.parse('http://10.0.2.2:8000/api/register');
-    final response = await http.post(
-      url,
-      body: {
-        'email': email,
-        'username': username,
-        'NickName': nickName,
-        'password': password,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      final userId = responseData['data']
-          ['id']; // Ubah sesuai dengan struktur respons dari backend Anda
-      // ignore: use_build_context_synchronously
-      Provider.of<UserData>(context, listen: false).setUserId(userId);
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
-    } else {
-      // Registrasi gagal, tampilkan pesan kesalahan
-      if (kDebugMode) {
-        print('Registrasi gagal: ${response.body}');
-      }
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Registrasi gagal')));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,8 +174,13 @@ class Register extends StatelessWidget {
         ),
         child: ElevatedButton(
           onPressed: () {
-            register(emailController.text, usernameController.text,
-                nickNameController.text, passwordController.text, context);
+            AuthService().register(
+              emailController.text,
+              usernameController.text,
+              nickNameController.text,
+              passwordController.text,
+              context,
+            );
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.transparent,

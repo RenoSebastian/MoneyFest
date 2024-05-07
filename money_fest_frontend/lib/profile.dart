@@ -1,7 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:money_fest_frontend/services/auth_service.dart';
 
 class Profile extends StatefulWidget {
   final int userId;
@@ -22,25 +21,19 @@ class _ProfileState extends State<Profile> {
     super.initState();
     // ignore: unnecessary_null_comparison
     if (widget.userId != null) {
-      fetchUserData(widget.userId);
-    }
-  }
-
-  Future<void> fetchUserData(int userId) async {
-    final apiUrl = 'http://10.0.2.2:8000/api/user/$userId';
-    final response = await http.get(Uri.parse(apiUrl));
-
-    if (response.statusCode == 200) {
-      final userData = json.decode(response.body);
-      setState(() {
-        nickname = userData['User']['NickName'];
-        username = userData['User']['username'];
-        email = userData['User']['email'];
+      // Panggil metode fetchUserData dari AuthService
+      AuthService().fetchUserData(widget.userId, onSuccess: (userData) {
+        setState(() {
+          nickname = userData['User']['NickName'];
+          username = userData['User']['username'];
+          email = userData['User']['email'];
+        });
+      }, onError: (error) {
+        // Handle error jika ada
+        if (kDebugMode) {
+          print('Error fetching user data: $error');
+        }
       });
-    } else {
-      if (kDebugMode) {
-        print('Failed to load user data');
-      }
     }
   }
 
@@ -74,6 +67,7 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  // Metode untuk membangun widget background image
   Widget _buildBackgroundImage() {
     return Image.asset(
       'assets/images/Base3.png',

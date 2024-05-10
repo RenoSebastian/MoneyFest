@@ -1,21 +1,32 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+// ignore: unused_import
+import 'user_data.dart';
+import 'dart:convert';
 
 class InstalmentContent extends StatefulWidget {
-  const InstalmentContent({Key? key}) : super(key: key);
+  final int userId;
+  const InstalmentContent({Key? key, required this.userId}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _InstalmentContentState createState() => _InstalmentContentState();
 }
 
 class _InstalmentContentState extends State<InstalmentContent> {
-  bool _isSavingsSelected = true; // default Savings is selected
+  // ignore: unused_field
+  final bool _isSavingsSelected = true; // default Savings is selected
   final List<Map<String, dynamic>> _categories = [];
   String newBalance = '';
-  bool _balanceEntered = false;
+  // ignore: unused_field
+  final bool _balanceEntered = false;
 
+  // ignore: prefer_final_fields, unused_field
   int _selectedCategoryIndex = -1;
-  int _selectedReminderCategoryIndex = -1; // Add this variable to track selected category index for setting reminder
+  // ignore: unused_field
+  int _selectedReminderCategoryIndex = -1; // Added this line
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +57,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
     );
   }
 
-  void _addCategoryRow(BuildContext context) {
+  void _addCategoryRow(BuildContext context, int userId) {
     TextEditingController nameController = TextEditingController();
     TextEditingController amountNeededController = TextEditingController();
 
@@ -58,8 +69,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Center(
                   child: Text(
                     "Add Category",
@@ -73,7 +84,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'Category Name:',
                 style: TextStyle(
@@ -105,7 +116,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'Amount Needed:',
                 style: TextStyle(
@@ -121,6 +132,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                 ),
                 child: TextFormField(
                   controller: amountNeededController,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(15.0),
@@ -142,31 +154,45 @@ class _InstalmentContentState extends State<InstalmentContent> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  String categoryName = nameController.text.isNotEmpty
-                      ? nameController.text
-                      : 'New Category';
+              onPressed: () async {
+                final response = await http.post(
+                  Uri.parse(
+                      'http://10.0.2.2:8000/api/create/instalments'), // Convert URL string to Uri object
+                  body: {
+                    'user_id': userId.toString(),
+                    'kategori': nameController.text,
+                    'available': amountNeededController.text,
+                  },
+                );
 
-                  double amountNeeded = double.tryParse(amountNeededController.text) ?? 0.0;
-
-                  _categories.add({
-                    'name': categoryName,
-                    'assigned': 0.0,
-                    'available': amountNeeded,
-                    'isEditing': true,
-                    'isExpanded': false,
-                    'reminders': []
+                if (response.statusCode == 201) {
+                  setState(() {
+                    _categories.add({
+                      'name': nameController.text.isNotEmpty
+                          ? nameController.text
+                          : 'New Category',
+                      'assigned': 0.0,
+                      'available':
+                          double.tryParse(amountNeededController.text) ?? 0.0,
+                      'isEditing': true,
+                      'isExpanded': false,
+                      'reminders': [],
+                    });
                   });
-                });
-                Navigator.of(context).pop();
+                  // ignore: use_build_context_synchronously
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  if (kDebugMode) {
+                    print('Failed to add category: ${response.statusCode}');
+                  }
+                }
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -193,8 +219,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Center(
                   child: Text(
                     "Edit Category",
@@ -208,7 +234,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'New Category Name:',
                 style: TextStyle(
@@ -250,7 +276,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
@@ -259,7 +285,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text("Save"),
+              child: const Text("Save"),
             ),
           ],
         );
@@ -290,13 +316,13 @@ class _InstalmentContentState extends State<InstalmentContent> {
               DataColumn(
                 label: InkWell(
                   onTap: () {
-                    _addCategoryRow(context);
+                    _addCategoryRow(context, widget.userId);
                   },
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(Icons.add, color: Colors.white),
-                      const SizedBox(width: 5),
-                      const Text(
+                      SizedBox(width: 5),
+                      Text(
                         'Add Category',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -304,19 +330,21 @@ class _InstalmentContentState extends State<InstalmentContent> {
                   ),
                 ),
               ),
-              DataColumn(
+              const DataColumn(
                 label: Padding(
-                  padding: const EdgeInsets.only(left: 20.0), // Atur padding kiri di sini
-                  child: const Text(
+                  padding:
+                      EdgeInsets.only(left: 20.0), // Atur padding kiri di sini
+                  child: Text(
                     'Assigned',
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
-              DataColumn(
+              const DataColumn(
                 label: Padding(
-                  padding: const EdgeInsets.only(left: 20.0), // Atur padding kiri di sini
-                  child: const Text(
+                  padding:
+                      EdgeInsets.only(left: 20.0), // Atur padding kiri di sini
+                  child: Text(
                     'Available',
                     style: TextStyle(color: Colors.white),
                   ),
@@ -326,7 +354,9 @@ class _InstalmentContentState extends State<InstalmentContent> {
             rows: _categories.asMap().entries.expand((entry) {
               int index = entry.key;
               Map<String, dynamic> category = entry.value;
+              // ignore: no_leading_underscores_for_local_identifiers
               bool _isEditing = category['isEditing'] ?? false;
+              // ignore: no_leading_underscores_for_local_identifiers
               String _editingCategoryName = category['name'] ?? '';
 
               List<DataRow> rows = [
@@ -335,7 +365,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     DataCell(
                       Row(
                         children: [
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
                               if (_isEditing) {
@@ -348,12 +378,13 @@ class _InstalmentContentState extends State<InstalmentContent> {
                                   onTap: () {
                                     _showSetReminderPopup(context, index);
                                   },
-                                  child: Icon(Icons.notifications, color: Colors.white),
+                                  child: const Icon(Icons.notifications,
+                                      color: Colors.white),
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
                                   _editingCategoryName,
-                                  style: TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                               ],
                             ),
@@ -363,11 +394,11 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     ),
                     DataCell(Text(
                       'Rp. ${_formatNumber(category['assigned'])}',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     )),
                     DataCell(Text(
                       'Rp. ${_formatNumber(category['available'])}',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     )),
                   ],
                 ),
@@ -376,19 +407,23 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     DataCell(
                       Row(
                         children: [
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
                               // Add your logic here to handle adding amount
-                              _addAmount(context, index); // Panggil fungsi _addAmount dengan memberikan context dan index kategori
+                              _addAmount(
+                                context,
+                                index,
+                              ); // Panggil fungsi _addAmount dengan memberikan context dan index kategori
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 color: Colors.blue,
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Add Amount',
                                 style: TextStyle(color: Colors.white),
                               ),
@@ -397,8 +432,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
                         ],
                       ),
                     ),
-                    DataCell(Text('')), // Hapus kolom Assigned
-                    DataCell(Text('')), // Hapus kolom Available
+                    const DataCell(Text('')), // Hapus kolom Assigned
+                    const DataCell(Text('')), // Hapus kolom Available
                   ],
                 ),
               ];
@@ -410,87 +445,57 @@ class _InstalmentContentState extends State<InstalmentContent> {
     );
   }
 
-  void _addAmount(BuildContext context, int index) {
+  void _addAmount(BuildContext context, int index) async {
     TextEditingController addAmountController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    "Assign Amount",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                      color: Color(0xFF19173D),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'How much do u have right now?',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.normal,
-                  color: const Color(0xFF19173D).withOpacity(0.8),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDAD9D9),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: TextFormField(
-                  controller: addAmountController,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(15.0),
-                    hintText: 'Assigned your Amount',
-                    hintStyle: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      color: const Color(0xFF19173D).withOpacity(0.5),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              ),
-            ],
+          title: const Text('Add Amount'),
+          content: TextField(
+            controller: addAmountController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'Amount'),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                // Get the amount to add
-                double addAmount = double.tryParse(addAmountController.text) ?? 0.0;
-                // Update the 'Assigned' value in the relevant category
-                setState(() {
-                  double currentAssigned = _categories[index]['assigned'] ?? 0.0;
-                  _categories[index]['assigned'] = currentAssigned + addAmount;
-                  // Subtract the 'Available' value by the added amount
-                  _categories[index]['available'] -= addAmount;
-                });
-                Navigator.of(context).pop();
+              onPressed: () async {
+                double addAmount =
+                    double.tryParse(addAmountController.text) ?? 0.0;
+                if (addAmount > 0) {
+                  final response = await http.put(
+                    Uri.parse('http://10.0.2.2:8000/api/instalments/$index'),
+                    headers: {
+                      'Content-Type':
+                          'application/json', // Set header for sending JSON data
+                    },
+                    body: jsonEncode({
+                      'assigned': addAmount,
+                    }),
+                  );
+
+                  if (response.statusCode == 200) {
+                    setState(() {
+                      _categories[index]['assigned'] += addAmount;
+                      _categories[index]['available'] -= addAmount;
+                    });
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).pop();
+                  } else {
+                    if (kDebugMode) {
+                      print('Failed to add amount: ${response.statusCode}');
+                    }
+                  }
+                }
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -513,9 +518,11 @@ class _InstalmentContentState extends State<InstalmentContent> {
     String? remindFrequency;
     String notes = '';
 
-    remindFrequency = reminderOptions.first; // Inisialisasi remindFrequency di sini
+    remindFrequency =
+        reminderOptions.first; // Inisialisasi remindFrequency di sini
 
     // Function to handle the selection of instalment deadline
+    // ignore: unused_element, no_leading_underscores_for_local_identifiers
     Future<void> _selectInstalmentDeadline() async {
       final DateTime? picked = await showDatePicker(
         context: context,
@@ -525,7 +532,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
       );
       if (picked != null && picked != instalmentDeadline) {
         setState(() {
-          _selectedReminderCategoryIndex = index; // Update selected category index
+          _selectedReminderCategoryIndex =
+              index; // Update selected category index
           instalmentDeadline = picked;
         });
       }
@@ -537,193 +545,47 @@ class _InstalmentContentState extends State<InstalmentContent> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: Text(
-                          "Set Reminder",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins',
-                            color: Color(0xFF19173D),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Instalment Deadline:',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.normal,
-                        color: const Color(0xFF19173D).withOpacity(0.8),
-                      ),
-                    ),
-                    // TextButton to trigger the calendar selection
-                    TextButton(
-                      onPressed: _selectInstalmentDeadline,
-                      child: Text(
-                        instalmentDeadline != null ? DateFormat('yyyy-MM-dd').format(instalmentDeadline!) : 'Select Deadline',
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.normal,
-                          color: const Color(0xFF19173D),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Remind Me:',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.normal,
-                        color: const Color(0xFF19173D).withOpacity(0.8),
-                      ),
-                    ),
-                    // Dropdown for remind frequency (Every day, every week, etc.)
-                    DropdownButton<String>(
-                      value: remindFrequency,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          remindFrequency = newValue;
-                        });
-                      },
-                      items: reminderOptions.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value,
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.normal,
-                              color: const Color(0xFF19173D),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Notes:',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.normal,
-                        color: const Color(0xFF19173D).withOpacity(0.8),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDAD9D9),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(15.0),
-                          hintText: 'Enter notes',
-                          hintStyle: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.normal,
-                            color: const Color(0xFF19173D).withOpacity(0.5),
-                          ),
-                        ),
-                        onChanged: (value) {
-                          notes = value;
-                        },
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the popup
-                  },
-                  child: const Text(
-                    'Delete',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (instalmentDeadline == null) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Validation Error'),
-                            content: Text(
-                              'Please select instalment deadline before saving.',
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    } else {
-                      // Handle saving the reminder here
-                      // Save the data to _categories list
-                      setState(() {
-                        _categories[index]['reminders'] ??= [];
-                        _categories[index]['reminders'].add({
-                          'deadline': instalmentDeadline,
-                          'frequency': remindFrequency,
-                          'notes': notes,
-                        });
-                      });
+              // Konten dialog dan aksi di sini
 
-                      // Show confirmation message
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text('Reminder Saved'),
-                            content: Text(
-                              'You will be reminded every $remindFrequency until the deadline on ${DateFormat('yyyy-MM-dd').format(instalmentDeadline!)}',
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pop(); // Close the popup
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    // Buat objek Map yang berisi data pengingat
+                    final Map<String, dynamic> reminderData = {
+                      'deadline': instalmentDeadline
+                          .toString(), // Sesuaikan dengan kolom di database
+                      'frequency': remindFrequency,
+                      'notes': notes,
+                    };
+
+                    // Kirim data pengingat ke backend
+                    final response = await http.post(
+                      Uri.parse(
+                          'http://10.0.2.2:8000/api/instalments/$index/reminders'),
+                      body: reminderData,
+                    );
+
+                    if (response.statusCode == 201) {
+                      // Pengingat berhasil disimpan
+                      if (kDebugMode) {
+                        print('Reminder saved successfully');
+                      }
+                      // Reset selected category index after saving reminders
+                      setState(() {
+                        _selectedReminderCategoryIndex = -1;
+                      });
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pop(); // Tutup dialog
+                    } else {
+                      // Gagal menyimpan pengingat
+                      if (kDebugMode) {
+                        print(
+                            'Failed to save reminder: ${response.statusCode}');
+                      }
+                      // Tampilkan pesan atau tindakan lain sesuai kebutuhan aplikasi Anda
                     }
                   },
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
+                  child: const Text("Save"),
                 ),
               ],
             );

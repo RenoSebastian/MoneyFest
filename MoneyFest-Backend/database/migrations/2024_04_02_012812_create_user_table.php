@@ -8,17 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create(
-            'users', function (Blueprint $table) {
-                $table->id();
-                $table->string('email')->unique();
-                $table->string('username')->unique();
-                $table->string('NickName');
-                $table->string('password');
-                $table->timestampsTz();
-            }
-        );
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('email')->unique();
+            $table->string('username')->unique();
+            $table->string('NickName');
+            $table->string('password');
+            $table->string('profile_image')->nullable(); // Kolom baru untuk foto profil
+            $table->timestampsTz();
+        });
     }
+
 
     public function down(): void
     {

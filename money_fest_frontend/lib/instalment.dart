@@ -19,6 +19,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
   // ignore: unused_field
   final bool _isSavingsSelected = true; // default Savings is selected
   final List<Map<String, dynamic>> _categories = [];
+  List<int> _categoryIds = [];
   String newBalance = '';
   // ignore: unused_field
   final bool _balanceEntered = false;
@@ -27,6 +28,12 @@ class _InstalmentContentState extends State<InstalmentContent> {
   int _selectedCategoryIndex = -1;
   // ignore: unused_field
   int _selectedReminderCategoryIndex = -1; // Added this line
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchInstalments();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +59,67 @@ class _InstalmentContentState extends State<InstalmentContent> {
             _buildCategoryButton(),
           ],
         ),
-        // Add your savings content here
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columnSpacing: 10.0,
+            columns: [
+              DataColumn(
+                label: Text(
+                  'Category',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+            rows: _categories.asMap().entries.map((entry) {
+              int index = entry.key;
+              Map<String, dynamic> category = entry.value;
+              return DataRow(
+                cells: [
+                  DataCell(
+                    Text(
+                      category['name'],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
       ],
     );
   }
 
-  void _addCategoryRow(BuildContext context, int userId) {
+  void _fetchInstalments() async {
+    final response = await http.get(Uri.parse(
+        'http://10.0.2.2:8000/api/instalments?user_id=${widget.userId}'));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _categories.clear();
+        _categoryIds.clear();
+        for (var instalment in data['instalments']) {
+          _categories.add({
+            'id': instalment['id'],
+            'name': instalment['kategori'],
+            'assigned': instalment['assigned'],
+            'available': instalment['available'],
+            'isEditing': false,
+            'isExpanded': false,
+            'reminders': [],
+          });
+          _categoryIds.add(instalment['id']);
+        }
+      });
+    } else {
+      if (kDebugMode) {
+        print('Failed to fetch instalments: ${response.statusCode}');
+      }
+    }
+  }
+
+  void _addCategoryRow(BuildContext context, int userId) async {
     TextEditingController nameController = TextEditingController();
     TextEditingController amountNeededController = TextEditingController();
 
@@ -161,8 +223,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
             TextButton(
               onPressed: () async {
                 final response = await http.post(
-                  Uri.parse(
-                      'http://10.0.2.2:8000/api/create/instalments'), // Convert URL string to Uri object
+                  Uri.parse('http://10.0.2.2:8000/api/create/instalments'),
                   body: {
                     'user_id': userId.toString(),
                     'kategori': nameController.text,
@@ -171,8 +232,13 @@ class _InstalmentContentState extends State<InstalmentContent> {
                 );
 
                 if (response.statusCode == 201) {
+                  final Map<String, dynamic> responseData =
+                      json.decode(response.body);
+                  final int categoryId =
+                      responseData['instalment']['id']; // Capture category ID
                   setState(() {
                     _categories.add({
+                      'id': categoryId, // Save category ID
                       'name': nameController.text.isNotEmpty
                           ? nameController.text
                           : 'New Category',
@@ -183,8 +249,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
                       'isExpanded': false,
                       'reminders': [],
                     });
+                    _categoryIds.add(categoryId); // Save category ID
                   });
-                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pop(); // Close the dialog
                 } else {
                   if (kDebugMode) {
@@ -202,10 +268,15 @@ class _InstalmentContentState extends State<InstalmentContent> {
 
   String _formatNumber(dynamic value) {
     if (value == null) {
-      return ''; // Atau nilai default lainnya sesuai dengan kebutuhan aplikasi Anda
+      return ''; // Or any other default value as per your application's need
     }
     final formatter = NumberFormat('#,###');
-    return formatter.format(value is int ? value.toDouble() : value);
+    if (value is String) {
+      // Convert the String to double first before formatting
+      return formatter.format(double.parse(value));
+    } else {
+      return formatter.format(value);
+    }
   }
 
   void _showCategoryNamePopup(BuildContext context, int index) {
@@ -302,6 +373,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
             setState(() {
               _categories.clear();
             });
+            _resetInstalments(context);
           },
           child: const Text(
             'Reset',
@@ -332,8 +404,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
               ),
               const DataColumn(
                 label: Padding(
-                  padding:
-                      EdgeInsets.only(left: 20.0), // Atur padding kiri di sini
+                  padding: EdgeInsets.only(left: 20.0),
                   child: Text(
                     'Assigned',
                     style: TextStyle(color: Colors.white),
@@ -342,8 +413,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
               ),
               const DataColumn(
                 label: Padding(
-                  padding:
-                      EdgeInsets.only(left: 20.0), // Atur padding kiri di sini
+                  padding: EdgeInsets.only(left: 20.0),
                   child: Text(
                     'Available',
                     style: TextStyle(color: Colors.white),
@@ -354,9 +424,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
             rows: _categories.asMap().entries.expand((entry) {
               int index = entry.key;
               Map<String, dynamic> category = entry.value;
-              // ignore: no_leading_underscores_for_local_identifiers
               bool _isEditing = category['isEditing'] ?? false;
-              // ignore: no_leading_underscores_for_local_identifiers
               String _editingCategoryName = category['name'] ?? '';
 
               List<DataRow> rows = [
@@ -365,7 +433,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     DataCell(
                       Row(
                         children: [
-                          const SizedBox(width: 5),
+                          SizedBox(width: 5),
                           InkWell(
                             onTap: () {
                               if (_isEditing) {
@@ -378,13 +446,13 @@ class _InstalmentContentState extends State<InstalmentContent> {
                                   onTap: () {
                                     _showSetReminderPopup(context, index);
                                   },
-                                  child: const Icon(Icons.notifications,
+                                  child: Icon(Icons.notifications,
                                       color: Colors.white),
                                 ),
-                                const SizedBox(width: 5),
+                                SizedBox(width: 5),
                                 Text(
                                   _editingCategoryName,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Colors.white),
                                 ),
                               ],
                             ),
@@ -394,11 +462,11 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     ),
                     DataCell(Text(
                       'Rp. ${_formatNumber(category['assigned'])}',
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white),
                     )),
                     DataCell(Text(
                       'Rp. ${_formatNumber(category['available'])}',
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white),
                     )),
                   ],
                 ),
@@ -407,14 +475,13 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     DataCell(
                       Row(
                         children: [
-                          const SizedBox(width: 5),
+                          SizedBox(width: 5),
                           InkWell(
                             onTap: () {
-                              // Add your logic here to handle adding amount
                               _addAmount(
                                 context,
                                 index,
-                              ); // Panggil fungsi _addAmount dengan memberikan context dan index kategori
+                              );
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -432,8 +499,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
                         ],
                       ),
                     ),
-                    const DataCell(Text('')), // Hapus kolom Assigned
-                    const DataCell(Text('')), // Hapus kolom Available
+                    DataCell(Text('')),
+                    DataCell(Text('')),
                   ],
                 ),
               ];
@@ -471,10 +538,10 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     double.tryParse(addAmountController.text) ?? 0.0;
                 if (addAmount > 0) {
                   final response = await http.put(
-                    Uri.parse('http://10.0.2.2:8000/api/instalments/$index'),
+                    Uri.parse(
+                        'http://10.0.2.2:8000/api/instalments/${_categoryIds[index]}'),
                     headers: {
-                      'Content-Type':
-                          'application/json', // Set header for sending JSON data
+                      'Content-Type': 'application/json',
                     },
                     body: jsonEncode({
                       'assigned': addAmount,
@@ -486,7 +553,6 @@ class _InstalmentContentState extends State<InstalmentContent> {
                       _categories[index]['assigned'] += addAmount;
                       _categories[index]['available'] -= addAmount;
                     });
-                    // ignore: use_build_context_synchronously
                     Navigator.of(context).pop();
                   } else {
                     if (kDebugMode) {
@@ -501,6 +567,31 @@ class _InstalmentContentState extends State<InstalmentContent> {
         );
       },
     );
+  }
+
+  void _resetInstalments(BuildContext context) async {
+    final response = await http.post(
+      Uri.parse(
+          'http://10.0.2.2:8000/api/reset/instalments?user_id=${widget.userId}'),
+    );
+
+    if (response.statusCode == 200) {
+      // Reset berhasil
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Instalments berhasil direset'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      // Gagal melakukan reset
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mereset instalments'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showSetReminderPopup(BuildContext context, int index) {

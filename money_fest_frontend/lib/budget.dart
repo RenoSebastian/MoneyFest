@@ -519,7 +519,7 @@ class _BudgetState extends State<Budget> {
 
   Widget _buildContent() {
     return _isSavingsSelected
-        ? const SavingsContent()
+        ? SavingsContent(userId: widget.userId ?? 0)
         : InstalmentContent(userId: widget.userId ?? 0);
   }
 }

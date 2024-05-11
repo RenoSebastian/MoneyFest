@@ -1,21 +1,22 @@
-// ignore_for_file: unused_field
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'user_data.dart';
 
 class SavingsContent extends StatefulWidget {
-  const SavingsContent({Key? key}) : super(key: key);
+  final int userId;
+  const SavingsContent({Key? key, required this.userId}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _SavingsContentState createState() => _SavingsContentState();
 }
 
 class _SavingsContentState extends State<SavingsContent> {
   final List<Map<String, dynamic>> _categories = [];
+  List<int> _categoryIds = [];
+  List<int> _subCategoryIds = [];
   final int _selectedCategoryIndex = -1;
 
   Future<void> addCategory(String categoryName) async {
@@ -23,23 +24,80 @@ class _SavingsContentState extends State<SavingsContent> {
         'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
     final response = await http.post(
       Uri.parse(url),
-      body: json.encode({'NamaKategori': categoryName}),
+      body: json.encode({
+        'NamaKategori': categoryName,
+        'user_id': widget.userId.toString(), // Masukkan user_id di sini
+      }),
       headers: {'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      print('Response Data: $responseData');
+
+      final int categoryId = responseData['data']['id'];
+
+      setState(() {
+        _categories.add({
+          'id': categoryId,
+          'name': categoryName,
+          'user_id': widget.userId.toString(),
+          'assigned': 0,
+          'available': 0,
+          'isEditing': true,
+          'subCategories': [],
+          'isExpanded': false,
+        });
+        _categoryIds
+            .add(categoryId); // Tambahkan ID kategori ke dalam _categoryIds
+      });
+
       if (kDebugMode) {
-        print('Kategori berhasil ditambahkan');
+        print('Kategori berhasil ditambahkan dengan ID: $categoryId');
       }
     } else {
       if (kDebugMode) {
         print('Gagal menambahkan kategori');
-      }
-      if (kDebugMode) {
         print('Response status: ${response.statusCode}');
-      }
-      if (kDebugMode) {
         print('Response body: ${response.body}');
+      }
+    }
+  }
+
+  Future<void> addSubCategory(
+      int categoryId, String subcategoryName, double newAssigned) async {
+    const url = 'http://10.0.2.2:8000/api/subkategori';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({
+          'user_id': widget.userId.toString(),
+          'NamaSub': subcategoryName,
+          'uang': newAssigned,
+          'kategori_id': categoryId,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final int subCategoryId =
+            data['data']['id']; // Periksa struktur respons API
+
+        if (kDebugMode) {
+          print('SubKategori berhasil ditambahkan dengan ID: $subCategoryId');
+          print('hubungan dengan kategori ID : $categoryId');
+        }
+      } else {
+        if (kDebugMode) {
+          print('Gagal menambahkan subkategori');
+          print('Response status: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
       }
     }
   }
@@ -63,6 +121,7 @@ class _SavingsContentState extends State<SavingsContent> {
     );
   }
 
+  // Pada widget _buildCategoryButton
   Widget _buildCategoryButton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +229,8 @@ class _SavingsContentState extends State<SavingsContent> {
                           const Spacer(),
                           InkWell(
                             onTap: () {
-                              _addSubCategory(index);
+                              _addSubCategory(
+                                  index); // Menggunakan indeks kategori yang terkait
                             },
                             child: const Icon(Icons.add, color: Colors.white),
                           ),
@@ -282,26 +342,31 @@ class _SavingsContentState extends State<SavingsContent> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  String newName = nameController.text;
-                  double newAssigned = double.tryParse(
-                          assignedController.text.replaceAll(',', '')) ??
-                      0.0;
+              onPressed: () async {
+                String newName = nameController.text;
+                double newAssigned = double.tryParse(
+                        assignedController.text.replaceAll(',', '')) ??
+                    0.0;
 
+                setState(() {
+                  // Tambahkan subkategori baru ke dalam list subCategories
                   _categories[index]['subCategories'].add({
+                    'id': _categories[index]['subCategories'].length + 1,
                     'name': newName,
                     'assigned': newAssigned,
-                    // Add other properties as needed
+                    // Update total assigned for the category
                   });
-
-                  // Update total assigned for the category
                   double totalAssigned = 0.0;
                   _categories[index]['subCategories'].forEach((subCategory) {
                     totalAssigned += subCategory['assigned'];
                   });
                   _categories[index]['assigned'] = totalAssigned;
                 });
+
+                // Panggil metode addSubCategory di sini dengan index yang sesuai
+                await addSubCategory(
+                    _categories[index]['id'], newName, newAssigned);
+
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),
@@ -313,6 +378,7 @@ class _SavingsContentState extends State<SavingsContent> {
   }
 
   void _addCategoryRow(BuildContext context) {
+    final userId = widget.userId;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -339,15 +405,6 @@ class _SavingsContentState extends State<SavingsContent> {
                   String categoryName = nameController.text.isNotEmpty
                       ? nameController.text
                       : 'New Category';
-
-                  _categories.add({
-                    'name': categoryName,
-                    'assigned': 0,
-                    'available': 0,
-                    'isEditing': true,
-                    'subCategories': [],
-                    'isExpanded': false,
-                  });
 
                   addCategory(categoryName);
                 });

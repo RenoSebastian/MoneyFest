@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'savings.dart';
 import 'instalment.dart';
+// ignore: unused_import
+import 'user_data.dart';
 
 class Budget extends StatefulWidget {
-  const Budget({Key? key}) : super(key: key);
+  final int? userId;
+  const Budget({Key? key, this.userId}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -517,7 +520,7 @@ class _BudgetState extends State<Budget> {
   Widget _buildContent() {
     return _isSavingsSelected
         ? const SavingsContent()
-        : const InstalmentContent();
+        : InstalmentContent(userId: widget.userId ?? 0);
   }
 }
 

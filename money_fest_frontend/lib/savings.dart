@@ -1,3 +1,6 @@
+// ignore_for_file: unused_field
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -61,7 +64,8 @@ class _SavingsContentState extends State<SavingsContent> {
   }
 
   Future<void> addCategory(String categoryName) async {
-    const url = 'http://10.0.2.2:8000/api/kategori';
+    const url =
+        'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
     final response = await http.post(
       Uri.parse(url),
       body: json.encode({'NamaKategori': categoryName}),
@@ -69,16 +73,19 @@ class _SavingsContentState extends State<SavingsContent> {
     );
 
     if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      final categoryId = responseData['data']['id'];
-      setState(() {
-        selectedCategoryId = categoryId;
-      });
-      print('Kategori berhasil ditambahkan');
+      if (kDebugMode) {
+        print('Kategori berhasil ditambahkan');
+      }
     } else {
-      print('Gagal menambahkan kategori');
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      if (kDebugMode) {
+        print('Gagal menambahkan kategori');
+      }
+      if (kDebugMode) {
+        print('Response status: ${response.statusCode}');
+      }
+      if (kDebugMode) {
+        print('Response body: ${response.body}');
+      }
     }
   }
 
@@ -149,10 +156,10 @@ class _SavingsContentState extends State<SavingsContent> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Category'),
+          title: const Text('New Category'),
           content: TextField(
-            controller: categoryNameController,
-            decoration: InputDecoration(
+            controller: nameController,
+            decoration: const InputDecoration(
               hintText: 'Enter category name',
             ),
           ),
@@ -161,7 +168,7 @@ class _SavingsContentState extends State<SavingsContent> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -169,7 +176,7 @@ class _SavingsContentState extends State<SavingsContent> {
                 addCategory(categoryName);
                 Navigator.of(context).pop();
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -180,29 +187,94 @@ class _SavingsContentState extends State<SavingsContent> {
   void _addSubcategoryDialog(BuildContext context) async {
   final categories = await fetchCategories(); // Memuat data kategori sebelum memunculkan dialog
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Add Subcategory'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildCategoryDropdown(categories), // Menggunakan dropdown dengan data kategori yang sudah dimuat
-            SizedBox(height: 10),
-            TextField(
-              controller: subcategoryNameController,
-              decoration: InputDecoration(
-                hintText: 'Enter subcategory name',
+    String subCategoryName = '';
+    String subCategoryAssigned = '';
+
+    if (subCategoryIndex != -1) {
+      subCategoryName =
+          _categories[categoryIndex]['subCategories'][subCategoryIndex]['name'];
+      subCategoryAssigned = _categories[categoryIndex]['subCategories']
+              [subCategoryIndex]['assigned']
+          .toString();
+    }
+
+    nameController.text = subCategoryName;
+    assignedController.text = subCategoryAssigned;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+              subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter subcategory name',
+                ),
               ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: assignedController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter assigned value',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    assignedController.value = TextEditingValue(
+                      text: _formatNumber(value),
+                      selection: TextSelection.collapsed(
+                          offset: _formatNumber(value).length),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
             ),
-            SizedBox(height: 10),
-            TextField(
-              controller: subcategoryAmountController,
-              decoration: InputDecoration(
-                hintText: 'Enter amount',
-              ),
-              keyboardType: TextInputType.number,
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  String newName = nameController.text;
+                  double newAssigned = double.tryParse(
+                          assignedController.text.replaceAll(',', '')) ??
+                      0.0;
+
+                  if (subCategoryIndex != -1) {
+                    _categories[categoryIndex]['subCategories']
+                        [subCategoryIndex]['name'] = newName;
+                    _categories[categoryIndex]['subCategories']
+                        [subCategoryIndex]['assigned'] = newAssigned;
+                  } else {
+                    _categories[categoryIndex]['subCategories'].add({
+                      'name': newName,
+                      'assigned': newAssigned,
+                      // Add other properties as needed
+                    });
+
+                    // Update total assigned for the category
+                    double totalAssigned = 0.0;
+                    _categories[categoryIndex]['subCategories']
+                        .forEach((subCategory) {
+                      totalAssigned += subCategory['assigned'];
+                    });
+                    _categories[categoryIndex]['assigned'] = totalAssigned;
+                  }
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
             ),
           ],
         ),

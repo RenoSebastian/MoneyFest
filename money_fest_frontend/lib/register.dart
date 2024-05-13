@@ -12,21 +12,24 @@ class Register extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 0),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Color.fromRGBO(25, 23, 61, 1),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildLogo(),
-                const SizedBox(height: 0),
-                _buildForm(context),
-              ],
+      backgroundColor: Color.fromRGBO(25, 23, 61, 1),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            decoration: const BoxDecoration(
+              color: Color.fromRGBO(25, 23, 61, 1),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildLogo(),
+                  _buildForm(context),
+                ],
+              ),
             ),
           ),
         ),

@@ -9,7 +9,6 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
@@ -17,6 +16,7 @@ class User extends Authenticatable
         'username',
         'NickName',
         'password',
+        'profile_image', // Tambahkan kolom baru ke fillable
     ];
 
     protected $hidden = [
@@ -30,8 +30,18 @@ class User extends Authenticatable
     ];
 
     public function order()
-{
-    return $this->hasMany(Order::class);
+    {
+        return $this->hasMany(Order::class);
+    
+    public function instalments()
+    {
+        return $this->hasMany(InstalmentModel::class);
+    }
 }
 
+    public function balances()
+    {
+        return $this->hasMany(BalanceModel::class);
+    }
 }
+

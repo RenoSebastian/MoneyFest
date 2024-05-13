@@ -1,115 +1,103 @@
-// ignore_for_file: unused_field
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'user_data.dart';
 
 class SavingsContent extends StatefulWidget {
-  const SavingsContent({Key? key}) : super(key: key);
+  final int userId;
+  const SavingsContent({Key? key, required this.userId}) : super(key: key);
 
   @override
   _SavingsContentState createState() => _SavingsContentState();
 }
 
 class _SavingsContentState extends State<SavingsContent> {
-  TextEditingController categoryNameController = TextEditingController();
-  TextEditingController subcategoryNameController = TextEditingController();
-  TextEditingController subcategoryAmountController = TextEditingController();
-
-  int? selectedCategoryId;
-
-  @override
-  void initState() {
-    super.initState();
-    // Tidak perlu memuat daftar kategori pada initState
-  }
-
-  // Function to fetch categories from backend
-  Future<List<Map<String, dynamic>>> fetchCategories() async {
-    const url = 'http://10.0.2.2:8000/api/kategori';
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> responseData = json.decode(response.body)['data'];
-      return List<Map<String, dynamic>>.from(responseData);
-    } else {
-      print('Failed to fetch categories');
-      return []; // Return empty list if fetching fails
-    }
-  }
-
-  // Function to build dropdown menu for selecting category
-  Future<DropdownButtonFormField<int>> _buildCategoryDropdown() async {
-    final categories = await fetchCategories();
-
-    return DropdownButtonFormField<int>(
-      value: selectedCategoryId,
-      onChanged: (int? value) {
-        setState(() {
-          selectedCategoryId = value;
-        });
-      },
-      items: categories.map<DropdownMenuItem<int>>((category) {
-        return DropdownMenuItem<int>(
-          value: category['id'],
-          child: Text(category['NamaKategori']),
-        );
-      }).toList(),
-      decoration: InputDecoration(
-        labelText: 'Choose category',
-        border: OutlineInputBorder(),
-      ),
-    );
-  }
+  final List<Map<String, dynamic>> _categories = [];
+  List<int> _categoryIds = [];
+  List<int> _subCategoryIds = [];
+  final int _selectedCategoryIndex = -1;
 
   Future<void> addCategory(String categoryName) async {
     const url =
         'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
     final response = await http.post(
       Uri.parse(url),
-      body: json.encode({'NamaKategori': categoryName}),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      if (kDebugMode) {
-        print('Kategori berhasil ditambahkan');
-      }
-    } else {
-      if (kDebugMode) {
-        print('Gagal menambahkan kategori');
-      }
-      if (kDebugMode) {
-        print('Response status: ${response.statusCode}');
-      }
-      if (kDebugMode) {
-        print('Response body: ${response.body}');
-      }
-    }
-  }
-
-  // Function to add subcategory
-  Future<void> addSubcategory(String subcategoryName, double amount) async {
-    if (selectedCategoryId == null) {
-      print('Select a category first');
-      return;
-    }
-    const url = 'http://10.0.2.2:8000/api/subkategori';
-    final response = await http.post(
-      Uri.parse(url),
       body: json.encode({
-        'NamaSub': subcategoryName,
-        'uang': amount,
-        'kategori_id': selectedCategoryId,
+        'NamaKategori': categoryName,
+        'user_id': widget.userId.toString(), // Masukkan user_id di sini
       }),
       headers: {'Content-Type': 'application/json'},
     );
 
     if (response.statusCode == 200) {
-      print('Subcategory added successfully');
+      final responseData = json.decode(response.body);
+      print('Response Data: $responseData');
+
+      final int categoryId = responseData['data']['id'];
+
+      setState(() {
+        _categories.add({
+          'id': categoryId,
+          'name': categoryName,
+          'user_id': widget.userId.toString(),
+          'assigned': 0,
+          'available': 0,
+          'isEditing': true,
+          'subCategories': [],
+          'isExpanded': false,
+        });
+        _categoryIds
+            .add(categoryId); // Tambahkan ID kategori ke dalam _categoryIds
+      });
+
+      if (kDebugMode) {
+        print('Kategori berhasil ditambahkan dengan ID: $categoryId');
+      }
     } else {
-      print('Failed to add subcategory');
+      if (kDebugMode) {
+        print('Gagal menambahkan kategori');
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    }
+  }
+
+  Future<void> addSubCategory(
+      int categoryId, String subcategoryName, double newAssigned) async {
+    const url = 'http://10.0.2.2:8000/api/subkategori';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({
+          'user_id': widget.userId.toString(),
+          'NamaSub': subcategoryName,
+          'uang': newAssigned,
+          'kategori_id': categoryId,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final int subCategoryId =
+            data['data']['id']; // Periksa struktur respons API
+
+        if (kDebugMode) {
+          print('SubKategori berhasil ditambahkan dengan ID: $subCategoryId');
+          print('hubungan dengan kategori ID : $categoryId');
+        }
+      } else {
+        if (kDebugMode) {
+          print('Gagal menambahkan subkategori');
+          print('Response status: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error: $error');
+      }
     }
   }
 
@@ -125,7 +113,6 @@ class _SavingsContentState extends State<SavingsContent> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildCategoryButton(),
-            _buildSubcategoryButton(),
           ],
         ),
         // Add your savings content here
@@ -133,80 +120,190 @@ class _SavingsContentState extends State<SavingsContent> {
     );
   }
 
+  // Pada widget _buildCategoryButton
   Widget _buildCategoryButton() {
-    return ElevatedButton(
-      onPressed: () {
-        _addCategoryDialog(context);
-      },
-      child: Text('Add Category'),
-    );
-  }
-
-  Widget _buildSubcategoryButton() {
-    return ElevatedButton(
-      onPressed: () {
-        _addSubcategoryDialog(context);
-      },
-      child: Text('Add Subcategory'),
-    );
-  }
-
-  void _addCategoryDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('New Category'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              hintText: 'Enter category name',
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _categories.clear();
+            });
+          },
+          child: const Text(
+            'Reset',
+            style: TextStyle(color: Colors.white),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                String categoryName = categoryNameController.text;
-                addCategory(categoryName);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columnSpacing: 10.0,
+            columns: [
+              DataColumn(
+                label: InkWell(
+                  onTap: () {
+                    _addCategoryRow(context);
+                  },
+                  child: const Row(
+                    children: [
+                      Icon(Icons.add, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text(
+                        'Add Category',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const DataColumn(
+                label: Text('Assigned', style: TextStyle(color: Colors.white)),
+              ),
+              const DataColumn(
+                label: Text('Available', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+            rows: _categories.asMap().entries.expand((entry) {
+              int index = entry.key;
+              Map<String, dynamic> category = entry.value;
+              bool isEditing = category['isEditing'] ?? false;
+              String editingCategoryName = category['name'] ?? '';
+              bool isExpanded = category['isExpanded'] ?? false;
+              List subCategories = category['subCategories'] ?? [];
+
+              List<DataRow> rows = [
+                DataRow(
+                  cells: [
+                    DataCell(
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              if (isExpanded) {
+                                setState(() {
+                                  category['isExpanded'] = false;
+                                });
+                              } else {
+                                setState(() {
+                                  category['isExpanded'] = true;
+                                });
+                              }
+                            },
+                            child: Icon(
+                              isExpanded
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          InkWell(
+                            onTap: () {
+                              if (isEditing) {
+                                _showCategoryNamePopup(context, index);
+                              } else {
+                                setState(() {
+                                  category['isEditing'] = true;
+                                });
+                              }
+                            },
+                            child: isEditing
+                                ? TextButton(
+                                    onPressed: () {
+                                      _showCategoryNamePopup(context, index);
+                                    },
+                                    child: Text(
+                                      editingCategoryName,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                : Text(
+                                    editingCategoryName,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                          ),
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              _addSubCategory(
+                                  index); // Menggunakan indeks kategori yang terkait
+                            },
+                            child: const Icon(Icons.add, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['assigned'])}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['available'])}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
+                  ],
+                ),
+              ];
+
+              if (isExpanded) {
+                for (var subCategory in subCategories) {
+                  rows.add(DataRow(
+                    cells: [
+                      DataCell(
+                        Row(
+                          children: [
+                            const SizedBox(width: 20),
+                            const Icon(Icons.arrow_right, color: Colors.white),
+                            const SizedBox(width: 5),
+                            InkWell(
+                              onTap: () {
+                                _showSubCategoryNamePopup(
+                                  context,
+                                  index,
+                                  subCategories.indexOf(subCategory),
+                                );
+                              },
+                              child: Text(
+                                subCategory['name'],
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['assigned'])}',
+                        style: const TextStyle(color: Colors.white),
+                      )),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['available'])}',
+                        style: const TextStyle(color: Colors.white),
+                      )),
+                    ],
+                  ));
+                }
+              }
+
+              return rows;
+            }).toList(),
+          ),
+        ),
+      ],
     );
   }
 
-  void _addSubcategoryDialog(BuildContext context) async {
-  final categories = await fetchCategories(); // Memuat data kategori sebelum memunculkan dialog
-
-    String subCategoryName = '';
-    String subCategoryAssigned = '';
-
-    if (subCategoryIndex != -1) {
-      subCategoryName =
-          _categories[categoryIndex]['subCategories'][subCategoryIndex]['name'];
-      subCategoryAssigned = _categories[categoryIndex]['subCategories']
-              [subCategoryIndex]['assigned']
-          .toString();
-    }
-
-    nameController.text = subCategoryName;
-    assignedController.text = subCategoryAssigned;
-
+  void _addSubCategory(int index) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        TextEditingController nameController = TextEditingController();
+        TextEditingController assignedController = TextEditingController();
+
         return AlertDialog(
-          title: Text(
-              subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory'),
+          title: const Text('Add Subcategory'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,80 +341,39 @@ class _SavingsContentState extends State<SavingsContent> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                String newName = nameController.text;
+                double newAssigned = double.tryParse(
+                        assignedController.text.replaceAll(',', '')) ??
+                    0.0;
+
                 setState(() {
-                  String newName = nameController.text;
-                  double newAssigned = double.tryParse(
-                          assignedController.text.replaceAll(',', '')) ??
-                      0.0;
-
-                  if (subCategoryIndex != -1) {
-                    _categories[categoryIndex]['subCategories']
-                        [subCategoryIndex]['name'] = newName;
-                    _categories[categoryIndex]['subCategories']
-                        [subCategoryIndex]['assigned'] = newAssigned;
-                  } else {
-                    _categories[categoryIndex]['subCategories'].add({
-                      'name': newName,
-                      'assigned': newAssigned,
-                      // Add other properties as needed
-                    });
-
+                  // Tambahkan subkategori baru ke dalam list subCategories
+                  _categories[index]['subCategories'].add({
+                    'id': _categories[index]['subCategories'].length + 1,
+                    'name': newName,
+                    'assigned': newAssigned,
                     // Update total assigned for the category
-                    double totalAssigned = 0.0;
-                    _categories[categoryIndex]['subCategories']
-                        .forEach((subCategory) {
-                      totalAssigned += subCategory['assigned'];
-                    });
-                    _categories[categoryIndex]['assigned'] = totalAssigned;
-                  }
+                  });
+                  double totalAssigned = 0.0;
+                  _categories[index]['subCategories'].forEach((subCategory) {
+                    totalAssigned += subCategory['assigned'];
+                  });
+                  _categories[index]['assigned'] = totalAssigned;
                 });
+
+                // Panggil metode addSubCategory di sini dengan index yang sesuai
+                await addSubCategory(
+                    _categories[index]['id'], newName, newAssigned);
+
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),
             ),
           ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              String subcategoryName = subcategoryNameController.text;
-              double amount = double.parse(subcategoryAmountController.text);
-              addSubcategory(subcategoryName, amount);
-              Navigator.of(context).pop();
-            },
-            child: Text('Save'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-// Function to build dropdown menu for selecting category
-Widget _buildCategoryDropdown(List<Map<String, dynamic>> categories) {
-  return DropdownButtonFormField<int>(
-    value: selectedCategoryId,
-    onChanged: (int? value) {
-      setState(() {
-        selectedCategoryId = value;
-      });
-    },
-    items: categories.map<DropdownMenuItem<int>>((category) {
-      return DropdownMenuItem<int>(
-        value: category['id'],
-        child: Text(category['NamaKategori']),
-      );
-    }).toList(),
-    decoration: InputDecoration(
-      labelText: 'Choose category',
-      border: OutlineInputBorder(),
-    ),
-  );
+        );
+      },
+      child: Text('Add Category'),
+    );
+  }
 }

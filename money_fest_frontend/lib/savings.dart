@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'user_data.dart';
 
 class SavingsContent extends StatefulWidget {
@@ -159,10 +160,14 @@ class _SavingsContentState extends State<SavingsContent> {
                 ),
               ),
               const DataColumn(
-                label: Text('Assigned', style: TextStyle(color: Colors.white)),
-              ),
-              const DataColumn(
-                label: Text('Available', style: TextStyle(color: Colors.white)),
+                numeric: false,
+                label: Padding(
+                  padding: EdgeInsets.only(left: 80.0),
+                  child: Text(
+                    'Assigned',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
             ],
             rows: _categories.asMap().entries.expand((entry) {
@@ -236,14 +241,16 @@ class _SavingsContentState extends State<SavingsContent> {
                         ],
                       ),
                     ),
-                    DataCell(Text(
-                      'Rp. ${_formatNumber(category['assigned'])}',
-                      style: const TextStyle(color: Colors.white),
-                    )),
-                    DataCell(Text(
-                      'Rp. ${_formatNumber(category['available'])}',
-                      style: const TextStyle(color: Colors.white),
-                    )),
+                    DataCell(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 70), // Atur jarak horizontal di sini
+                        child: Text(
+                          'Rp. ${_formatNumber(category['assigned'])}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ];
@@ -255,7 +262,7 @@ class _SavingsContentState extends State<SavingsContent> {
                       DataCell(
                         Row(
                           children: [
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 30),
                             const Icon(Icons.arrow_right, color: Colors.white),
                             const SizedBox(width: 5),
                             InkWell(
@@ -274,14 +281,17 @@ class _SavingsContentState extends State<SavingsContent> {
                           ],
                         ),
                       ),
-                      DataCell(Text(
-                        'Rp. ${_formatNumber(subCategory['assigned'])}',
-                        style: const TextStyle(color: Colors.white),
-                      )),
-                      DataCell(Text(
-                        'Rp. ${_formatNumber(subCategory['available'])}',
-                        style: const TextStyle(color: Colors.white),
-                      )),
+                      DataCell(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal:
+                                  70.0), // Atur jarak horizontal di sini
+                          child: Text(
+                            'Rp. ${_formatNumber(subCategory['assigned'])}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
                     ],
                   ));
                 }
@@ -373,7 +383,200 @@ class _SavingsContentState extends State<SavingsContent> {
           ],
         );
       },
-      child: Text('Add Category'),
+    );
+  }
+
+  void _addCategoryRow(BuildContext context) {
+    final userId = widget.userId;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        TextEditingController nameController = TextEditingController();
+
+        return AlertDialog(
+          title: const Text('New Category'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              hintText: 'Enter category name',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  String categoryName = nameController.text.isNotEmpty
+                      ? nameController.text
+                      : 'New Category';
+
+                  addCategory(categoryName);
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSubCategoryNamePopup(
+      BuildContext context, int categoryIndex, int subCategoryIndex) {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController assignedController = TextEditingController();
+
+    String subCategoryName = '';
+    String subCategoryAssigned = '';
+
+    if (subCategoryIndex != -1) {
+      subCategoryName =
+          _categories[categoryIndex]['subCategories'][subCategoryIndex]['name'];
+      subCategoryAssigned = _categories[categoryIndex]['subCategories']
+              [subCategoryIndex]['assigned']
+          .toString();
+    }
+
+    nameController.text = subCategoryName;
+    assignedController.text = subCategoryAssigned;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+              subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter subcategory name',
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: assignedController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter assigned value',
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    assignedController.value = TextEditingValue(
+                      text: _formatNumber(value),
+                      selection: TextSelection.collapsed(
+                          offset: _formatNumber(value).length),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  String newName = nameController.text;
+                  double newAssigned = double.tryParse(
+                          assignedController.text.replaceAll(',', '')) ??
+                      0.0;
+
+                  if (subCategoryIndex != -1) {
+                    _categories[categoryIndex]['subCategories']
+                        [subCategoryIndex]['name'] = newName;
+                    _categories[categoryIndex]['subCategories']
+                        [subCategoryIndex]['assigned'] = newAssigned;
+                  } else {
+                    _categories[categoryIndex]['subCategories'].add({
+                      'name': newName,
+                      'assigned': newAssigned,
+                      // Add other properties as needed
+                    });
+
+                    // Update total assigned for the category
+                    double totalAssigned = 0.0;
+                    _categories[categoryIndex]['subCategories']
+                        .forEach((subCategory) {
+                      totalAssigned += subCategory['assigned'];
+                    });
+                    _categories[categoryIndex]['assigned'] = totalAssigned;
+                  }
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _formatNumber(dynamic value) {
+    if (value == null) {
+      return ''; // Atau nilai default lainnya sesuai dengan kebutuhan aplikasi Anda
+    }
+    final formatter = NumberFormat('#,###');
+    return formatter.format(value is int ? value.toDouble() : value);
+  }
+
+  void _showCategoryNamePopup(BuildContext context, int index) {
+    String newCategoryName = _categories[index]['name'] ?? 'New Category';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Edit Category Name"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: TextEditingController(text: newCategoryName),
+                onChanged: (value) {
+                  newCategoryName = value;
+                },
+                decoration: const InputDecoration(
+                  hintText: 'Enter new category name',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _categories[index]['name'] = newCategoryName;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

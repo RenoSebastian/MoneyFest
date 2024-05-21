@@ -66,7 +66,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
             columns: [
               DataColumn(
                 label: Text(
-                  'Category',
+                  '',
                   style: TextStyle(color: Colors.white),
                 ),
               ),

@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\SubKategoriController;
 use App\Http\Controllers\InstalmentController;
+use App\Http\Controllers\BalanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,9 @@ Route::get('/profile-image/{id}', [UserController::class,'getProfileImage']);
 Route::get('/instalments', [InstalmentController::class, 'index']);
 Route::post('/create/instalments', [InstalmentController::class, 'store']);
 Route::put('/instalments/{id}', [InstalmentController::class, 'update']);
+Route::post('reset/instalments', [InstalmentController::class, 'reset']);
+Route::post('/balance/store', [BalanceController::class, 'store']);
+
 
 
 //Route::middleware('auth:sanctum')->post('/update-profile-image', [UserController::class, 'updateProfileImage']);

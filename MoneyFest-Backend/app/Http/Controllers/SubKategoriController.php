@@ -11,6 +11,14 @@ use Illuminate\Support\Facades\Validator;
 class SubKategoriController extends Controller
 {
     public function store(Request $request)
+{
+    // Validasi input
+    $validator = Validator::make($request->all(), [
+        'user_id' => 'required|exists:users,id',
+        'NamaSub' => 'required|string',
+        'uang' => 'required|numeric',
+        'kategori_id' => 'required|exists:kategori,id',
+    ]);
     {
         // Validasi input
         $validator = Validator::make($request->all(), [
@@ -51,6 +59,13 @@ class SubKategoriController extends Controller
         ]);
     }
 
+    // Jika validasi berhasil
+    $subKategori = new SubKategoriModel();
+    $subKategori->user_id = $request->user_id;
+    $subKategori->NamaSub = $request->input('NamaSub');
+    $subKategori->uang = $request->input('uang');
+    $subKategori->kategori_id = $request->kategori_id;
+    $subKategori->save();
         // Jika validasi berhasil
         $subKategori = new SubKategoriModel();
         $subKategori->NamaSub = $request->input('NamaSub');
@@ -70,4 +85,5 @@ class SubKategoriController extends Controller
         'message' => 'Sub Kategori berhasil dibuat',
         'status' => '200'
     ]);
+}
 }

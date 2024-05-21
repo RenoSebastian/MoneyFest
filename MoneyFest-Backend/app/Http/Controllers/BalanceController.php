@@ -83,7 +83,9 @@ class BalanceController extends Controller
         $balance->save();
 
         // Tampilkan data saldo yang diperbarui dalam bentuk response JSON
-        return response()->json(['balance' => $balance], 200);
+        return response()->json([
+            'Message' => 'balance berhasil dibuat',
+            'balance' => $balance], 200);
     }
 
     /**

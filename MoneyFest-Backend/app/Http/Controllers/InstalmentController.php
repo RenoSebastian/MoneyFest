@@ -4,17 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\InstalmentModel;
+use Illuminate\Support\Facades\Auth;
 
 class InstalmentController extends Controller
 {
     public function index()
     {
-        // Ambil semua data instalment dari database
-        $instalments = InstalmentModel::all();
+        // Ambil ID pengguna dari permintaan
+        $userId = $request->user()->id;
+
+        // Ambil semua data instalment dari database yang terkait dengan user yang sedang login
+        $instalments = InstalmentModel::where('user_id', $userId)->get();
 
         // Kembalikan data sebagai response JSON
         return response()->json(['instalments' => $instalments]);
     }
+
 
     public function store(Request $request)
     {
@@ -72,4 +77,16 @@ class InstalmentController extends Controller
             'message'       => 'Instalment berhasil diperbarui',
         ]);
     }
+
+    public function reset()
+{
+    // Hapus semua data instalment dari database
+    InstalmentModel::truncate();
+
+    // Kembalikan response sukses dengan pesan
+    return response()->json([
+        'message' => 'Semua data instalment berhasil dihapus'
+    ]);
+}
+
 }

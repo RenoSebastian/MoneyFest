@@ -35,6 +35,8 @@ Route::post('/create/instalments', [InstalmentController::class, 'store']);
 Route::put('/instalments/{id}', [InstalmentController::class, 'update']);
 Route::post('reset/instalments', [InstalmentController::class, 'reset']);
 Route::post('/balance/store', [BalanceController::class, 'store']);
+Route::get('/balance/user/{userId}', [BalanceController::class, 'showByUserId']);
+
 
 
 

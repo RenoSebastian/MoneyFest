@@ -10,6 +10,7 @@ class SubKategoriModel extends Model
     protected $table = 'SubKategori';
 
     protected $fillable = [
+        'user_id',
         'NamaSub',
         'uang',
         'kategori_id',
@@ -33,6 +34,25 @@ class SubKategoriModel extends Model
     {
         return $this->belongsTo(KategoriModel::class, 'kategori_id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
 
+// <?php
+
+// namespace App\Models;
+
+// use Illuminate\Database\Eloquent\Model;
+
+// class SubKategoriModel extends Model
+// {
+//     protected $table = 'SubKategori';
+
+//     protected $fillable = [
+//         'NamaSub',
+//         'uang',
+//     ];
     
 }

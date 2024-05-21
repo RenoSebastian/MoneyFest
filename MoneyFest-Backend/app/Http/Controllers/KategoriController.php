@@ -33,6 +33,7 @@ class KategoriController extends Controller
     {
         // Validasi input
         $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
             'NamaKategori' => 'required|string|max:255', // Menjadi required dan batas panjang maksimal 255 karakter
         ]);
 
@@ -47,6 +48,7 @@ class KategoriController extends Controller
 
         // Jika validasi berhasil
         $kategori = new KategoriModel();
+        $kategori->user_id = $request->user_id;
         $kategori->NamaKategori = $request->input('NamaKategori');
         $kategori->save();
 

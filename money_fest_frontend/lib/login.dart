@@ -1,14 +1,12 @@
-// ignore_for_file: unused_import
-
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:money_fest_frontend/services/auth_service.dart';
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
-import 'package:money_fest_frontend/user_data.dart';
-import 'package:provider/provider.dart'; // Import the AuthService class
+import 'user_data.dart'; // Import the UserData class
 
+// ignore: must_be_immutable
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
 

@@ -58,4 +58,18 @@ class KategoriController extends Controller
             'status' => '200'
         ]);
     }
+
+    public function getCategoriesByUser($userId)
+    {
+        $categories = KategoriModel::with('subKategoris')
+            ->where('user_id', $userId)
+            ->get();
+
+        return response()->json([
+            'data' => $categories,
+            'message' => 'Kategori dan subkategori berhasil diambil',
+            'status' => '200'
+        ], 200);
+    }
+
 }

@@ -1,5 +1,11 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:money_fest_frontend/services/auth_service.dart'; // Import the AuthService class
+import 'package:money_fest_frontend/services/auth_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:money_fest_frontend/user_data.dart';
+import 'package:provider/provider.dart'; // Import the AuthService class
 
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);

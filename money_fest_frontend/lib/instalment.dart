@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -19,7 +21,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
   // ignore: unused_field
   final bool _isSavingsSelected = true; // default Savings is selected
   final List<Map<String, dynamic>> _categories = [];
-  List<int> _categoryIds = [];
+  final List<int> _categoryIds = [];
   String newBalance = '';
   // ignore: unused_field
   final bool _balanceEntered = false;
@@ -63,7 +65,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
           scrollDirection: Axis.horizontal,
           child: DataTable(
             columnSpacing: 10.0,
-            columns: [
+            columns: const [
               DataColumn(
                 label: Text(
                   'Category',
@@ -79,7 +81,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                   DataCell(
                     Text(
                       category['name'],
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
@@ -433,7 +435,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     DataCell(
                       Row(
                         children: [
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
                               if (_isEditing) {
@@ -446,13 +448,13 @@ class _InstalmentContentState extends State<InstalmentContent> {
                                   onTap: () {
                                     _showSetReminderPopup(context, index);
                                   },
-                                  child: Icon(Icons.notifications,
+                                  child: const Icon(Icons.notifications,
                                       color: Colors.white),
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Text(
                                   _editingCategoryName,
-                                  style: TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                               ],
                             ),
@@ -462,11 +464,11 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     ),
                     DataCell(Text(
                       'Rp. ${_formatNumber(category['assigned'])}',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     )),
                     DataCell(Text(
                       'Rp. ${_formatNumber(category['available'])}',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     )),
                   ],
                 ),
@@ -475,7 +477,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                     DataCell(
                       Row(
                         children: [
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
                               _addAmount(
@@ -499,8 +501,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
                         ],
                       ),
                     ),
-                    DataCell(Text('')),
-                    DataCell(Text('')),
+                    const DataCell(Text('')),
+                    const DataCell(Text('')),
                   ],
                 ),
               ];
@@ -578,7 +580,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
     if (response.statusCode == 200) {
       // Reset berhasil
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Instalments berhasil direset'),
           backgroundColor: Colors.green,
         ),
@@ -586,7 +588,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
     } else {
       // Gagal melakukan reset
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Gagal mereset instalments'),
           backgroundColor: Colors.red,
         ),

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriModel;
 use App\Models\SubKategoriModel;
-use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 

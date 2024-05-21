@@ -1,5 +1,3 @@
-// ignore_for_file: unused_import
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -125,184 +123,128 @@ class _SavingsContentState extends State<SavingsContent> {
 
   // Pada widget _buildCategoryButton
   Widget _buildCategoryButton() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      TextButton(
-        onPressed: () {
-          setState(() {
-            _categories.clear();
-          });
-        },
-        child: const Text(
-          'Reset',
-          style: TextStyle(color: Colors.white),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _categories.clear();
+            });
+          },
+          child: const Text(
+            'Reset',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      ),
-      SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columnSpacing: 10.0,
-          columns: [
-            DataColumn(
-              label: InkWell(
-                onTap: () {
-                  _addCategoryRow(context);
-                },
-                child: const Row(
-                  children: [
-                    Icon(Icons.add, color: Colors.white),
-                    SizedBox(width: 5),
-                    Text(
-                      'Add Category',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const DataColumn(
-                numeric : false,
-              const DataColumn(
-                numeric: false,
-                label: Padding(
-                  padding: EdgeInsets.only(left: 80.0),
-                  child: Text(
-                    'Assigned',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-          ],
-          rows: _categories.asMap().entries.expand((entry) {
-            int index = entry.key;
-            Map<String, dynamic> category = entry.value;
-            bool isEditing = category['isEditing'] ?? false;
-            String editingCategoryName = category['name'] ?? '';
-            bool isExpanded = category['isExpanded'] ?? false;
-            List subCategories = category['subCategories'] ?? [];
-
-            List<DataRow> rows = [
-              DataRow(
-                cells: [
-                  DataCell(
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            if (isExpanded) {
-                              setState(() {
-                                category['isExpanded'] = false;
-                              });
-                            } else {
-                              setState(() {
-                                category['isExpanded'] = true;
-                              });
-                            }
-                          },
-                          child: Icon(
-                            isExpanded
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        InkWell(
-                          onTap: () {
-                            if (isEditing) {
-                              _showCategoryNamePopup(context, index);
-                            } else {
-                              setState(() {
-                                category['isEditing'] = true;
-                              });
-                            }
-                          },
-                          child: isEditing
-                              ? TextButton(
-                                  onPressed: () {
-                                    _showCategoryNamePopup(context, index);
-                                  },
-                                  child: Text(
-                                    editingCategoryName,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
-                              : Text(
-                                  editingCategoryName,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                        ),
-                        const Spacer(),
-                        InkWell(
-                          onTap: () {
-                            _addSubCategory(index); // Menggunakan indeks kategori yang terkait
-                          },
-                          child: const Icon(Icons.add, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  DataCell(
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 70), // Atur jarak horizontal di sini
-                      child: Text(
-                        'Rp. ${_formatNumber(category['assigned'])}',
-                        style: const TextStyle(color: Colors.white),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columnSpacing: 10.0,
+            columns: [
+              DataColumn(
+                label: InkWell(
+                  onTap: () {
+                    _addCategoryRow(context);
+                  },
+                  child: const Row(
+                    children: [
+                      Icon(Icons.add, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text(
+                        'Add Category',
+                        style: TextStyle(color: Colors.white),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ];
+              const DataColumn(
+                label: Text('Assigned', style: TextStyle(color: Colors.white)),
+              ),
+              const DataColumn(
+                label: Text('Available', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+            rows: _categories.asMap().entries.expand((entry) {
+              int index = entry.key;
+              Map<String, dynamic> category = entry.value;
+              bool isEditing = category['isEditing'] ?? false;
+              String editingCategoryName = category['name'] ?? '';
+              bool isExpanded = category['isExpanded'] ?? false;
+              List subCategories = category['subCategories'] ?? [];
 
-            if (isExpanded) {
-              for (var subCategory in subCategories) {
-                rows.add(DataRow(
+              List<DataRow> rows = [
+                DataRow(
                   cells: [
                     DataCell(
                       Row(
                         children: [
-                          const SizedBox(width: 30),
-                          const Icon(Icons.arrow_right, color: Colors.white),
+                          InkWell(
+                            onTap: () {
+                              if (isExpanded) {
+                                setState(() {
+                                  category['isExpanded'] = false;
+                                });
+                              } else {
+                                setState(() {
+                                  category['isExpanded'] = true;
+                                });
+                              }
+                            },
+                            child: Icon(
+                              isExpanded
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
-                              _showSubCategoryNamePopup(
-                                context,
-                                index,
-                                subCategories.indexOf(subCategory),
-                              );
+                              if (isEditing) {
+                                _showCategoryNamePopup(context, index);
+                              } else {
+                                setState(() {
+                                  category['isEditing'] = true;
+                                });
+                              }
                             },
-                            child: Text(
-                              subCategory['name'],
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                            child: isEditing
+                                ? TextButton(
+                                    onPressed: () {
+                                      _showCategoryNamePopup(context, index);
+                                    },
+                                    child: Text(
+                                      editingCategoryName,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                : Text(
+                                    editingCategoryName,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                          ),
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              _addSubCategory(
+                                  index); // Menggunakan indeks kategori yang terkait
+                            },
+                            child: const Icon(Icons.add, color: Colors.white),
                           ),
                         ],
                       ),
                     ),
-                    DataCell(
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 70.0), // Atur jarak horizontal di sini
-                      child: Text(
-                        'Rp. ${_formatNumber(subCategory['assigned'])}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-
-                  ],
-                ));
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 70), // Atur jarak horizontal di sini
-                        child: Text(
-                          'Rp. ${_formatNumber(category['assigned'])}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['assigned'])}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['available'])}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
                   ],
                 ),
               ];
@@ -314,7 +256,7 @@ class _SavingsContentState extends State<SavingsContent> {
                       DataCell(
                         Row(
                           children: [
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 20),
                             const Icon(Icons.arrow_right, color: Colors.white),
                             const SizedBox(width: 5),
                             InkWell(
@@ -333,30 +275,26 @@ class _SavingsContentState extends State<SavingsContent> {
                           ],
                         ),
                       ),
-                      DataCell(
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal:
-                                  70.0), // Atur jarak horizontal di sini
-                          child: Text(
-                            'Rp. ${_formatNumber(subCategory['assigned'])}',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['assigned'])}',
+                        style: const TextStyle(color: Colors.white),
+                      )),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['available'])}',
+                        style: const TextStyle(color: Colors.white),
+                      )),
                     ],
                   ));
                 }
               }
-            }
 
-            return rows;
-          }).toList(),
+              return rows;
+            }).toList(),
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   void _addSubCategory(int index) {
     showDialog(

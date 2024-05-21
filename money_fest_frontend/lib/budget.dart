@@ -1,7 +1,11 @@
 // ignore_for_file: unused_field, duplicate_ignore, unused_import
 
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 import 'savings.dart';
 import 'instalment.dart';
 // ignore: unused_import
@@ -14,6 +18,21 @@ class Budget extends StatefulWidget {
   @override
   // ignore: library_private_types_in_public_api
   _BudgetState createState() => _BudgetState();
+}
+
+Future<String> fetchBalance(int userId) async {
+  final response = await http
+      .get(Uri.parse('http://10.0.2.2:8000/api/balance/user/$userId'));
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    int balance = int.parse(data['balance']['balance']);
+
+    return NumberFormat.currency(locale: 'id', symbol: 'Rp. ', decimalDigits: 0)
+        .format(balance);
+  } else {
+    throw Exception('Failed to load balance');
+  }
 }
 
 class _BudgetState extends State<Budget> {
@@ -42,6 +61,21 @@ class _BudgetState extends State<Budget> {
   bool _balanceEntered = false;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.userId != null) {
+      fetchBalance(widget.userId!).then((balance) {
+        setState(() {
+          _balance = balance;
+        });
+      }).catchError((error) {
+        // Handle error
+        print('Failed to fetch balance: $error');
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -49,8 +83,7 @@ class _BudgetState extends State<Budget> {
           color: Color.fromRGBO(25, 23, 61, 1),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(
-              top: 50), // Sesuaikan dengan jarak yang diinginkan dari atas
+          padding: const EdgeInsets.only(top: 50),
           child: Stack(
             children: [
               Align(
@@ -98,7 +131,6 @@ class _BudgetState extends State<Budget> {
                           children: [
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/dashboard');
                               },
                               child: Image.asset(
@@ -109,7 +141,6 @@ class _BudgetState extends State<Budget> {
                             ),
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/budget');
                               },
                               child: Image.asset(
@@ -120,7 +151,6 @@ class _BudgetState extends State<Budget> {
                             ),
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/profile');
                               },
                               child: Image.asset(
@@ -235,9 +265,8 @@ class _BudgetState extends State<Budget> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      fontFamily:
-                          'Poppins', // Mengatur jenis font menjadi Poppins
-                      color: Color(0xFF19173D), // Warna teks
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF19173D),
                     ),
                   ),
                 ),
@@ -245,84 +274,89 @@ class _BudgetState extends State<Budget> {
               Text(
                 'How many do you have?',
                 style: TextStyle(
-                  fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
-                  fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
-                  color: const Color(0xFF19173D)
-                      .withOpacity(0.7), // Transparansi 70%
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.7),
                 ),
               ),
-              const SizedBox(height: 10), // Spasi antara elemen
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDAD9D9), // Warna abu muda
-                  borderRadius: BorderRadius.circular(8.0), // Radius sudut
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    border: InputBorder.none, // Menghapus border
-                    contentPadding:
-                        const EdgeInsets.all(15.0), // Padding untuk teks
-                    hintText: 'Masukkan jumlah saldo',
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter your balance',
                     hintStyle: TextStyle(
-                      fontFamily:
-                          'Poppins', // Mengatur jenis font menjadi Poppins
-                      fontWeight:
-                          FontWeight.normal, // Mengatur teks menjadi normal
-                      color: const Color(0xFF19173D)
-                          .withOpacity(0.5), // Transparansi 50%
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
                     ),
                   ),
                   onChanged: (value) {
                     newBalance = value;
                   },
                   style: const TextStyle(
-                    fontFamily:
-                        'Poppins', // Mengatur jenis font menjadi Poppins
-                    fontWeight:
-                        FontWeight.normal, // Mengatur teks menjadi normal
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
               ),
-              // Tambah elemen-elemen lainnya sesuai kebutuhan
             ],
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup popup
+                Navigator.of(context).pop();
               },
               child: const Text(
                 'Cancel',
                 style: TextStyle(
-                  fontFamily: 'Poppins', // Mengatur jenis font menjadi Poppins
-                  fontWeight: FontWeight.normal, // Mengatur teks menjadi normal
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
                 ),
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 int? parsedBalance = int.tryParse(newBalance ?? '');
                 if (parsedBalance != null) {
-                  setState(() {
-                    _balance = NumberFormat.currency(
-                      locale: 'id',
-                      symbol: 'Rp. ',
-                      decimalDigits: 0,
-                    ).format(parsedBalance);
-                  });
+                  final response = await http.post(
+                    Uri.parse('http://10.0.2.2:8000/api/balance/store'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: jsonEncode(<String, dynamic>{
+                      'balance': newBalance,
+                      'user_id': widget.userId,
+                    }),
+                  );
+
+                  if (response.statusCode == 201) {
+                    setState(() {
+                      _balance = NumberFormat.currency(
+                        locale: 'id',
+                        symbol: 'Rp. ',
+                        decimalDigits: 0,
+                      ).format(parsedBalance);
+                    });
+                  } else {
+                    // Handle the error
+                  }
                 }
-                Navigator.of(context).pop(); // Tutup popup setelah selesai
+                Navigator.of(context).pop();
               },
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(
-                      20.0), // Atur radius sesuai keinginan
+                  borderRadius: BorderRadius.circular(20.0),
                   gradient: const LinearGradient(
                     colors: [
                       Color.fromRGBO(13, 166, 194, 1),
                       Color.fromRGBO(33, 78, 226, 1)
                     ],
-                    // Ubah warna gradient sesuai kebutuhan Anda
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -333,10 +367,8 @@ class _BudgetState extends State<Budget> {
                     'Save',
                     style: TextStyle(
                       color: Colors.white,
-                      fontFamily:
-                          'Poppins', // Mengatur jenis font menjadi Poppins
-                      fontWeight:
-                          FontWeight.normal, // Mengatur teks menjadi normal
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
                 ),

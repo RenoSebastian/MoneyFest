@@ -14,14 +14,27 @@ class KategoriModel extends Model
     ];
 
     protected static function booted()
-    {
-        static::saved(function ($kategori) {
-            $kategori->jumlah = $kategori->subKategoris()->sum('uang');
-        });
-    }
+{
+    parent::boot();
+
+    static::saved(function ($kategori) {
+        // Hitung total uang dari subkategori terkait
+        $totalUang = $kategori->subKategoris()->sum('uang');
+
+        // Format total uang sesuai kebutuhan
+        $formattedTotalUang = number_format($totalUang, 2, '.', ',');
+
+        // Update jumlah di kategori dengan total uang yang diformat
+        $kategori->jumlah = $formattedTotalUang;
+        $kategori->save();
+    });
+}
+
 
     public function subKategoris()
     {
         return $this->hasMany(SubKategoriModel::class, 'kategori_id');
     }
+
+    
 }

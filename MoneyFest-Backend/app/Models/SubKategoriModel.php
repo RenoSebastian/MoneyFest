@@ -33,40 +33,6 @@ class SubKategoriModel extends Model
     {
         return $this->belongsTo(KategoriModel::class, 'kategori_id');
     }
+
+    
 }
-
-// <?php
-
-// namespace App\Models;
-
-// use Illuminate\Database\Eloquent\Model;
-
-// class SubKategoriModel extends Model
-// {
-//     protected $table = 'SubKategori';
-
-//     protected $fillable = [
-//         'NamaSub',
-//         'uang',
-//     ];
-
-//     protected static function boot()
-// {
-//     parent::boot();
-
-
-//     static::saved(function ($subKategori) {
-//         // Ambil kategori terkait
-//         $kategori = $subKategori->kategori;
-
-//         // Hitung total uang dari subkategori terkait dan update jumlah di kategori
-//         $kategori->jumlah = $kategori->subKategoris()->sum('uang');
-//         $kategori->save();
-//     });
-// }
-
-//     public function kategori()
-//     {
-//         return $this->belongsTo(KategoriModel::class, 'kategori_id');
-//     }
-// }

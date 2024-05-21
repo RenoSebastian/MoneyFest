@@ -161,6 +161,8 @@ class _SavingsContentState extends State<SavingsContent> {
             ),
             const DataColumn(
                 numeric : false,
+              const DataColumn(
+                numeric: false,
                 label: Padding(
                   padding: EdgeInsets.only(left: 80.0),
                   child: Text(
@@ -290,6 +292,59 @@ class _SavingsContentState extends State<SavingsContent> {
 
                   ],
                 ));
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 70), // Atur jarak horizontal di sini
+                        child: Text(
+                          'Rp. ${_formatNumber(category['assigned'])}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ];
+
+              if (isExpanded) {
+                for (var subCategory in subCategories) {
+                  rows.add(DataRow(
+                    cells: [
+                      DataCell(
+                        Row(
+                          children: [
+                            const SizedBox(width: 30),
+                            const Icon(Icons.arrow_right, color: Colors.white),
+                            const SizedBox(width: 5),
+                            InkWell(
+                              onTap: () {
+                                _showSubCategoryNamePopup(
+                                  context,
+                                  index,
+                                  subCategories.indexOf(subCategory),
+                                );
+                              },
+                              child: Text(
+                                subCategory['name'],
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      DataCell(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal:
+                                  70.0), // Atur jarak horizontal di sini
+                          child: Text(
+                            'Rp. ${_formatNumber(subCategory['assigned'])}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ));
+                }
               }
             }
 

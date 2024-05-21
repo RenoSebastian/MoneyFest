@@ -10,6 +10,7 @@ class SubKategoriModel extends Model
     protected $table = 'SubKategori';
 
     protected $fillable = [
+        'user_id',
         'NamaSub',
         'uang',
         'kategori_id',
@@ -32,6 +33,11 @@ class SubKategoriModel extends Model
     public function kategori()
     {
         return $this->belongsTo(KategoriModel::class, 'kategori_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
 

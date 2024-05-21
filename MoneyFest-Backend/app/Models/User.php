@@ -32,16 +32,25 @@ class User extends Authenticatable
     public function order()
     {
         return $this->hasMany(Order::class);
+    }
     
     public function instalments()
     {
         return $this->hasMany(InstalmentModel::class);
     }
-}
 
     public function balances()
     {
         return $this->hasMany(BalanceModel::class);
     }
-}
 
+    public function kategori()
+    {
+        return $this->hasMany(KategoriModel::class);
+    }
+
+    public function subkategori()
+    {
+        return $this->hasMany(SubKategoriModel::class);
+    }
+}

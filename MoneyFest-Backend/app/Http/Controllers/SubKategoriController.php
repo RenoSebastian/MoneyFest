@@ -13,6 +13,7 @@ class SubKategoriController extends Controller
 {
     // Validasi input
     $validator = Validator::make($request->all(), [
+        'user_id' => 'required|exists:users,id',
         'NamaSub' => 'required|string',
         'uang' => 'required|numeric',
         'kategori_id' => 'required|exists:kategori,id',
@@ -29,9 +30,10 @@ class SubKategoriController extends Controller
 
     // Jika validasi berhasil
     $subKategori = new SubKategoriModel();
+    $subKategori->user_id = $request->user_id;
     $subKategori->NamaSub = $request->input('NamaSub');
     $subKategori->uang = $request->input('uang');
-    $subKategori->kategori_id = $request->input('kategori_id'); // Mengambil ID kategori dari input
+    $subKategori->kategori_id = $request->kategori_id;
     $subKategori->save();
 
     // Ambil kategori terkait
@@ -47,6 +49,5 @@ class SubKategoriController extends Controller
         'status' => '200'
     ]);
 }
-
 
 }

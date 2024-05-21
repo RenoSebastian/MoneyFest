@@ -41,7 +41,6 @@ class SubKategoriModel extends Model
     {
         return $this->belongsTo(KategoriModel::class, 'kategori_id');
     }
-
     public function user()
     {
         return $this->belongsTo(User::class);

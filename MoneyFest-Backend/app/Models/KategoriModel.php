@@ -15,11 +15,19 @@ class KategoriModel extends Model
     ];
 
     protected static function booted()
-    {
-        static::saved(function ($kategori) {
-            $kategori->jumlah = $kategori->subKategoris()->sum('uang');
-        });
-    }
+{
+    parent::boot();
+
+    static::saved(function ($kategori) {
+        // Hitung total uang dari subkategori terkait
+        $totalUang = $kategori->subKategoris()->sum('uang');
+
+        // Update jumlah di kategori dengan total uang yang tidak diformat
+        $kategori->jumlah = $totalUang;
+        $kategori->save();
+    });
+}
+
 
     public function subKategoris()
     {

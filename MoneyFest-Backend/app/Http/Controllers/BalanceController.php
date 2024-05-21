@@ -7,11 +7,7 @@ use Illuminate\Http\Request;
 
 class BalanceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         // Ambil semua data saldo
@@ -21,12 +17,7 @@ class BalanceController extends Controller
         return response()->json(['balances' => $balances], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         // Validasi data yang diterima dari request
@@ -48,52 +39,41 @@ class BalanceController extends Controller
         return response()->json(['balance' => $balance], 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\BalanceModel  $balance
-     * @return \Illuminate\Http\Response
-     */
-    public function show(BalanceModel $balance)
+
+    // BalanceController.php
+
+    public function showByUserId($userId)
     {
-        // Tampilkan data saldo dalam bentuk response JSON
-        return response()->json(['balance' => $balance], 200);
+        $balance = BalanceModel::where('user_id', $userId)->first();
+
+        if ($balance) {
+            return response()->json(['balance' => $balance], 200);
+        } else {
+            return response()->json(['message' => 'Balance not found'], 404);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\BalanceModel  $balance
-     * @return \Illuminate\Http\Response
-     */
+
+
     public function update(Request $request, BalanceModel $balance)
     {
         // Validasi data yang diterima dari request
         $request->validate([
             'balance' => 'required|string',
-            'user_id' => 'required|exists:users,id'
         ]);
 
         // Perbarui data saldo
         $balance->balance = $request->balance;
-        $balance->user_id = $request->user_id;
 
         // Simpan perubahan saldo ke dalam database
         $balance->save();
 
         // Tampilkan data saldo yang diperbarui dalam bentuk response JSON
         return response()->json([
-            'Message' => 'balance berhasil dibuat',
+            'Message' => 'Balance berhasil diperbarui',
             'balance' => $balance], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\BalanceModel  $balance
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(BalanceModel $balance)
     {
         // Hapus saldo dari database

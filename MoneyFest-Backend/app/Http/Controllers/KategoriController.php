@@ -58,4 +58,25 @@ class KategoriController extends Controller
             'status' => '200'
         ]);
     }
+
+    public function chart()
+    {
+        // Fetch all categories with their related expenditures
+        $categories = KategoriModel::with('subKategoris')->get();
+
+        // Prepare data to include the sum of expenditures for each category
+        $categoriesData = $categories->map(function ($category) {
+            return [
+                'id' => $category->id,
+                'NamaKategori' => $category->NamaKategori,
+                'totalExpenditure' => $category->subKategoris->sum('uang'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $categoriesData,
+            'message' => 'Categories fetched successfully',
+            'status' => '200'
+        ], 200);
+    }
 }

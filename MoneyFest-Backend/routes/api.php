@@ -37,6 +37,8 @@ Route::post('reset/instalments', [InstalmentController::class, 'reset']);
 Route::post('/balance/store', [BalanceController::class, 'store']);
 Route::get('/balance/user/{userId}', [BalanceController::class, 'showByUserId']);
 
+Route::get('/chart', [KategoriController::class, 'chart']);
+
 
 
 

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class InstalmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Ambil ID pengguna dari permintaan
         $userId = $request->user()->id;
@@ -19,6 +19,8 @@ class InstalmentController extends Controller
         // Kembalikan data sebagai response JSON
         return response()->json(['instalments' => $instalments]);
     }
+
+
 
 
     public function store(Request $request)
@@ -88,5 +90,6 @@ class InstalmentController extends Controller
         'message' => 'Semua data instalment berhasil dihapus'
     ]);
 }
+
 
 }

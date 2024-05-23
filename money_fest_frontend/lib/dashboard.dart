@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:money_fest_frontend/user_data.dart';
-import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
   int _selectedMonthIndex = 0;
+  List<dynamic> _categories = [];
+  bool _isLoading = true;
 
   final List<String> _months = [
     'Jan',
@@ -30,10 +31,30 @@ class _DashboardState extends State<Dashboard> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    final response =
+        await http.get(Uri.parse('http://10.0.2.2:8000/api/chart'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _categories = data['data'];
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final userData = Provider.of<UserData>(context);
-    // ignore: unused_local_variable
-    final userId = userData.userId;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(top: 0),
@@ -54,19 +75,21 @@ class _DashboardState extends State<Dashboard> {
                 ),
               ),
               Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildReportText(),
-                    const SizedBox(height: 16),
-                    _buildBarChart(),
-                    const SizedBox(height: 16),
-                    _buildNotesContainer(),
-                    const SizedBox(height: 20),
-                    _buildMonthButtons(),
-                  ],
-                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator()
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _buildReportText(),
+                          const SizedBox(height: 16),
+                          _buildPieChart(),
+                          const SizedBox(height: 16),
+                          _buildNotesContainer(),
+                          const SizedBox(height: 20),
+                          _buildMonthButtons(),
+                        ],
+                      ),
               ),
               Positioned(
                 bottom: -9,
@@ -90,7 +113,6 @@ class _DashboardState extends State<Dashboard> {
                           children: [
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/dashboard');
                               },
                               child: Image.asset(
@@ -101,7 +123,6 @@ class _DashboardState extends State<Dashboard> {
                             ),
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/budget');
                               },
                               child: Image.asset(
@@ -112,7 +133,6 @@ class _DashboardState extends State<Dashboard> {
                             ),
                             InkWell(
                               onTap: () {
-                                // Navigate to budget route
                                 Navigator.pushNamed(context, '/profile');
                               },
                               child: Image.asset(
@@ -147,126 +167,43 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget _buildBarChart() {
+  Widget _buildPieChart() {
+    // Daftar warna yang akan digunakan untuk setiap kategori
+    List<Color> categoryColors = [
+      const Color.fromARGB(255, 0, 107, 195),
+      Color.fromRGBO(233, 144, 105, 1),
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      // Tambahkan warna tambahan jika diperlukan
+    ];
+
     return SizedBox(
       width: 350,
-      height: 300,
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          maxY: 100,
-          barTouchData: BarTouchData(enabled: false),
-          titlesData: FlTitlesData(
-            show: true,
-            bottomTitles: SideTitles(
-              showTitles: true,
-              getTextStyles: (value) => const TextStyle(
-                color: Color.fromRGBO(123, 120, 170, 1),
-                fontSize: 14,
+      height: 300, // Memperbesar tinggi Pie Chart
+      child: PieChart(
+        PieChartData(
+          sections: _categories
+              .where((category) => category['totalExpenditure'] > 0)
+              .map((category) {
+            int colorIndex =
+                _categories.indexOf(category) % categoryColors.length;
+            return PieChartSectionData(
+              value: category['totalExpenditure'].toDouble(),
+              title: category['NamaKategori'],
+              color: categoryColors[
+                  colorIndex], // Menggunakan warna sesuai dengan indeks
+              radius: 140,
+              titleStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-              margin: 10,
-              getTitles: (double value) {
-                switch (value.toInt()) {
-                  case 0:
-                    return 'Category 1';
-                  case 1:
-                    return 'Category 2';
-                  case 2:
-                    return 'Category 3';
-                  case 3:
-                    return 'Category 4';
-                  default:
-                    return '';
-                }
-              },
-            ),
-            leftTitles: SideTitles(
-              showTitles: true,
-              getTextStyles: (value) => const TextStyle(
-                color: Color.fromRGBO(123, 120, 170, 1),
-                fontSize: 14,
-              ),
-              getTitles: (value) {
-                if (value % 10 == 0) {
-                  return value.toInt().toString();
-                } else {
-                  return '';
-                }
-              },
-            ),
-          ),
-          gridData: FlGridData(
-            show: true,
-            drawHorizontalLine: true,
-            horizontalInterval: 25,
-            checkToShowHorizontalLine: (value) => value % 25 == 0,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: const Color.fromARGB(255, 255, 255, 255),
-              strokeWidth: 1,
-            ),
-          ),
-          barGroups: [
-            BarChartGroupData(
-              x: 0,
-              barRods: [
-                BarChartRodData(
-                  y: 25,
-                  width: 35,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
-                  colors: [
-                    const Color.fromRGBO(33, 78, 226, 1),
-                    const Color.fromRGBO(13, 166, 194, 1),
-                    const Color.fromARGB(255, 136, 217, 254),
-                  ],
-                ),
-              ],
-            ),
-            BarChartGroupData(
-              x: 1,
-              barRods: [
-                BarChartRodData(
-                  y: 50,
-                  width: 35,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
-                  colors: [
-                    const Color.fromRGBO(33, 78, 226, 1),
-                    const Color.fromRGBO(13, 166, 194, 1),
-                    const Color.fromARGB(255, 136, 217, 254),
-                  ],
-                ),
-              ],
-            ),
-            BarChartGroupData(
-              x: 2,
-              barRods: [
-                BarChartRodData(
-                  y: 75,
-                  width: 35,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
-                  colors: [
-                    const Color.fromRGBO(33, 78, 226, 1),
-                    const Color.fromRGBO(13, 166, 194, 1),
-                    const Color.fromARGB(255, 136, 217, 254),
-                  ],
-                ),
-              ],
-            ),
-            BarChartGroupData(
-              x: 3,
-              barRods: [
-                BarChartRodData(
-                  y: 100,
-                  width: 35,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
-                  colors: [
-                    const Color.fromRGBO(33, 78, 226, 1),
-                    const Color.fromRGBO(13, 166, 194, 1),
-                    const Color.fromARGB(255, 136, 217, 254),
-                  ],
-                ),
-              ],
-            ),
-          ],
+            );
+          }).toList(),
+          sectionsSpace: 2,
+          centerSpaceRadius: 1,
+          borderData: FlBorderData(show: false),
         ),
       ),
     );
@@ -331,7 +268,6 @@ class MonthSelector extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _MonthSelectorState createState() => _MonthSelectorState();
 }
 
@@ -386,7 +322,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                                 colors: [
                                   Color.fromRGBO(13, 166, 194, 1),
                                   Color.fromRGBO(33, 78, 226, 1)
-                                ], // Ubah warna gradient sesuai kebutuhan Anda
+                                ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               )

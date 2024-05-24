@@ -10,15 +10,15 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('balances', function (Blueprint $table) {
-            $table->id();
-            $table->string('balance');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('balances', function (Blueprint $table) {
+        $table->id();
+        $table->string('balance');
+        $table->unsignedBigInteger('user_id')->unique(); // Tambahkan indeks unik di sini
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

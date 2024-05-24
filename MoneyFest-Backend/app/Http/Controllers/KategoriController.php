@@ -59,23 +59,39 @@ class KategoriController extends Controller
         ]);
     }
 
-    public function chart()
-    {
-        // Fetch all categories with their related expenditures
-        $categories = KategoriModel::with('subKategoris')->get();
+    public function chart($userId)
+{
+    // Fetch all categories with their related expenditures for the given user
+    $categories = KategoriModel::with(['subKategoris' => function ($query) use ($userId) {
+        $query->where('user_id', $userId);
+    }])->get();
 
-        // Prepare data to include the sum of expenditures for each category
-        $categoriesData = $categories->map(function ($category) {
-            return [
-                'id' => $category->id,
-                'NamaKategori' => $category->NamaKategori,
-                'totalExpenditure' => $category->subKategoris->sum('uang'),
-            ];
-        });
+    // Prepare data to include the sum of expenditures for each category
+    $categoriesData = $categories->map(function ($category) {
+        return [
+            'id' => $category->id,
+            'NamaKategori' => $category->NamaKategori,
+            'totalExpenditure' => $category->subKategoris->sum('uang'),
+        ];
+    });
+
+    return response()->json([
+        'data' => $categoriesData,
+        'message' => 'Categories fetched successfully',
+        'status' => '200'
+    ], 200);
+}
+
+
+    public function getCategoriesByUser($userId)
+    {
+        $categories = KategoriModel::with('subKategoris')
+            ->where('user_id', $userId)
+            ->get();
 
         return response()->json([
-            'data' => $categoriesData,
-            'message' => 'Categories fetched successfully',
+            'data' => $categories,
+            'message' => 'Kategori dan subkategori berhasil diambil',
             'status' => '200'
         ], 200);
     }

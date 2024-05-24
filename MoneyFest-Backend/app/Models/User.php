@@ -33,7 +33,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
-    
+
     public function instalments()
     {
         return $this->hasMany(InstalmentModel::class);

@@ -31,16 +31,38 @@ class Login extends StatelessWidget {
           .setUserId(userId); // Set userId using Provider
       // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
+
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.white,
+              ),
+              SizedBox(width: 10),
+              Expanded(child: Text('Login Succesful')),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          margin: EdgeInsets.all(10),
+          duration: Duration(seconds: 3),
+        ),
+      );
+
       if (kDebugMode) {
         print(responseData['message']);
       }
     } else {
-      // Login gagal, tampilkan pesan kesalahan
       if (kDebugMode) {
         print(responseData['message']);
       }
-      // Menampilkan pesan kesalahan menggunakan dialog
-      // ignore: use_build_context_synchronously
+      // Displaying error message using a dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {

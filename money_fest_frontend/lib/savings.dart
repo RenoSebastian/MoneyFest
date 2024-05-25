@@ -397,11 +397,31 @@ class _SavingsContentState extends State<SavingsContent> {
                   // Validate if the assigned amount is greater than user's balance
                   if (newAssigned > userBalance) {
                     // Show error message
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: const Text(
-                          'The assigned amount exceeds your balance!'),
-                      backgroundColor: Colors.red,
-                    ));
+                    // ignore: use_build_context_synchronously
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Row(
+                          children: [
+                            Icon(
+                              Icons.warning,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                                child: Text(
+                                    'The assigned amount exceeds your balance!')),
+                          ],
+                        ),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        margin: EdgeInsets.all(10),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+
                     return; // Stop further execution
                   }
 

@@ -19,7 +19,10 @@ class MoneyFestApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (BuildContext context) => Login(),
-          '/dashboard': (BuildContext context) => const Dashboard(),
+          '/dashboard': (BuildContext context) {
+            final userId = Provider.of<UserData>(context).userId;
+            return Dashboard(userId: userId);
+          },
           '/register': (BuildContext context) => Register(),
           '/budget': (BuildContext context) {
             final userId = Provider.of<UserData>(context).userId;

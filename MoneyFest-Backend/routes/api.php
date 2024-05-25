@@ -35,9 +35,13 @@ Route::post('/create/instalments', [InstalmentController::class, 'store']);
 Route::put('/instalments/{id}', [InstalmentController::class, 'update']);
 Route::post('reset/instalments', [InstalmentController::class, 'reset']);
 Route::post('/balance/store', [BalanceController::class, 'store']);
+Route::post('/balance/update/{userId}', [BalanceController::class, 'update']);
 Route::get('/balance/user/{userId}', [BalanceController::class, 'showByUserId']);
 Route::get('/kategori/user/{userId}', [KategoriController::class, 'getCategoriesByUser']);
 
+
+
+Route::get('/chart/{userId}', [KategoriController::class, 'chart']);
 
 
 

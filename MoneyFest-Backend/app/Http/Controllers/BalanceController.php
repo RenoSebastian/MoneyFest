@@ -20,23 +20,33 @@ class BalanceController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi data yang diterima dari request
         $request->validate([
             'balance' => 'required|string',
             'user_id' => 'required|exists:users,id'
         ]);
 
-        // Buat objek baru untuk saldo
-        $balance = new BalanceModel([
-            'balance' => $request->balance,
-            'user_id' => $request->user_id
-        ]);
+        // Cari saldo berdasarkan user_id
+        $balance = BalanceModel::where('user_id', $request->user_id)->first();
 
-        // Simpan saldo ke dalam database
-        $balance->save();
+        if ($balance) {
+            // Jika saldo sudah ada, tambahkan saldo baru ke saldo yang sudah ada
+            $newBalance = $balance->balance + $request->balance;
+            $balance->balance = $newBalance;
+            $balance->save();
 
-        // Tampilkan data saldo yang baru dibuat dalam bentuk response JSON
-        return response()->json(['balance' => $balance], 201);
+            // Tampilkan data saldo yang telah diperbarui dalam bentuk response JSON
+            return response()->json(['message' => 'Balance updated successfully', 'balance' => $balance], 200);
+        } else {
+            // Jika saldo belum ada, buat saldo baru
+            $newBalance = new BalanceModel([
+                'balance' => $request->balance,
+                'user_id' => $request->user_id
+            ]);
+            $newBalance->save();
+
+            // Tampilkan data saldo baru dalam bentuk response JSON
+            return response()->json(['message' => 'New balance created successfully', 'balance' => $newBalance], 201);
+        }
     }
 
 
@@ -55,7 +65,7 @@ class BalanceController extends Controller
 
 
 
-    public function update(Request $request, BalanceModel $balance)
+    public function update(Request $request, BalanceModel $userId)
     {
         // Validasi data yang diterima dari request
         $request->validate([
@@ -63,15 +73,15 @@ class BalanceController extends Controller
         ]);
 
         // Perbarui data saldo
-        $balance->balance = $request->balance;
+        $userId->balance = $request->balance;
 
         // Simpan perubahan saldo ke dalam database
-        $balance->save();
+        $userId->save();
 
         // Tampilkan data saldo yang diperbarui dalam bentuk response JSON
         return response()->json([
             'Message' => 'Balance berhasil diperbarui',
-            'balance' => $balance], 200);
+            'balance' => $userId], 200);
     }
 
     public function destroy(BalanceModel $balance)

@@ -78,7 +78,7 @@ class _SavingsContentState extends State<SavingsContent> {
           'user_id': widget.userId.toString(),
           'NamaSub': subcategoryName,
           'uang': newAssigned,
-          'kategori_id': categoryId,
+          'kategori_id': categoryId, // Ensure categoryId is correct
         }),
         headers: {'Content-Type': 'application/json'},
       );
@@ -125,6 +125,30 @@ class _SavingsContentState extends State<SavingsContent> {
       });
     } else {
       throw Exception('Failed to load categories');
+    }
+  }
+
+  Future<double> fetchUserBalance(int userId) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/api/balance/user/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return double.parse(data['balance']['balance']);
+    } else {
+      throw Exception('Failed to load balance');
+    }
+  }
+
+  Future<double> _getUserBalance() async {
+    try {
+      return await fetchUserBalance(widget.userId);
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching user balance: $error');
+      }
+      return 0.0; // Default value if fetching balance fails
     }
   }
 
@@ -258,8 +282,7 @@ class _SavingsContentState extends State<SavingsContent> {
                           const Spacer(),
                           InkWell(
                             onTap: () {
-                              _addSubCategory(
-                                  category['id']); // Using category ID
+                              _addSubCategory(index); // Using category ID
                             },
                             child: const Icon(Icons.add, color: Colors.white),
                           ),
@@ -326,81 +349,116 @@ class _SavingsContentState extends State<SavingsContent> {
   }
 
   void _addSubCategory(int categoryId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        TextEditingController nameController = TextEditingController();
-        TextEditingController assignedController = TextEditingController();
+    if (categoryId >= 0 && categoryId < _categories.length) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          TextEditingController nameController = TextEditingController();
+          TextEditingController assignedController = TextEditingController();
 
-        return AlertDialog(
-          title: const Text('Add Subcategory'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter subcategory name',
+          return AlertDialog(
+            title: const Text('Add Subcategory'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter subcategory name',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: assignedController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter assigned value',
+                const SizedBox(height: 10),
+                TextField(
+                  controller: assignedController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter assigned value',
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    assignedController.value = TextEditingValue(
-                      text: _formatNumber(value),
-                      selection: TextSelection.collapsed(
-                          offset: _formatNumber(value).length),
-                    );
-                  }
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
                 },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  String newName = nameController.text;
+                  double newAssigned = double.tryParse(
+                          assignedController.text.replaceAll(',', '')) ??
+                      0.0;
+
+                  double userBalance = await _getUserBalance();
+
+                  // Validate if the assigned amount is greater than user's balance
+                  if (newAssigned > userBalance) {
+                    // Show error message
+                    // ignore: use_build_context_synchronously
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Row(
+                          children: [
+                            Icon(
+                              Icons.warning,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                                child: Text(
+                                    'The assigned amount exceeds your balance!')),
+                          ],
+                        ),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        margin: EdgeInsets.all(10),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+
+                    return; // Stop further execution
+                  }
+
+                  if (_categories[categoryId]['subCategories'] == null) {
+                    _categories[categoryId]['subCategories'] = [];
+                  }
+
+                  setState(() {
+                    _categories[categoryId]['subCategories'].add({
+                      'id': _categories[categoryId]['subCategories'].length + 1,
+                      'name': newName,
+                      'assigned': newAssigned,
+                    });
+                    double totalAssigned = 0.0;
+                    _categories[categoryId]['subCategories']
+                        .forEach((subCategory) {
+                      totalAssigned += subCategory['assigned'];
+                    });
+                    _categories[categoryId]['assigned'] = totalAssigned;
+                  });
+
+                  print(
+                      'Adding subcategory to category ID: $categoryId'); // Debug print
+                  await addSubCategory(_categories[categoryId]['id'], newName,
+                      newAssigned); // Use the correct category ID
+
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Save'),
               ),
             ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                String newName = nameController.text;
-                double newAssigned = double.tryParse(
-                        assignedController.text.replaceAll(',', '')) ??
-                    0.0;
-
-                setState(() {
-                  _categories[categoryId]['subCategories'].add({
-                    'id': _categories[categoryId]['subCategories'].length + 1,
-                    'name': newName,
-                    'assigned': newAssigned,
-                  });
-                  double totalAssigned = 0.0;
-                  _categories[categoryId]['subCategories']
-                      .forEach((subCategory) {
-                    totalAssigned += subCategory['assigned'];
-                  });
-                  _categories[categoryId]['assigned'] = totalAssigned;
-                });
-
-                await addSubCategory(categoryId, newName, newAssigned);
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
+          );
+        },
+      );
+    } else {
+      print('Invalid categoryId: $categoryId');
+    }
   }
 
   void _addCategoryRow(BuildContext context) {

@@ -60,6 +60,78 @@ class _BudgetState extends State<Budget> {
   // ignore: unused_field
   bool _balanceEntered = false;
 
+  Future<void> _updateBalance(String newBalance) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:8000/api/balance/update/${widget.userId}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'balance': newBalance,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Handle jika saldo berhasil diperbarui
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                ),
+                SizedBox(width: 10),
+                Expanded(child: Text('Balance updated successfully')),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            margin: EdgeInsets.all(10),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } else {
+        // Handle jika terjadi kesalahan
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                    child: Text(
+                        'Failed to update balance: ${response.reasonPhrase}')),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            margin: EdgeInsets.all(10),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (error) {
+      // Handle jika terjadi kesalahan dalam koneksi atau respons
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -462,7 +534,9 @@ class _BudgetState extends State<Budget> {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
+                await _updateBalance(
+                    _balance.replaceAll('Rp. ', '').replaceAll('.', ''));
                 Navigator.of(context).pop();
               },
               child: Container(

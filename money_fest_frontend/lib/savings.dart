@@ -128,6 +128,30 @@ class _SavingsContentState extends State<SavingsContent> {
     }
   }
 
+  Future<double> fetchUserBalance(int userId) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/api/balance/user/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return double.parse(data['balance']['balance']);
+    } else {
+      throw Exception('Failed to load balance');
+    }
+  }
+
+  Future<double> _getUserBalance() async {
+    try {
+      return await fetchUserBalance(widget.userId);
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching user balance: $error');
+      }
+      return 0.0; // Default value if fetching balance fails
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildSavings();
@@ -367,6 +391,19 @@ class _SavingsContentState extends State<SavingsContent> {
                   double newAssigned = double.tryParse(
                           assignedController.text.replaceAll(',', '')) ??
                       0.0;
+
+                  double userBalance = await _getUserBalance();
+
+                  // Validate if the assigned amount is greater than user's balance
+                  if (newAssigned > userBalance) {
+                    // Show error message
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: const Text(
+                          'The assigned amount exceeds your balance!'),
+                      backgroundColor: Colors.red,
+                    ));
+                    return; // Stop further execution
+                  }
 
                   if (_categories[categoryId]['subCategories'] == null) {
                     _categories[categoryId]['subCategories'] = [];

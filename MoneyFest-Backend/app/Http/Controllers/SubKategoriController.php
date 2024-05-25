@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SubKategoriModel;
 use App\Models\KategoriModel;
+use App\Models\BalanceModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,10 +27,20 @@ class SubKategoriController extends Controller
             ], 400);
         }
 
+        $userBalance = BalanceModel::where('user_id', $request->user_id)->first();
+        $subCategoryAmount = $request->input('uang');
+
+        if ($userBalance && $subCategoryAmount > $userBalance->balance) {
+            return response()->json([
+                'message' => 'Gagal membuat sub kategori: Jumlah uang melebihi saldo',
+                'status' => '400'
+            ], 400);
+        }
+
         $subKategori = new SubKategoriModel();
         $subKategori->user_id = $request->user_id;
         $subKategori->NamaSub = $request->input('NamaSub');
-        $subKategori->uang = $request->input('uang');
+        $subKategori->uang = $subCategoryAmount;
         $subKategori->kategori_id = $request->kategori_id;
         $subKategori->save();
 
@@ -45,6 +56,12 @@ class SubKategoriController extends Controller
         $totalUang = $kategori->subKategoris()->sum('uang');
         $kategori->jumlah = $totalUang;
         $kategori->save();
+
+        // Kurangi saldo user setelah menyimpan subkategori
+        if ($userBalance) {
+            $userBalance->balance -= $subCategoryAmount;
+            $userBalance->save();
+        }
 
         return response()->json([
             'data' => $subKategori,

@@ -69,4 +69,45 @@ class SubKategoriController extends Controller
             'status' => 200
         ]);
     }
+
+    public function getSubCategoriesByUserAndCategory($userId, $kategoriId)
+{
+    // Mengambil subkategori berdasarkan ID pengguna dan ID kategori
+    $subCategories = SubKategoriModel::where('user_id', $userId)
+                        ->where('kategori_id', $kategoriId)
+                        ->get();
+
+    // Jika subkategori ditemukan
+    if ($subCategories->isNotEmpty()) {
+        return response()->json([
+            'data' => $subCategories,
+            'message' => 'Subkategori berhasil diambil',
+            'status' => 200
+        ], 200);
+    } else {
+        return response()->json([
+            'data' => [],
+            'message' => 'Tidak ada subkategori yang ditemukan',
+            'status' => 404
+        ], 404);
+    }
+}
+
+
+    public function getSubCategoriesByMonth(Request $request, $userId)
+{
+    $month = $request->input('month');
+
+    $subCategories = SubKategoriModel::where('user_id', $userId)
+                        ->whereYear('created_at', date('Y', strtotime($month)))
+                        ->whereMonth('created_at', date('m', strtotime($month)))
+                        ->get();
+
+    return response()->json([
+        'data' => $subCategories,
+        'message' => 'Subkategori berhasil diambil berdasarkan bulan',
+        'status' => '200'
+    ], 200);
+}
+
 }

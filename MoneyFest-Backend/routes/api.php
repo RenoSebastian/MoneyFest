@@ -38,6 +38,11 @@ Route::post('/balance/store', [BalanceController::class, 'store']);
 Route::post('/balance/update/{userId}', [BalanceController::class, 'update']);
 Route::get('/balance/user/{userId}', [BalanceController::class, 'showByUserId']);
 Route::get('/kategori/user/{userId}', [KategoriController::class, 'getCategoriesByUser']);
+Route::get('/subkategori/user/{userId}/{kategoriId}', [SubKategoriController::class, 'getSubCategoriesByUserAndCategory']);
+Route::get('/categories/{userId}', [KategoriController::class, 'getCategoriesByMonth']);
+Route::get('/subcategories/{userId}', [SubKategoriController::class, 'getSubCategoriesByMonth']);
+
+
 
 
 

@@ -8,6 +8,28 @@ use Illuminate\Support\Facades\Auth;
 
 class InstalmentController extends Controller
 {
+
+    public function show($id)
+    {
+        // Temukan instalment berdasarkan ID
+        $instalment = InstalmentModel::find($id);
+
+        // Jika instalment tidak ditemukan
+        if (!$instalment) {
+            return response()->json([
+                'message' => 'Instalment tidak ditemukan',
+                'status' => '404'
+            ], 404);
+        }
+
+        // Jika instalment ditemukan
+        return response()->json([
+            'data' => $instalment,
+            'message' => 'Instalment berhasil ditemukan',
+            'status' => '200'
+        ], 200);
+    }
+
     public function index(Request $request)
     {
         // Ambil ID pengguna dari permintaan
@@ -78,6 +100,64 @@ class InstalmentController extends Controller
         ]);
     }
 
+    public function edit(Request $request, $id)
+    {
+        // Validasi input
+        $request->validate([
+            'kategori' => 'required|string',
+        ]);
+
+        // Temukan instalment berdasarkan ID
+        $instalment = InstalmentModel::find($id);
+
+        if (!$instalment) {
+            return response()->json([
+                'message' => 'Instalment tidak ditemukan',
+                'status' => '404'
+            ], 404);
+        }
+
+        // Perbarui nama kategori
+        $instalment->kategori = $request->input('kategori');
+        $instalment->save();
+
+        return response()->json([
+            'data' => $instalment,
+            'message' => 'Instalment berhasil diperbarui',
+            'status' => 200
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+        $instalment = InstalmentModel::find($id);
+
+        if (!$instalment) {
+            return response()->json([
+                'message' => 'Instalment tidak ditemukan',
+                'status' => '404'
+            ], 404);
+        }
+
+        $instalment->delete();
+
+        return response()->json([
+            'message' => 'Instalment berhasil dihapus',
+            'status' => 200
+        ], 200);
+    }
+
+    public function getInstalmentsByUser($userId)
+    {
+        $instalments = InstalmentModel::where('user_id', $userId)->get();
+
+        return response()->json([
+            'data' => $instalments,
+            'message' => 'Instalments berhasil diambil',
+            'status' => '200'
+        ], 200);
+    }
+
     public function reset()
 {
     // Hapus semua data instalment dari database
@@ -88,6 +168,5 @@ class InstalmentController extends Controller
         'message' => 'Semua data instalment berhasil dihapus'
     ]);
 }
-
 
 }

@@ -70,6 +70,76 @@ class SubKategoriController extends Controller
         ]);
     }
 
+    public function edit(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'NamaSub' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Gagal mengedit sub kategori',
+                'errors' => $validator->errors(),
+                'status' => '400'
+            ], 400);
+        }
+
+        $subKategori = SubKategoriModel::find($id);
+
+        if (!$subKategori) {
+            return response()->json([
+                'message' => 'Sub kategori tidak ditemukan',
+                'status' => '404'
+            ], 404);
+        }
+
+        $subKategori->NamaSub = $request->input('NamaSub');
+        $subKategori->save();
+
+        return response()->json([
+            'data' => $subKategori,
+            'message' => 'Subkategori berhasil diupdate',
+            'status' => 200
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $subKategori = SubKategoriModel::find($id);
+
+        if (!$subKategori) {
+            return response()->json([
+                'message' => 'Sub kategori tidak ditemukan',
+                'status' => '404'
+            ], 404);
+        }
+
+        $subCategoryAmount = $subKategori->uang;
+        $kategori = KategoriModel::find($subKategori->kategori_id);
+
+        // Restore the balance to the user's account
+        $userBalance = BalanceModel::where('user_id', $subKategori->user_id)->first();
+        if ($userBalance) {
+            $userBalance->balance += $subCategoryAmount;
+            $userBalance->save();
+        }
+
+        // Delete the subcategory
+        $subKategori->delete();
+
+        // Recalculate the total amount for the category
+        if ($kategori) {
+            $totalUang = $kategori->subKategoris()->sum('uang');
+            $kategori->jumlah = $totalUang;
+            $kategori->save();
+        }
+
+        return response()->json([
+            'message' => 'Subkategori berhasil dihapus',
+            'status' => 200
+        ]);
+    }
+
     public function getSubCategoriesByUserAndCategory($userId, $kategoriId)
 {
     // Mengambil subkategori berdasarkan ID pengguna dan ID kategori

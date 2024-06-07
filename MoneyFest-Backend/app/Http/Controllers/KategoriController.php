@@ -59,6 +59,71 @@ class KategoriController extends Controller
         ]);
     }
 
+    public function edit(Request $request, $id)
+{
+    // Validasi input
+    $validator = Validator::make($request->all(), [
+        'NamaKategori' => 'required|string|max:255', // Menjadi required dan batas panjang maksimal 255 karakter
+    ]);
+
+    // Jika validasi gagal
+    if ($validator->fails()) {
+        return response()->json([
+            'error' => $validator->errors(),
+            'message' => 'Gagal mengedit kategori',
+            'status' => '400'
+        ], 400);
+    }
+
+    // Temukan kategori berdasarkan ID
+    $kategori = KategoriModel::find($id);
+
+    // Jika kategori tidak ditemukan
+    if (!$kategori) {
+        return response()->json([
+            'message' => 'Kategori tidak ditemukan',
+            'status' => '404'
+        ], 404);
+    }
+
+    // Jika kategori ditemukan, perbarui NamaKategori
+    $kategori->NamaKategori = $request->input('NamaKategori');
+    $kategori->save();
+
+    return response()->json([
+        'data' => $kategori,
+        'message' => 'Kategori berhasil diupdate',
+        'status' => '200'
+    ], 200);
+}
+
+    public function destroy($id)
+    {
+        // Temukan kategori berdasarkan ID
+        $kategori = KategoriModel::find($id);
+
+        // Jika kategori tidak ditemukan
+        if (!$kategori) {
+            return response()->json([
+                'message' => 'Kategori tidak ditemukan',
+                'status' => '404'
+            ], 404);
+        }
+
+        // Hapus semua subkategori yang terkait dengan kategori ini
+        $kategori->subKategoris()->delete();
+
+        // Jika kategori ditemukan, hapus kategori
+        $kategori->delete();
+
+        return response()->json([
+            'message' => 'Kategori dan subkategori terkait berhasil dihapus',
+            'status' => '200'
+        ], 200);
+    }
+
+
+
     public function chart($userId)
 {
     // Fetch all categories with their related expenditures for the given user

@@ -41,14 +41,19 @@ Route::get('/kategori/user/{userId}', [KategoriController::class, 'getCategories
 Route::get('/subkategori/user/{userId}/{kategoriId}', [SubKategoriController::class, 'getSubCategoriesByUserAndCategory']);
 Route::get('/categories/{userId}', [KategoriController::class, 'getCategoriesByMonth']);
 Route::get('/subcategories/{userId}', [SubKategoriController::class, 'getSubCategoriesByMonth']);
+Route::get('/instalments/{id}', [InstalmentController::class, 'show']);
+Route::get('/instalments/user/{userId}', [InstalmentController::class, 'getInstalmentsByUser']);
+Route::get('/instalments', [InstalmentController::class, 'index']);
 
 
 
-
-
+Route::put('kategori/edit/{id}', [KategoriController::class, 'edit']);
+Route::delete('kategori/del/{id}', [KategoriController::class, 'destroy']);
 Route::get('/chart/{userId}', [KategoriController::class, 'chart']);
-
-
+Route::put('/subkategori/edit/{id}', [SubKategoriController::class, 'edit']);
+Route::delete('/subkategori/del/{id}', [SubKategoriController::class, 'destroy']);
+Route::put('/instalments/edit/{id}', [InstalmentController::class, 'edit']);
+Route::delete('/instalments/del/{id}', [InstalmentController::class, 'destroy']);
 
 
 //Route::middleware('auth:sanctum')->post('/update-profile-image', [UserController::class, 'updateProfileImage']);

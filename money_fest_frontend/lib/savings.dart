@@ -119,12 +119,57 @@ class _SavingsContentState extends State<SavingsContent> {
             .map((category) => {
                   'id': category['id'],
                   'name': category['NamaKategori'],
-                  // tambahkan properti lain sesuai kebutuhan
+                  'assigned': category['jumlah'],
+                  'subCategories':
+                      [], // Initialize subCategories as empty array
                 })
             .toList());
       });
+
+      // Load subcategories for each category
+      for (var category in _categories) {
+        await fetchSubCategories(userId, category['id']);
+      }
     } else {
       throw Exception('Failed to load categories');
+    }
+  }
+
+  Future<void> fetchSubCategories(int userId, int categoryId) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'http://10.0.2.2:8000/api/subkategori/user/$userId/$categoryId'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data =
+            json.decode(response.body)['data'] as List<dynamic>;
+        setState(() {
+          // Find the matching category based on categoryId
+          final categoryIndex = _categories
+              .indexWhere((category) => category['id'] == categoryId);
+          if (categoryIndex != -1) {
+            // Clear existing subCategories before adding new ones
+            _categories[categoryIndex]['subCategories'].clear();
+            // Add subCategories fetched from server
+            _categories[categoryIndex]['subCategories'].addAll(data
+                .map((subCategory) => {
+                      'id': subCategory['id'],
+                      'name': subCategory['NamaSub'],
+                      'assigned': subCategory['uang'],
+                    })
+                .toList());
+          }
+        });
+      } else {
+        throw Exception(
+            'Failed to load subcategories. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching subcategories: $error');
+      // Display error message
+      // (You can display this error message in UI or use other method to handle errors)
     }
   }
 
@@ -394,10 +439,7 @@ class _SavingsContentState extends State<SavingsContent> {
 
                   double userBalance = await _getUserBalance();
 
-                  // Validate if the assigned amount is greater than user's balance
                   if (newAssigned > userBalance) {
-                    // Show error message
-                    // ignore: use_build_context_synchronously
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: const Row(
@@ -408,8 +450,10 @@ class _SavingsContentState extends State<SavingsContent> {
                             ),
                             SizedBox(width: 10),
                             Expanded(
-                                child: Text(
-                                    'The assigned amount exceeds your balance!')),
+                              child: Text(
+                                'The assigned amount exceeds your balance!',
+                              ),
+                            ),
                           ],
                         ),
                         backgroundColor: Colors.red,
@@ -425,11 +469,13 @@ class _SavingsContentState extends State<SavingsContent> {
                     return; // Stop further execution
                   }
 
-                  if (_categories[categoryId]['subCategories'] == null) {
-                    _categories[categoryId]['subCategories'] = [];
-                  }
+                  await addSubCategory(
+                      _categories[categoryId]['id'], newName, newAssigned);
 
                   setState(() {
+                    if (_categories[categoryId]['subCategories'] == null) {
+                      _categories[categoryId]['subCategories'] = [];
+                    }
                     _categories[categoryId]['subCategories'].add({
                       'id': _categories[categoryId]['subCategories'].length + 1,
                       'name': newName,
@@ -441,14 +487,10 @@ class _SavingsContentState extends State<SavingsContent> {
                       totalAssigned += subCategory['assigned'];
                     });
                     _categories[categoryId]['assigned'] = totalAssigned;
+                    _categories[categoryId]['isExpanded'] = true;
                   });
 
-                  print(
-                      'Adding subcategory to category ID: $categoryId'); // Debug print
-                  await addSubCategory(_categories[categoryId]['id'], newName,
-                      newAssigned); // Use the correct category ID
-
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Close dialog
                 },
                 child: const Text('Save'),
               ),

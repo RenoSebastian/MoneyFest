@@ -95,4 +95,21 @@ class KategoriController extends Controller
             'status' => '200'
         ], 200);
     }
+
+    public function getCategoriesByMonth(Request $request, $userId)
+{
+    $month = $request->input('month');
+
+    $categories = KategoriModel::where('user_id', $userId)
+                    ->whereYear('created_at', date('Y', strtotime($month)))
+                    ->whereMonth('created_at', date('m', strtotime($month)))
+                    ->get();
+
+    return response()->json([
+        'data' => $categories,
+        'message' => 'Kategori berhasil diambil berdasarkan bulan',
+        'status' => '200'
+    ], 200);
+}
+
 }

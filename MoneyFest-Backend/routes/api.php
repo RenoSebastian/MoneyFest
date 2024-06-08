@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\SubKategoriController;
 use App\Http\Controllers\InstalmentController;
+use App\Http\Controllers\BalanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +21,7 @@ use App\Http\Controllers\InstalmentController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::post('/register', [RegisterController::class,'register']);
+Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
 Route::get('/user/{id}', [UserController::class, 'show']);
 Route::get('/user/{id}/details', [UserController::class, 'index']);
@@ -28,10 +29,31 @@ Route::post('/kategori', [KategoriController::class, 'store']);
 Route::post('/subkategori', [SubKategoriController::class, 'store']);
 Route::get('/kategori/{id}', [KategoriController::class, 'show']);
 Route::post('/update-profile-image', [UserController::class, 'updateProfileImage']);
-Route::get('/profile-image/{id}', [UserController::class,'getProfileImage']);
+Route::get('/profile-image/{id}', [UserController::class, 'getProfileImage']);
 Route::get('/instalments', [InstalmentController::class, 'index']);
 Route::post('/create/instalments', [InstalmentController::class, 'store']);
 Route::put('/instalments/{id}', [InstalmentController::class, 'update']);
+Route::post('reset/instalments', [InstalmentController::class, 'reset']);
+Route::post('/balance/store', [BalanceController::class, 'store']);
+Route::post('/balance/update/{userId}', [BalanceController::class, 'update']);
+Route::get('/balance/user/{userId}', [BalanceController::class, 'showByUserId']);
+Route::get('/kategori/user/{userId}', [KategoriController::class, 'getCategoriesByUser']);
+Route::get('/subkategori/user/{userId}/{kategoriId}', [SubKategoriController::class, 'getSubCategoriesByUserAndCategory']);
+Route::get('/categories/{userId}', [KategoriController::class, 'getCategoriesByMonth']);
+Route::get('/subcategories/{userId}', [SubKategoriController::class, 'getSubCategoriesByMonth']);
+Route::get('/instalments/{id}', [InstalmentController::class, 'show']);
+Route::get('/instalments/user/{userId}', [InstalmentController::class, 'getInstalmentsByUser']);
+Route::get('/instalments', [InstalmentController::class, 'index']);
+
+
+
+Route::put('kategori/edit/{id}', [KategoriController::class, 'edit']);
+Route::delete('kategori/del/{id}', [KategoriController::class, 'destroy']);
+Route::get('/chart/{userId}', [KategoriController::class, 'chart']);
+Route::put('/subkategori/edit/{id}', [SubKategoriController::class, 'edit']);
+Route::delete('/subkategori/del/{id}', [SubKategoriController::class, 'destroy']);
+Route::put('/instalments/edit/{id}', [InstalmentController::class, 'edit']);
+Route::delete('/instalments/del/{id}', [InstalmentController::class, 'destroy']);
 
 
 //Route::middleware('auth:sanctum')->post('/update-profile-image', [UserController::class, 'updateProfileImage']);

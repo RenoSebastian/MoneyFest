@@ -15,18 +15,23 @@ class SavingsContent extends StatefulWidget {
 
 class _SavingsContentState extends State<SavingsContent> {
   final List<Map<String, dynamic>> _categories = [];
-  List<int> _categoryIds = [];
-  List<int> _subCategoryIds = [];
+  final List<int> _categoryIds = [];
+  final List<int> _subCategoryIds = [];
   final int _selectedCategoryIndex = -1;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchCategories(widget.userId);
+  }
+
   Future<void> addCategory(String categoryName) async {
-    const url =
-        'http://10.0.2.2:8000/api/kategori'; // Ganti dengan URL backend Anda
+    const url = 'http://10.0.2.2:8000/api/kategori';
     final response = await http.post(
       Uri.parse(url),
       body: json.encode({
+        'user_id': widget.userId.toString(),
         'NamaKategori': categoryName,
-        'user_id': widget.userId.toString(), // Masukkan user_id di sini
       }),
       headers: {'Content-Type': 'application/json'},
     );
@@ -48,8 +53,7 @@ class _SavingsContentState extends State<SavingsContent> {
           'subCategories': [],
           'isExpanded': false,
         });
-        _categoryIds
-            .add(categoryId); // Tambahkan ID kategori ke dalam _categoryIds
+        _categoryIds.add(categoryId);
       });
 
       if (kDebugMode) {
@@ -74,15 +78,14 @@ class _SavingsContentState extends State<SavingsContent> {
           'user_id': widget.userId.toString(),
           'NamaSub': subcategoryName,
           'uang': newAssigned,
-          'kategori_id': categoryId,
+          'kategori_id': categoryId, // Ensure categoryId is correct
         }),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final int subCategoryId =
-            data['data']['id']; // Periksa struktur respons API
+        final int subCategoryId = data['data']['id'];
 
         if (kDebugMode) {
           print('SubKategori berhasil ditambahkan dengan ID: $subCategoryId');
@@ -99,6 +102,98 @@ class _SavingsContentState extends State<SavingsContent> {
       if (kDebugMode) {
         print('Error: $error');
       }
+    }
+  }
+
+  Future<void> fetchCategories(int userId) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/api/kategori/user/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data =
+          json.decode(response.body)['data'] as List<dynamic>;
+      setState(() {
+        _categories.clear();
+        _categories.addAll(data
+            .map((category) => {
+                  'id': category['id'],
+                  'name': category['NamaKategori'],
+                  'assigned': category['jumlah'],
+                  'subCategories':
+                      [], // Initialize subCategories as empty array
+                })
+            .toList());
+      });
+
+      // Load subcategories for each category
+      for (var category in _categories) {
+        await fetchSubCategories(userId, category['id']);
+      }
+    } else {
+      throw Exception('Failed to load categories');
+    }
+  }
+
+  Future<void> fetchSubCategories(int userId, int categoryId) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'http://10.0.2.2:8000/api/subkategori/user/$userId/$categoryId'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data =
+            json.decode(response.body)['data'] as List<dynamic>;
+        setState(() {
+          // Find the matching category based on categoryId
+          final categoryIndex = _categories
+              .indexWhere((category) => category['id'] == categoryId);
+          if (categoryIndex != -1) {
+            // Clear existing subCategories before adding new ones
+            _categories[categoryIndex]['subCategories'].clear();
+            // Add subCategories fetched from server
+            _categories[categoryIndex]['subCategories'].addAll(data
+                .map((subCategory) => {
+                      'id': subCategory['id'],
+                      'name': subCategory['NamaSub'],
+                      'assigned': subCategory['uang'],
+                    })
+                .toList());
+          }
+        });
+      } else {
+        throw Exception(
+            'Failed to load subcategories. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching subcategories: $error');
+      // Display error message
+      // (You can display this error message in UI or use other method to handle errors)
+    }
+  }
+
+  Future<double> fetchUserBalance(int userId) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/api/balance/user/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return double.parse(data['balance']['balance']);
+    } else {
+      throw Exception('Failed to load balance');
+    }
+  }
+
+  Future<double> _getUserBalance() async {
+    try {
+      return await fetchUserBalance(widget.userId);
+    } catch (error) {
+      if (kDebugMode) {
+        print('Error fetching user balance: $error');
+      }
+      return 0.0; // Default value if fetching balance fails
     }
   }
 
@@ -121,186 +216,132 @@ class _SavingsContentState extends State<SavingsContent> {
     );
   }
 
-  // Pada widget _buildCategoryButton
   Widget _buildCategoryButton() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      TextButton(
-        onPressed: () {
-          setState(() {
-            _categories.clear();
-          });
-        },
-        child: const Text(
-          'Reset',
-          style: TextStyle(color: Colors.white),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton(
+          onPressed: () {
+            setState(() {
+              // Mengosongkan daftar kategori lokal
+              _categories.clear();
+              // Memuat kembali kategori dari server
+              fetchCategories(widget.userId);
+            });
+          },
+          child: const Text(
+            'Reset',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      ),
-      SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columnSpacing: 10.0,
-          columns: [
-            DataColumn(
-              label: InkWell(
-                onTap: () {
-                  _addCategoryRow(context);
-                },
-                child: const Row(
-                  children: [
-                    Icon(Icons.add, color: Colors.white),
-                    SizedBox(width: 5),
-                    Text(
-                      'Add Category',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const DataColumn(
-                numeric : false,
-              const DataColumn(
-                numeric: false,
-                label: Padding(
-                  padding: EdgeInsets.only(left: 80.0),
-                  child: Text(
-                    'Assigned',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-          ],
-          rows: _categories.asMap().entries.expand((entry) {
-            int index = entry.key;
-            Map<String, dynamic> category = entry.value;
-            bool isEditing = category['isEditing'] ?? false;
-            String editingCategoryName = category['name'] ?? '';
-            bool isExpanded = category['isExpanded'] ?? false;
-            List subCategories = category['subCategories'] ?? [];
-
-            List<DataRow> rows = [
-              DataRow(
-                cells: [
-                  DataCell(
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            if (isExpanded) {
-                              setState(() {
-                                category['isExpanded'] = false;
-                              });
-                            } else {
-                              setState(() {
-                                category['isExpanded'] = true;
-                              });
-                            }
-                          },
-                          child: Icon(
-                            isExpanded
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        InkWell(
-                          onTap: () {
-                            if (isEditing) {
-                              _showCategoryNamePopup(context, index);
-                            } else {
-                              setState(() {
-                                category['isEditing'] = true;
-                              });
-                            }
-                          },
-                          child: isEditing
-                              ? TextButton(
-                                  onPressed: () {
-                                    _showCategoryNamePopup(context, index);
-                                  },
-                                  child: Text(
-                                    editingCategoryName,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                )
-                              : Text(
-                                  editingCategoryName,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                        ),
-                        const Spacer(),
-                        InkWell(
-                          onTap: () {
-                            _addSubCategory(index); // Menggunakan indeks kategori yang terkait
-                          },
-                          child: const Icon(Icons.add, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                  DataCell(
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 70), // Atur jarak horizontal di sini
-                      child: Text(
-                        'Rp. ${_formatNumber(category['assigned'])}',
-                        style: const TextStyle(color: Colors.white),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columnSpacing: 10.0,
+            columns: [
+              DataColumn(
+                label: InkWell(
+                  onTap: () {
+                    _addCategoryRow(context);
+                  },
+                  child: const Row(
+                    children: [
+                      Icon(Icons.add, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text(
+                        'Add Category',
+                        style: TextStyle(color: Colors.white),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ];
+              const DataColumn(
+                label: Text('Assigned', style: TextStyle(color: Colors.white)),
+              ),
+              const DataColumn(
+                label: Text('Available', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+            rows: _categories.asMap().entries.expand((entry) {
+              int index = entry.key;
+              Map<String, dynamic> category = entry.value;
+              bool isEditing =
+                  category['isEditing'] != null ? category['isEditing'] : false;
+              String editingCategoryName =
+                  category['name'] != null ? category['name'] : '';
+              bool isExpanded = category['isExpanded'] != null
+                  ? category['isExpanded']
+                  : false;
+              List subCategories = category['subCategories'] != null
+                  ? category['subCategories']
+                  : [];
 
-            if (isExpanded) {
-              for (var subCategory in subCategories) {
-                rows.add(DataRow(
+              List<DataRow> rows = [
+                DataRow(
                   cells: [
                     DataCell(
                       Row(
                         children: [
-                          const SizedBox(width: 30),
-                          const Icon(Icons.arrow_right, color: Colors.white),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                category['isExpanded'] =
+                                    !(category['isExpanded'] ?? false);
+                              });
+                            },
+                            child: Icon(
+                              category['isExpanded'] ?? false
+                                  ? Icons.arrow_drop_up
+                                  : Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
-                              _showSubCategoryNamePopup(
-                                context,
-                                index,
-                                subCategories.indexOf(subCategory),
-                              );
+                              if (isEditing) {
+                                _showCategoryNamePopup(context, index);
+                              } else {
+                                setState(() {
+                                  category['isEditing'] = true;
+                                });
+                              }
                             },
-                            child: Text(
-                              subCategory['name'],
-                              style: const TextStyle(color: Colors.white),
-                            ),
+                            child: isEditing
+                                ? TextButton(
+                                    onPressed: () {
+                                      _showCategoryNamePopup(context, index);
+                                    },
+                                    child: Text(
+                                      editingCategoryName,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  )
+                                : Text(
+                                    editingCategoryName,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                          ),
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              _addSubCategory(index); // Using category ID
+                            },
+                            child: const Icon(Icons.add, color: Colors.white),
                           ),
                         ],
                       ),
                     ),
-                    DataCell(
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 70.0), // Atur jarak horizontal di sini
-                      child: Text(
-                        'Rp. ${_formatNumber(subCategory['assigned'])}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-
-                  ],
-                ));
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 70), // Atur jarak horizontal di sini
-                        child: Text(
-                          'Rp. ${_formatNumber(category['assigned'])}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['assigned']) ?? 0}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['available']) ?? 0}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
                   ],
                 ),
               ];
@@ -312,7 +353,7 @@ class _SavingsContentState extends State<SavingsContent> {
                       DataCell(
                         Row(
                           children: [
-                            const SizedBox(width: 30),
+                            const SizedBox(width: 20),
                             const Icon(Icons.arrow_right, color: Colors.white),
                             const SizedBox(width: 5),
                             InkWell(
@@ -331,114 +372,138 @@ class _SavingsContentState extends State<SavingsContent> {
                           ],
                         ),
                       ),
-                      DataCell(
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal:
-                                  70.0), // Atur jarak horizontal di sini
-                          child: Text(
-                            'Rp. ${_formatNumber(subCategory['assigned'])}',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['assigned']) ?? 0}',
+                        style: const TextStyle(color: Colors.white),
+                      )),
+                      DataCell(Text(
+                        'Rp. ${_formatNumber(subCategory['available']) ?? 0}',
+                        style: const TextStyle(color: Colors.white),
+                      )),
                     ],
                   ));
                 }
               }
-            }
 
-            return rows;
-          }).toList(),
-        ),
-      ),
-    ],
-  );
-}
-
-  void _addSubCategory(int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        TextEditingController nameController = TextEditingController();
-        TextEditingController assignedController = TextEditingController();
-
-        return AlertDialog(
-          title: const Text('Add Subcategory'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter subcategory name',
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: assignedController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter assigned value',
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    assignedController.value = TextEditingValue(
-                      text: _formatNumber(value),
-                      selection: TextSelection.collapsed(
-                          offset: _formatNumber(value).length),
-                    );
-                  }
-                },
-              ),
-            ],
+              return rows;
+            }).toList(),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                String newName = nameController.text;
-                double newAssigned = double.tryParse(
-                        assignedController.text.replaceAll(',', '')) ??
-                    0.0;
-
-                setState(() {
-                  // Tambahkan subkategori baru ke dalam list subCategories
-                  _categories[index]['subCategories'].add({
-                    'id': _categories[index]['subCategories'].length + 1,
-                    'name': newName,
-                    'assigned': newAssigned,
-                    // Update total assigned for the category
-                  });
-                  double totalAssigned = 0.0;
-                  _categories[index]['subCategories'].forEach((subCategory) {
-                    totalAssigned += subCategory['assigned'];
-                  });
-                  _categories[index]['assigned'] = totalAssigned;
-                });
-
-                // Panggil metode addSubCategory di sini dengan index yang sesuai
-                await addSubCategory(
-                    _categories[index]['id'], newName, newAssigned);
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
+        ),
+      ],
     );
   }
 
+  void _addSubCategory(int categoryId) {
+    if (categoryId >= 0 && categoryId < _categories.length) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          TextEditingController nameController = TextEditingController();
+          TextEditingController assignedController = TextEditingController();
+
+          return AlertDialog(
+            title: const Text('Add Subcategory'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter subcategory name',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: assignedController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter assigned value',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  String newName = nameController.text;
+                  double newAssigned = double.tryParse(
+                          assignedController.text.replaceAll(',', '')) ??
+                      0.0;
+
+                  double userBalance = await _getUserBalance();
+
+                  if (newAssigned > userBalance) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Row(
+                          children: [
+                            Icon(
+                              Icons.warning,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'The assigned amount exceeds your balance!',
+                              ),
+                            ),
+                          ],
+                        ),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        margin: EdgeInsets.all(10),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+
+                    return; // Stop further execution
+                  }
+
+                  await addSubCategory(
+                      _categories[categoryId]['id'], newName, newAssigned);
+
+                  setState(() {
+                    if (_categories[categoryId]['subCategories'] == null) {
+                      _categories[categoryId]['subCategories'] = [];
+                    }
+                    _categories[categoryId]['subCategories'].add({
+                      'id': _categories[categoryId]['subCategories'].length + 1,
+                      'name': newName,
+                      'assigned': newAssigned,
+                    });
+                    double totalAssigned = 0.0;
+                    _categories[categoryId]['subCategories']
+                        .forEach((subCategory) {
+                      totalAssigned += subCategory['assigned'];
+                    });
+                    _categories[categoryId]['assigned'] = totalAssigned;
+                    _categories[categoryId]['isExpanded'] = true;
+                  });
+
+                  Navigator.of(context).pop(); // Close dialog
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      print('Invalid categoryId: $categoryId');
+    }
+  }
+
   void _addCategoryRow(BuildContext context) {
-    final userId = widget.userId;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -556,10 +621,8 @@ class _SavingsContentState extends State<SavingsContent> {
                     _categories[categoryIndex]['subCategories'].add({
                       'name': newName,
                       'assigned': newAssigned,
-                      // Add other properties as needed
                     });
 
-                    // Update total assigned for the category
                     double totalAssigned = 0.0;
                     _categories[categoryIndex]['subCategories']
                         .forEach((subCategory) {
@@ -580,7 +643,7 @@ class _SavingsContentState extends State<SavingsContent> {
 
   String _formatNumber(dynamic value) {
     if (value == null) {
-      return ''; // Atau nilai default lainnya sesuai dengan kebutuhan aplikasi Anda
+      return '';
     }
     final formatter = NumberFormat('#,###');
     return formatter.format(value is int ? value.toDouble() : value);

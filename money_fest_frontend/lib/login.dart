@@ -1,6 +1,12 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:money_fest_frontend/services/auth_service.dart'; // Import the AuthService class
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
+import 'user_data.dart'; // Import the UserData class
 
+// ignore: must_be_immutable
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
 
@@ -25,16 +31,38 @@ class Login extends StatelessWidget {
           .setUserId(userId); // Set userId using Provider
       // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
+
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.white,
+              ),
+              SizedBox(width: 10),
+              Expanded(child: Text('Login Succesful')),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          margin: EdgeInsets.all(10),
+          duration: Duration(seconds: 3),
+        ),
+      );
+
       if (kDebugMode) {
         print(responseData['message']);
       }
     } else {
-      // Login gagal, tampilkan pesan kesalahan
       if (kDebugMode) {
         print(responseData['message']);
       }
-      // Menampilkan pesan kesalahan menggunakan dialog
-      // ignore: use_build_context_synchronously
+      // Displaying error message using a dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {

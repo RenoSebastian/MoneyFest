@@ -34,6 +34,7 @@ class AuthService {
       if (kDebugMode) {
         print(responseData['message']);
       }
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -73,13 +74,53 @@ class AuthService {
           ['id']; // Ubah sesuai dengan struktur respons dari backend Anda
       Provider.of<UserData>(context, listen: false).setUserId(userId);
       Navigator.pushReplacementNamed(context, '/profile', arguments: userId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.white,
+              ),
+              SizedBox(width: 10),
+              Expanded(child: Text('Register Succesful')),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          margin: EdgeInsets.all(10),
+          duration: Duration(seconds: 3),
+        ),
+      );
     } else {
       // Registrasi gagal, tampilkan pesan kesalahan
       if (kDebugMode) {
         print('Registrasi gagal: ${response.body}');
       }
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Registrasi gagal')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                Icons.error,
+                color: Colors.white,
+              ),
+              SizedBox(width: 10),
+              Expanded(child: Text('Failed to register')),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          margin: EdgeInsets.all(10),
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 

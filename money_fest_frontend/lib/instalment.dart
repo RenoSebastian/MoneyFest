@@ -31,6 +31,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
   // ignore: unused_field
   int _selectedReminderCategoryIndex = -1; // Added this line
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -67,18 +69,16 @@ class _InstalmentContentState extends State<InstalmentContent> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildInstalment(),
-              ],
-            ),
-          ],
-        ),
+      controller: _scrollController,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildInstalment(),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -342,317 +342,341 @@ class _InstalmentContentState extends State<InstalmentContent> {
   }
 
   void editCategory(BuildContext context, int index) {
-    TextEditingController nameController =
-        TextEditingController(text: _categories[index]['name']);
-    TextEditingController amountNeededController =
-        TextEditingController(text: _categories[index]['available'].toString());
+  TextEditingController nameController =
+      TextEditingController(text: _categories[index]['name']);
+  TextEditingController amountNeededController =
+      TextEditingController(text: _categories[index]['available'].toString());
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    "Edit Category",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                      color: Color(0xFF19173D),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Category Name:',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.normal,
-                  color: const Color(0xFF19173D).withOpacity(0.8),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDAD9D9),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: TextFormField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(15.0),
-                    hintText: 'Enter category name',
-                    hintStyle: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      color: const Color(0xFF19173D).withOpacity(0.5),
-                    ),
-                  ),
-                  style: const TextStyle(
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                child: Text(
+                  "Edit Category",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
+                    color: Color(0xFF19173D),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Text(
-                'Amount Needed:',
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.normal,
-                  color: const Color(0xFF19173D).withOpacity(0.8),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDAD9D9),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: TextFormField(
-                  controller: amountNeededController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(15.0),
-                    hintText: 'Enter amount needed',
-                    hintStyle: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      color: const Color(0xFF19173D).withOpacity(0.5),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel'),
             ),
-            TextButton(
-              onPressed: () async {
-                final response = await http.put(
-                  Uri.parse(
-                      'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: jsonEncode({
-                    'kategori': nameController.text,
-                    'available':
-                        double.tryParse(amountNeededController.text) ?? 0.0,
-                  }),
-                );
-
-                if (response.statusCode == 200) {
-                  setState(() {
-                    _categories[index]['name'] = nameController.text;
-                    _categories[index]['available'] =
-                        double.tryParse(amountNeededController.text) ?? 0.0;
-                  });
-                  Navigator.of(context).pop(); // Close the dialog
-                } else {
-                  if (kDebugMode) {
-                    print('Failed to edit category: ${response.statusCode}');
-                  }
-                  // Handle error
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'Failed to edit category: ${response.statusCode}'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Save'),
+            const SizedBox(height: 10),
+            Text(
+              'Category Name:',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.normal,
+                color: const Color(0xFF19173D).withOpacity(0.8),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFDAD9D9),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(15.0),
+                  hintText: 'Enter category name',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                    color: const Color(0xFF19173D).withOpacity(0.5),
+                  ),
+                ),
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Amount Needed:',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.normal,
+                color: const Color(0xFF19173D).withOpacity(0.8),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFDAD9D9),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: TextFormField(
+                controller: amountNeededController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(15.0),
+                  hintText: 'Enter amount needed',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                    color: const Color(0xFF19173D).withOpacity(0.5),
+                  ),
+                ),
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final response = await http.put(
+                Uri.parse(
+                    'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: jsonEncode({
+                  'kategori': nameController.text,
+                  'available': double.tryParse(amountNeededController.text) ?? 0.0,
+                }),
+              );
+
+              if (response.statusCode == 200) {
+                setState(() {
+                  _categories[index]['name'] = nameController.text;
+                  _categories[index]['available'] =
+                      double.tryParse(amountNeededController.text) ?? 0.0;
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              } else {
+                if (kDebugMode) {
+                  print('Failed to edit category: ${response.statusCode}');
+                }
+                // Handle error
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Failed to edit category: ${response.statusCode}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   Widget _buildCategoryButton() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextButton(
-          onPressed: () {
-            setState(() {
-              _categories.clear();
-              _fetchInstalments(widget.userId);
-            });
-            _resetInstalments(context);
-          },
-          child: const Text(
-            'Reset',
-            style: TextStyle(color: Colors.white),
-          ),
+  
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      TextButton(
+        onPressed: () {
+          setState(() {
+            _categories.clear();
+            _fetchInstalments(widget.userId);
+          });
+          _resetInstalments(context);
+        },
+        child: const Text(
+          'Reset',
+          style: TextStyle(color: Colors.white),
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Column(
-            children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Scrollbar(
-                  thumbVisibility: true,
-                  child: DataTable(
-                    columnSpacing: 10.0,
-                    columns: [
-                      DataColumn(
-                        label: InkWell(
+      ),
+      SingleChildScrollView(
+        controller: _scrollController,
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          columnSpacing: 10.0,
+          columns: [
+            DataColumn(
+              label: InkWell(
+                onTap: () {
+                  _addCategoryRow(context, widget.userId);
+                },
+                child: const Row(
+                  children: [
+                    Icon(Icons.add, color: Colors.white),
+                    SizedBox(width: 5),
+                    Text(
+                      'Add Category',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const DataColumn(
+              label: Padding(
+                padding: EdgeInsets.only(left: 20.0),
+                child: Text(
+                  'Assigned',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const DataColumn(
+              label: Padding(
+                padding: EdgeInsets.only(left: 20.0),
+                child: Text(
+                  'Available',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            DataColumn(
+              label: const Text(''),
+            ),
+          ],
+          rows: _categories.asMap().entries.expand((entry) {
+            int index = entry.key;
+            Map<String, dynamic> category = entry.value;
+            bool _isEditing = category['isEditing']?? false;
+            String _editingCategoryName = category['name']?? '';
+
+            List<DataRow> rows = [
+              DataRow(
+                cells: [
+                  DataCell(
+                    Row(
+                      children: [
+                        const SizedBox(width: 5),
+                        InkWell(
                           onTap: () {
-                            _addCategoryRow(context, widget.userId);
+                            if (_isEditing) {
+                              _showCategoryNamePopup(context, index);
+                            }
                           },
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.add, color: Colors.white),
-                              SizedBox(width: 5),
-                              Text(
-                                'Add Category',
-                                style: TextStyle(color: Colors.white),
+                              InkWell(
+                                onTap: () {
+                                  _showSetReminderPopup(context, index);
+                                },
+                                child: const Icon(Icons.notifications,
+                                    color: Colors.white),
                               ),
+                              GestureDetector(
+                                onTap: () {
+                                  editCategory(context, index);
+                                },
+                                child: Text(
+                                  _editingCategoryName,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 5),
                             ],
                           ),
                         ),
-                      ),
-                      const DataColumn(
-                        label: Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Text(
-                            'Assigned',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      const DataColumn(
-                        label: Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Text(
-                            'Available',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                    rows: _categories.asMap().entries.expand((entry) {
-                      int index = entry.key;
-                      Map<String, dynamic> category = entry.value;
-                      bool _isEditing = category['isEditing'] ?? false;
-                      String _editingCategoryName = category['name'] ?? '';
-
-                      List<DataRow> rows = [
-                        DataRow(
-                          cells: [
-                            DataCell(
-                              Row(
-                                children: [
-                                  const SizedBox(width: 5),
-                                  InkWell(
-                                    onTap: () {
-                                      if (_isEditing) {
-                                        _showCategoryNamePopup(context, index);
-                                      }
-                                    },
-                                    child: Row(
-                                      children: [
-                                        InkWell(
-                                          onTap: () {
-                                            _showSetReminderPopup(
-                                                context, index);
-                                          },
-                                          child: const Icon(Icons.notifications,
-                                              color: Colors.white),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            editCategory(context, index);
-                                          },
-                                          child: Text(
-                                            _editingCategoryName,
-                                            style: const TextStyle(
-                                                color: Colors.white),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 5),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            DataCell(Text(
-                              'Rp. ${_formatNumber(category['assigned'])}',
-                              style: const TextStyle(color: Colors.white),
-                            )),
-                            DataCell(Text(
-                              'Rp. ${_formatNumber(category['available'])}',
-                              style: const TextStyle(color: Colors.white),
-                            )),
-                          ],
-                        ),
-                        DataRow(
-                          cells: [
-                            DataCell(
-                              Row(
-                                children: [
-                                  const SizedBox(width: 5),
-                                  InkWell(
-                                    onTap: () {
-                                      _addAmount(
-                                        context,
-                                        index,
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                        color: Colors.blue,
-                                      ),
-                                      child: const Text(
-                                        'Add Amount',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const DataCell(Text('')),
-                            const DataCell(Text('')),
-                          ],
-                        ),
-                      ];
-                      return rows;
-                    }).toList(),
+                      ],
+                    ),
                   ),
-                ),
+                  DataCell(Text(
+                    'Rp. ${_formatNumber(category['assigned'])}',
+                    style: const TextStyle(color: Colors.white),
+                  )),
+                  DataCell(Text(
+                    'Rp. ${_formatNumber(category['available'])}',
+                    style: const TextStyle(color: Colors.white),
+                  )),
+                  DataCell(
+                    SizedBox(
+                      width: 30, // adjust the width as needed
+                      child: IconButton(
+                        icon: Icon(Icons.delete, color: Colors.white),
+                        onPressed: () async {
+                          final response = await http.delete(
+                            Uri.parse(
+                                'http://10.0.2.2:8000/api/instalments/del/${category['id']}'),
+                          );
+
+                          if (response.statusCode == 200) {
+                            setState(() {
+                              _categories.removeAt(index);
+                            });
+                          } else {
+                            if (kDebugMode) {
+                              print('Failed to delete category: ${response.statusCode}');
+                            }
+                            // Handle error
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Failed to delete category: ${response.statusCode}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+              DataRow(
+                cells: [
+                  DataCell(
+                    Row(
+                      children: [
+                        const SizedBox(width: 5),
+                        InkWell(
+                          onTap: () {
+                            _addAmount(context, index);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.blue,
+                            ),
+                            child: const Text(
+                              'Add Amount',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const DataCell(Text('')),
+                  const DataCell(Text('')),
+                  const DataCell(Text('')),
+                ],
+              ),
+            ];
+            return rows;
+          }).toList(),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   void _addAmount(BuildContext context, int index) async {
     TextEditingController addAmountController = TextEditingController();

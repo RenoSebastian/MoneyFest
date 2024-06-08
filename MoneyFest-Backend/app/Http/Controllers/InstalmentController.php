@@ -46,37 +46,37 @@ class InstalmentController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        // Validasi input
-        $request->validate([
-            'assigned' => 'required|numeric|min:0',
-        ]);
+{
+    // Validate input
+    $request->validate([
+        'assigned' => 'required|numeric|min:0',
+    ]);
 
-        // Temukan instalment berdasarkan ID
-        $instalment = InstalmentModel::findOrFail($id);
+    // Find the instalment by ID
+    $instalment = InstalmentModel::findOrFail($id);
 
-        // Perbarui nilai assigned dan available
-        $assigned = $request->assigned;
-        $available = $instalment->available - $assigned;
+    // Update the instalment
+    $assigned = $request->input('assigned');
+    $available = $instalment->available - $assigned;
 
-        if ($available < 0) {
-            return response()->json([
-                'message' => 'Input jumlah uang dengan sesuai'
-            ], 400); // Kode status 400 menunjukkan kesalahan klien
-        }
-
-        // Update kolom assigned dan available
-        $instalment->update([
-            'assigned' => $instalment->assigned + $assigned,
-            'available' => $available,
-        ]);
-
-        // Kembalikan response sukses dengan data instalment yang telah diperbarui
+    if ($available < 0) {
         return response()->json([
-            'instalment'    => $instalment,
-            'message'       => 'Instalment berhasil diperbarui',
-        ]);
+            'message' => 'Input jumlah uang dengan sesuai'
+        ], 400); // Kode status 400 menunjukkan kesalahan klien
     }
+
+    // Update kolom assigned dan available
+    $instalment->update([
+        'assigned' => $instalment->assigned + $assigned,
+        'available' => $available,
+    ]);
+
+    // Kembalikan response sukses dengan data instalment yang telah diperbarui
+    return response()->json([
+        'instalment'    => $instalment,
+        'message'       => 'Instalment berhasil diperbarui',
+    ]);
+}
 
     public function getInstalmentsByUser($userId)
     {
@@ -87,6 +87,20 @@ class InstalmentController extends Controller
             'message' => 'Instalments berhasil diambil',
             'status' => '200'
         ], 200);
+    }
+
+    public function destroy($id)
+    {
+        // Find the instalment by ID
+        $instalment = InstalmentModel::findOrFail($id);
+
+        // Delete the instalment
+        $instalment->delete();
+
+        // Return a success response
+        return response()->json([
+            'essage' => 'Instalment berhasil dihapus'
+        ]);
     }
     
 

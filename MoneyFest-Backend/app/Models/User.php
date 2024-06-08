@@ -29,11 +29,6 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function order()
-    {
-        return $this->hasMany(Order::class);
-    }
-
     public function instalments()
     {
         return $this->hasMany(InstalmentModel::class);
@@ -52,5 +47,10 @@ class User extends Authenticatable
     public function subkategori()
     {
         return $this->hasMany(SubKategoriModel::class);
+    }
+
+    public function reminders()
+    {
+        return $this->hasMany(ReminderModel::class);
     }
 }

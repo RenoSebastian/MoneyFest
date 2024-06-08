@@ -25,7 +25,6 @@ class _InstalmentContentState extends State<InstalmentContent> {
   String newBalance = '';
   // ignore: unused_field
   final bool _balanceEntered = false;
-  
 
   // ignore: prefer_final_fields, unused_field
   int _selectedCategoryIndex = -1;
@@ -65,26 +64,24 @@ class _InstalmentContentState extends State<InstalmentContent> {
     }
   }
 
-
   @override
-Widget build(BuildContext context) {
-  return SingleChildScrollView(
-    child: Align(
-      alignment: Alignment.topCenter,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildInstalment(),
-            ],
-          ),
-        ],
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildInstalment(),
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildInstalment() {
     return Column(
@@ -345,237 +342,244 @@ Widget build(BuildContext context) {
   }
 
   void editCategory(BuildContext context, int index) {
-  TextEditingController nameController = TextEditingController(text: _categories[index]['name']);
-  TextEditingController amountNeededController = TextEditingController(text: _categories[index]['available'].toString());
+    TextEditingController nameController =
+        TextEditingController(text: _categories[index]['name']);
+    TextEditingController amountNeededController =
+        TextEditingController(text: _categories[index]['available'].toString());
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(
-                  "Edit Category",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                    color: Color(0xFF19173D),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Edit Category",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF19173D),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Category Name:',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.normal,
-                color: const Color(0xFF19173D).withOpacity(0.8),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFDAD9D9),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(15.0),
-                  hintText: 'Enter category name',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                    color: const Color(0xFF19173D).withOpacity(0.5),
-                  ),
-                ),
-                style: const TextStyle(
+              const SizedBox(height: 10),
+              Text(
+                'Category Name:',
+                style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.8),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Amount Needed:',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.normal,
-                color: const Color(0xFF19173D).withOpacity(0.8),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFDAD9D9),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextFormField(
-                controller: amountNeededController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(15.0),
-                  hintText: 'Enter amount needed',
-                  hintStyle: TextStyle(
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter category name',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.normal,
-                    color: const Color(0xFF19173D).withOpacity(0.5),
                   ),
                 ),
-                style: const TextStyle(
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Amount Needed:',
+                style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.8),
                 ),
               ),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: amountNeededController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter amount needed',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final response = await http.put(
+                  Uri.parse(
+                      'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: jsonEncode({
+                    'kategori': nameController.text,
+                    'available':
+                        double.tryParse(amountNeededController.text) ?? 0.0,
+                  }),
+                );
+
+                if (response.statusCode == 200) {
+                  setState(() {
+                    _categories[index]['name'] = nameController.text;
+                    _categories[index]['available'] =
+                        double.tryParse(amountNeededController.text) ?? 0.0;
+                  });
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  if (kDebugMode) {
+                    print('Failed to edit category: ${response.statusCode}');
+                  }
+                  // Handle error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          'Failed to edit category: ${response.statusCode}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Save'),
             ),
           ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final response = await http.put(
-                Uri.parse('http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: jsonEncode({
-                  'kategori': nameController.text,
-                  'available': double.tryParse(amountNeededController.text) ?? 0.0,
-                }),
-              );
-
-              if (response.statusCode == 200) {
-                setState(() {
-                  _categories[index]['name'] = nameController.text;
-                  _categories[index]['available'] = double.tryParse(amountNeededController.text) ?? 0.0;
-                });
-                Navigator.of(context).pop(); // Close the dialog
-              } else {
-                if (kDebugMode) {
-                  print('Failed to edit category: ${response.statusCode}');
-                }
-                // Handle error
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to edit category: ${response.statusCode}'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   Widget _buildCategoryButton() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      TextButton(
-        onPressed: () {
-          setState(() {
-            _categories.clear();
-            _fetchInstalments(widget.userId);
-          });
-          _resetInstalments(context);
-        },
-        child: const Text(
-          'Reset',
-          style: TextStyle(color: Colors.white),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _categories.clear();
+              _fetchInstalments(widget.userId);
+            });
+            _resetInstalments(context);
+          },
+          child: const Text(
+            'Reset',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      ),
-      SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Scrollbar(
-                thumbVisibility: true,
-                child: DataTable(
-                  columnSpacing: 10.0,
-                  columns: [
-                    DataColumn(
-                      label: InkWell(
-                        onTap: () {
-                          _addCategoryRow(context, widget.userId);
-                        },
-                        child: const Row(
-                          children: [
-                            Icon(Icons.add, color: Colors.white),
-                            SizedBox(width: 5),
-                            Text(
-                              'Add Category',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  child: DataTable(
+                    columnSpacing: 10.0,
+                    columns: [
+                      DataColumn(
+                        label: InkWell(
+                          onTap: () {
+                            _addCategoryRow(context, widget.userId);
+                          },
+                          child: const Row(
+                            children: [
+                              Icon(Icons.add, color: Colors.white),
+                              SizedBox(width: 5),
+                              Text(
+                                'Add Category',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const DataColumn(
-                      label: Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Text(
-                          'Assigned',
-                          style: TextStyle(color: Colors.white),
+                      const DataColumn(
+                        label: Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Text(
+                            'Assigned',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
-                    ),
-                    const DataColumn(
-                      label: Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Text(
-                          'Available',
-                          style: TextStyle(color: Colors.white),
+                      const DataColumn(
+                        label: Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Text(
+                            'Available',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                  rows: _categories.asMap().entries.expand((entry) {
-                    int index = entry.key;
-                    Map<String, dynamic> category = entry.value;
-                    bool _isEditing = category['isEditing'] ?? false;
-                    String _editingCategoryName = category['name'] ?? '';
+                    ],
+                    rows: _categories.asMap().entries.expand((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> category = entry.value;
+                      bool _isEditing = category['isEditing'] ?? false;
+                      String _editingCategoryName = category['name'] ?? '';
 
-                    List<DataRow> rows = [
-                      DataRow(
-                        cells: [
-                          DataCell(
-                            Row(
-                              children: [
-                                const SizedBox(width: 5),
-                                InkWell(
-                                  onTap: () {
-                                    if (_isEditing) {
-                                      _showCategoryNamePopup(context, index);
-                                    }
-                                  },
-                                  child: Row(
-                                    children: [
+                      List<DataRow> rows = [
+                        DataRow(
+                          cells: [
+                            DataCell(
+                              Row(
+                                children: [
+                                  const SizedBox(width: 5),
+                                  InkWell(
+                                    onTap: () {
+                                      if (_isEditing) {
+                                        _showCategoryNamePopup(context, index);
+                                      }
+                                    },
+                                    child: Row(
+                                      children: [
                                         InkWell(
                                           onTap: () {
-                                            _showSetReminderPopup(context, index);
+                                            _showSetReminderPopup(
+                                                context, index);
                                           },
-                                          child: const Icon(Icons.notifications, color: Colors.white),
+                                          child: const Icon(Icons.notifications,
+                                              color: Colors.white),
                                         ),
                                         GestureDetector(
                                           onTap: () {
@@ -583,138 +587,142 @@ Widget build(BuildContext context) {
                                           },
                                           child: Text(
                                             _editingCategoryName,
-                                            style: const TextStyle(color: Colors.white),
+                                            style: const TextStyle(
+                                                color: Colors.white),
                                           ),
                                         ),
                                         const SizedBox(width: 5),
                                       ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          DataCell(Text(
-                            'Rp. ${_formatNumber(category['assigned'])}',
-                            style: const TextStyle(color: Colors.white),
-                          )),
-                          DataCell(Text(
-                            'Rp. ${_formatNumber(category['available'])}',
-                            style: const TextStyle(color: Colors.white),
-                          )),
-                        ],
-                      ),
-                      DataRow(
-                        cells: [
-                          DataCell(
-                            Row(
-                              children: [
-                                const SizedBox(width: 5),
-                                InkWell(
-                                  onTap: () {
-                                    _addAmount(
-                                      context,
-                                      index,
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color: Colors.blue,
-                                    ),
-                                    child: const Text(
-                                      'Add Amount',
-                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          const DataCell(Text('')),
-                          const DataCell(Text('')),
-                        ],
-                      ),
-                    ];
-                    return rows;
-                  }).toList(),
+                            DataCell(Text(
+                              'Rp. ${_formatNumber(category['assigned'])}',
+                              style: const TextStyle(color: Colors.white),
+                            )),
+                            DataCell(Text(
+                              'Rp. ${_formatNumber(category['available'])}',
+                              style: const TextStyle(color: Colors.white),
+                            )),
+                          ],
+                        ),
+                        DataRow(
+                          cells: [
+                            DataCell(
+                              Row(
+                                children: [
+                                  const SizedBox(width: 5),
+                                  InkWell(
+                                    onTap: () {
+                                      _addAmount(
+                                        context,
+                                        index,
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Colors.blue,
+                                      ),
+                                      child: const Text(
+                                        'Add Amount',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const DataCell(Text('')),
+                            const DataCell(Text('')),
+                          ],
+                        ),
+                      ];
+                      return rows;
+                    }).toList(),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
-
-
+      ],
+    );
+  }
 
   void _addAmount(BuildContext context, int index) async {
-  TextEditingController addAmountController = TextEditingController();
+    TextEditingController addAmountController = TextEditingController();
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Add Amount'),
-        content: TextField(
-          controller: addAmountController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Amount'),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel'),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Amount'),
+          content: TextField(
+            controller: addAmountController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'Amount'),
           ),
-          TextButton(
-            onPressed: () async {
-              double addAmount = double.tryParse(addAmountController.text) ?? 0.0;
-              if (addAmount > 0) {
-                final response = await http.put(
-                  Uri.parse('http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: jsonEncode({
-                    'assigned': addAmount,
-                  }),
-                );
-
-                if (response.statusCode == 200) {
-                  // Update local data
-                  final Map<String, dynamic> responseData = json.decode(response.body);
-                  setState(() {
-                    _categories[index]['assigned'] = responseData['instalment']['assigned'];
-                    _categories[index]['available'] = responseData['instalment']['available'];
-                  });
-                  Navigator.of(context).pop();
-                } else {
-                  if (kDebugMode) {
-                    print('Failed to add amount: ${response.statusCode}');
-                  }
-                  // Handle error
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Failed to add amount: ${response.statusCode}'),
-                      backgroundColor: Colors.red,
-                    ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                double addAmount =
+                    double.tryParse(addAmountController.text) ?? 0.0;
+                if (addAmount > 0) {
+                  final response = await http.put(
+                    Uri.parse(
+                        'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: jsonEncode({
+                      'assigned': addAmount,
+                    }),
                   );
-                }
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      );
-    },
-  );
-}
 
+                  if (response.statusCode == 200) {
+                    // Update local data
+                    final Map<String, dynamic> responseData =
+                        json.decode(response.body);
+                    setState(() {
+                      _categories[index]['assigned'] =
+                          responseData['instalment']['assigned'];
+                      _categories[index]['available'] =
+                          responseData['instalment']['available'];
+                    });
+                    Navigator.of(context).pop();
+                  } else {
+                    if (kDebugMode) {
+                      print('Failed to add amount: ${response.statusCode}');
+                    }
+                    // Handle error
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Failed to add amount: ${response.statusCode}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _resetInstalments(BuildContext context) async {
     final response = await http.post(
@@ -742,181 +750,148 @@ Widget build(BuildContext context) {
   }
 
   void _showSetReminderPopup(BuildContext context, int index) {
-  List<String> reminderOptions = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
+    List<String> reminderOptions = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
 
-  DateTime? instalmentDeadline; // Ubah tipe data menjadi DateTime
-  String? remindFrequency;
-  String notes = '';
+    DateTime? instalmentDeadline;
+    String? remindFrequency = reminderOptions.first;
+    String notes = '';
 
-  remindFrequency =
-      reminderOptions.first; // Inisialisasi remindFrequency di sini
-
-  // Function to handle the selection of instalment deadline
-  Future<void> _selectInstalmentDeadline() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != instalmentDeadline) {
-      setState(() {
-        instalmentDeadline = picked;
-      });
+    Future<void> _selectInstalmentDeadline() async {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2101),
+      );
+      if (picked != null && picked != instalmentDeadline) {
+        setState(() {
+          instalmentDeadline = picked;
+        });
+      }
     }
-  }
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text('Set Reminder'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Select Instalment Deadline:',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                    color: const Color(0xFF19173D).withOpacity(0.8),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => _selectInstalmentDeadline(),
-                  child: Text(
-                    instalmentDeadline == null
-                        ? 'Select Deadline'
-                        : DateFormat('dd/MM/yyyy').format(instalmentDeadline!),
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      color: const Color(0xFF19173D).withOpacity(0.8),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Set Reminder'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Select Instalment Deadline:'),
+                  TextButton(
+                    onPressed: _selectInstalmentDeadline,
+                    child: Text(
+                      instalmentDeadline == null
+                          ? 'Select Deadline'
+                          : DateFormat('dd/MM/yyyy')
+                              .format(instalmentDeadline!),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Reminder Frequency:',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                    color: const Color(0xFF19173D).withOpacity(0.8),
-                  ),
-                ),
-                DropdownButton<String>(
-                  value: remindFrequency,
-                  onChanged: (String? value) {
-                    setState(() {
-                      remindFrequency = value;
-                    });
-                  },
-                  items: reminderOptions
-                      .map((String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              value,
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.normal,
-                                color: const Color(0xFF19173D).withOpacity(0.8),
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Notes:',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                    color: const Color(0xFF19173D).withOpacity(0.8),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDAD9D9),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: TextFormField(
-                    onChanged: (value) {
-                      notes = value;
+                  SizedBox(height: 10),
+                  Text('Reminder Frequency:'),
+                  DropdownButton<String>(
+                    value: remindFrequency,
+                    onChanged: (String? value) {
+                      setState(() {
+                        remindFrequency = value;
+                      });
                     },
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(15.0),
-                      hintText: 'Add notes (optional)',
-                      hintStyle: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.normal,
-                        color: const Color(0xFF19173D).withOpacity(0.5),
+                    items: reminderOptions
+                        .map((String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ))
+                        .toList(),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Notes:'),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFDAD9D9),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: TextFormField(
+                      onChanged: (value) {
+                        notes = value;
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(15.0),
+                        hintText: 'Add notes (optional)',
                       ),
                     ),
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                    ),
                   ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Cancel'),
                 ),
-              ],
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: instalmentDeadline == null
-                    ? null
-                    : () async {
-                        // Create a Map object containing reminder data
-                        final Map<String, dynamic> reminderData = {
-                          'deadline': instalmentDeadline!.toString(),
-                          'frequency': remindFrequency,
-                          'notes': notes,
-                        };
+                TextButton(
+                  onPressed: instalmentDeadline == null
+                      ? null
+                      : () async {
+                          final Map<String, dynamic> reminderData = {
+                            'user_id': widget.userId, // add user_id
+                            'instalment_id': _categories[index]
+                                ['id'], // add instalment_id
+                            'deadline': instalmentDeadline!.toIso8601String(),
+                            'frequency': remindFrequency,
+                            'notes': notes,
+                          };
 
-                        // Send reminder data to the backend
-                        final response = await http.post(
-                          Uri.parse(
-                              'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}/reminders'),
-                          body: reminderData,
-                        );
+                          print('Reminder Data: $reminderData'); // Debugging
 
-                        if (response.statusCode == 201) {
-                          // Reminder saved successfully
-                          if (kDebugMode) {
-                            print('Reminder saved successfully');
-                          }
-                          setState(() {
-                            _categories[index]['reminders'].add(reminderData);
-                          });
-                          Navigator.of(context).pop(); // Close the dialog
-                        } else {
-                          // Failed to save reminder
-                          if (kDebugMode) {
+                          final response = await http.post(
+                            Uri.parse(
+                                'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}/reminders'),
+                            body: json.encode(reminderData),
+                            headers: {'Content-Type': 'application/json'},
+                          );
+
+                          print(
+                              'Response Status: ${response.statusCode}'); // Debugging
+                          print('Response Body: ${response.body}'); // Debugging
+
+                          if (response.statusCode == 201) {
+                            setState(() {
+                              _categories[index]['reminders'].add(reminderData);
+                            });
+                            Navigator.of(context).pop();
+                          } else {
                             print(
                                 'Failed to save reminder: ${response.statusCode}');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Failed to save reminder: ${response.statusCode}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
                           }
-                          // Handle the error appropriately
-                        }
-                      },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
+                        },
+                  child: Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }

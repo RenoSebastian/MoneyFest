@@ -10,6 +10,7 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\SubKategoriController;
 use App\Http\Controllers\InstalmentController;
 use App\Http\Controllers\BalanceController;
+use App\Http\Controllers\ReminderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,7 +54,6 @@ Route::put('/instalments/{id}', [InstalmentController::class, 'update']);
 Route::post('reset/instalments', [InstalmentController::class, 'reset']);
 Route::get('/instalments/{id}', [InstalmentController::class, 'show']);
 Route::get('/instalments/user/{userId}', [InstalmentController::class, 'getInstalmentsByUser']);
-Route::get('/instalments', [InstalmentController::class, 'index']);
 Route::put('/instalments/edit/{id}', [InstalmentController::class, 'edit']);
 Route::delete('/instalments/del/{id}', [InstalmentController::class, 'destroy']);
 
@@ -61,6 +61,8 @@ Route::delete('/instalments/del/{id}', [InstalmentController::class, 'destroy'])
 Route::post('/balance/store', [BalanceController::class, 'store']);
 Route::post('/balance/update/{userId}', [BalanceController::class, 'update']);
 Route::get('/balance/user/{userId}', [BalanceController::class, 'showByUserId']);
+
+Route::post('instalments/{id}/reminders', [ReminderController::class, 'store']);
 
 
 //Route::middleware('auth:sanctum')->post('/update-profile-image', [UserController::class, 'updateProfileImage']);

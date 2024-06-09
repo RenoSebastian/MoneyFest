@@ -252,6 +252,42 @@ class _SavingsContentState extends State<SavingsContent> {
     }
   }
 
+  Future<void> updateCategoryName(int categoryId, String newName) async {
+    final response = await http.put(
+      Uri.parse('http://10.0.2.2:8000/api/kategori/edit/$categoryId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'NamaKategori': newName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      fetchCategories(widget.userId);
+    } else {
+      throw Exception('Failed to update category');
+    }
+  }
+
+  Future<void> updateSubCategoryName(int subCategoryId, String newName) async {
+    final response = await http.put(
+      Uri.parse('http://10.0.2.2:8000/api/subkategori/edit/$subCategoryId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'NamaSub': newName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      fetchCategories(widget.userId);
+    } else {
+      throw Exception('Failed to update subcategory');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildSavings();
@@ -708,21 +744,15 @@ class _SavingsContentState extends State<SavingsContent> {
   void _showSubCategoryNamePopup(
       BuildContext context, int categoryIndex, int subCategoryIndex) {
     TextEditingController nameController = TextEditingController();
-    TextEditingController assignedController = TextEditingController();
 
     String subCategoryName = '';
-    String subCategoryAssigned = '';
 
     if (subCategoryIndex != -1) {
       subCategoryName =
           _categories[categoryIndex]['subCategories'][subCategoryIndex]['name'];
-      subCategoryAssigned = _categories[categoryIndex]['subCategories']
-              [subCategoryIndex]['assigned']
-          .toString();
     }
 
     nameController.text = subCategoryName;
-    assignedController.text = subCategoryAssigned;
 
     showDialog(
       context: context,
@@ -764,40 +794,6 @@ class _SavingsContentState extends State<SavingsContent> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDAD9D9),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: TextFormField(
-                  controller: assignedController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(15.0),
-                    hintText: 'Enter assigned value',
-                    hintStyle: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.normal,
-                      color: const Color(0xFF19173D).withOpacity(0.5),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                  ),
-                  onChanged: (value) {
-                    if (value.isNotEmpty) {
-                      assignedController.value = TextEditingValue(
-                        text: _formatNumber(value),
-                        selection: TextSelection.collapsed(
-                            offset: _formatNumber(value).length),
-                      );
-                    }
-                  },
-                ),
-              ),
             ],
           ),
           actions: <Widget>[
@@ -811,27 +807,17 @@ class _SavingsContentState extends State<SavingsContent> {
               onPressed: () {
                 setState(() {
                   String newName = nameController.text;
-                  double newAssigned = double.tryParse(
-                          assignedController.text.replaceAll(',', '')) ??
-                      0.0;
 
                   if (subCategoryIndex != -1) {
+                    int subCategoryId = _categories[categoryIndex]
+                        ['subCategories'][subCategoryIndex]['id'];
+                    updateSubCategoryName(subCategoryId, newName);
                     _categories[categoryIndex]['subCategories']
                         [subCategoryIndex]['name'] = newName;
-                    _categories[categoryIndex]['subCategories']
-                        [subCategoryIndex]['assigned'] = newAssigned;
                   } else {
                     _categories[categoryIndex]['subCategories'].add({
                       'name': newName,
-                      'assigned': newAssigned,
                     });
-
-                    double totalAssigned = 0.0;
-                    _categories[categoryIndex]['subCategories']
-                        .forEach((subCategory) {
-                      totalAssigned += subCategory['assigned'];
-                    });
-                    _categories[categoryIndex]['assigned'] = totalAssigned;
                   }
                 });
                 Navigator.of(context).pop();
@@ -853,27 +839,22 @@ class _SavingsContentState extends State<SavingsContent> {
   }
 
   void _showCategoryNamePopup(BuildContext context, int index) {
-    String newCategoryName = _categories[index]['name'] ?? 'New Category';
+    String newCategoryName =
+        _categories[index]['NamaKategori'] ?? 'New Category';
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Edit Category Name"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: TextEditingController(text: newCategoryName),
-                onChanged: (value) {
-                  newCategoryName = value;
-                },
-                decoration: const InputDecoration(
-                  hintText: 'Enter new category name',
-                ),
-              ),
-            ],
+          content: TextField(
+            controller: TextEditingController(text: newCategoryName),
+            onChanged: (value) {
+              newCategoryName = value;
+            },
+            decoration: const InputDecoration(
+              hintText: 'Enter new category name',
+            ),
           ),
           actions: [
             TextButton(
@@ -884,9 +865,7 @@ class _SavingsContentState extends State<SavingsContent> {
             ),
             TextButton(
               onPressed: () {
-                setState(() {
-                  _categories[index]['name'] = newCategoryName;
-                });
+                updateCategoryName(_categories[index]['id'], newCategoryName);
                 Navigator.of(context).pop();
               },
               child: const Text("Save"),

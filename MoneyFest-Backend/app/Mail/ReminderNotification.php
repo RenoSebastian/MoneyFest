@@ -7,7 +7,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\ReminderModel;
 
-
 class ReminderNotification extends Mailable
 {
     use Queueable, SerializesModels;

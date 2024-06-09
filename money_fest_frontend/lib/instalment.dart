@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, use_build_context_synchronously, duplicate_ignore, no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -342,341 +342,301 @@ class _InstalmentContentState extends State<InstalmentContent> {
   }
 
   void editCategory(BuildContext context, int index) {
-  TextEditingController nameController =
-      TextEditingController(text: _categories[index]['name']);
-  TextEditingController amountNeededController =
-      TextEditingController(text: _categories[index]['available'].toString());
+    TextEditingController nameController =
+        TextEditingController(text: _categories[index]['name']);
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(
-                  "Edit Category",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                    color: Color(0xFF19173D),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Edit Category",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF19173D),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Category Name:',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.normal,
-                color: const Color(0xFF19173D).withOpacity(0.8),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFDAD9D9),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(15.0),
-                  hintText: 'Enter category name',
-                  hintStyle: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.normal,
-                    color: const Color(0xFF19173D).withOpacity(0.5),
-                  ),
-                ),
-                style: const TextStyle(
+              const SizedBox(height: 10),
+              Text(
+                'Category Name:',
+                style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.8),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Amount Needed:',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.normal,
-                color: const Color(0xFF19173D).withOpacity(0.8),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFDAD9D9),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: TextFormField(
-                controller: amountNeededController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(15.0),
-                  hintText: 'Enter amount needed',
-                  hintStyle: TextStyle(
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter category name',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.normal,
-                    color: const Color(0xFF19173D).withOpacity(0.5),
                   ),
                 ),
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.normal,
-                ),
               ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final response = await http.put(
+                  Uri.parse(
+                      'http://10.0.2.2:8000/api/instalments/edit/${_categories[index]['id']}'),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: jsonEncode({
+                    'kategori': nameController.text,
+                  }),
+                );
+
+                if (response.statusCode == 200) {
+                  setState(() {
+                    _categories[index]['name'] = nameController.text;
+                  });
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  if (kDebugMode) {
+                    print('Failed to edit category: ${response.statusCode}');
+                  }
+                  // Handle error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          'Failed to edit category: ${response.statusCode}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Save'),
             ),
           ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final response = await http.put(
-                Uri.parse(
-                    'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: jsonEncode({
-                  'kategori': nameController.text,
-                  'available': double.tryParse(amountNeededController.text) ?? 0.0,
-                }),
-              );
-
-              if (response.statusCode == 200) {
-                setState(() {
-                  _categories[index]['name'] = nameController.text;
-                  _categories[index]['available'] =
-                      double.tryParse(amountNeededController.text) ?? 0.0;
-                });
-                Navigator.of(context).pop(); // Close the dialog
-              } else {
-                if (kDebugMode) {
-                  print('Failed to edit category: ${response.statusCode}');
-                }
-                // Handle error
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        'Failed to edit category: ${response.statusCode}'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   Widget _buildCategoryButton() {
-  
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      TextButton(
-        onPressed: () {
-          setState(() {
-            _categories.clear();
-            _fetchInstalments(widget.userId);
-          });
-          _resetInstalments(context);
-        },
-        child: const Text(
-          'Reset',
-          style: TextStyle(color: Colors.white),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _categories.clear();
+              _fetchInstalments(widget.userId);
+            });
+            _resetInstalments(context);
+          },
+          child: const Text(
+            'Reset',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
-      ),
-      SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        child: DataTable(
-          columnSpacing: 10.0,
-          columns: [
-            DataColumn(
-              label: InkWell(
-                onTap: () {
-                  _addCategoryRow(context, widget.userId);
-                },
-                child: const Row(
-                  children: [
-                    Icon(Icons.add, color: Colors.white),
-                    SizedBox(width: 5),
-                    Text(
-                      'Add Category',
-                      style: TextStyle(color: Colors.white),
+        SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: Axis.vertical,
+          child: DataTable(
+            columnSpacing: 10.0,
+            columns: [
+              DataColumn(
+                label: InkWell(
+                  onTap: () {
+                    _addCategoryRow(context, widget.userId);
+                  },
+                  child: const Row(
+                    children: [
+                      Icon(Icons.add, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text(
+                        'Add Category',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const DataColumn(
+                label: Padding(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Text(
+                    'Assigned',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              const DataColumn(
+                label: Padding(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Text(
+                    'Available',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: const Text(''),
+              ),
+            ],
+            rows: _categories.asMap().entries.expand((entry) {
+              int index = entry.key;
+              Map<String, dynamic> category = entry.value;
+              bool _isEditing = category['isEditing'] ?? false;
+              String _editingCategoryName = category['name'] ?? '';
+
+              List<DataRow> rows = [
+                DataRow(
+                  cells: [
+                    DataCell(
+                      Row(
+                        children: [
+                          const SizedBox(width: 5),
+                          InkWell(
+                            onTap: () {
+                              if (_isEditing) {
+                                _showCategoryNamePopup(context, index);
+                              }
+                            },
+                            child: Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    _showSetReminderPopup(context, index);
+                                  },
+                                  child: const Icon(Icons.notifications,
+                                      color: Colors.white),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    editCategory(context, index);
+                                  },
+                                  child: Text(
+                                    _editingCategoryName,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['assigned'])}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
+                    DataCell(Text(
+                      'Rp. ${_formatNumber(category['available'])}',
+                      style: const TextStyle(color: Colors.white),
+                    )),
+                    DataCell(
+                      SizedBox(
+                        width: 30, // adjust the width as needed
+                        child: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.white),
+                          onPressed: () async {
+                            final response = await http.delete(
+                              Uri.parse(
+                                  'http://10.0.2.2:8000/api/instalments/del/${category['id']}'),
+                            );
+
+                            if (response.statusCode == 200) {
+                              setState(() {
+                                _categories.removeAt(index);
+                              });
+                            } else {
+                              if (kDebugMode) {
+                                print(
+                                    'Failed to delete category: ${response.statusCode}');
+                              }
+                              // Handle error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Failed to delete category: ${response.statusCode}'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            const DataColumn(
-              label: Padding(
-                padding: EdgeInsets.only(left: 20.0),
-                child: Text(
-                  'Assigned',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            const DataColumn(
-              label: Padding(
-                padding: EdgeInsets.only(left: 20.0),
-                child: Text(
-                  'Available',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: const Text(''),
-            ),
-          ],
-          rows: _categories.asMap().entries.expand((entry) {
-            int index = entry.key;
-            Map<String, dynamic> category = entry.value;
-            bool _isEditing = category['isEditing']?? false;
-            String _editingCategoryName = category['name']?? '';
-
-            List<DataRow> rows = [
-              DataRow(
-                cells: [
-                  DataCell(
-                    Row(
-                      children: [
-                        const SizedBox(width: 5),
-                        InkWell(
-                          onTap: () {
-                            if (_isEditing) {
-                              _showCategoryNamePopup(context, index);
-                            }
-                          },
-                          child: Row(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  _showSetReminderPopup(context, index);
-                                },
-                                child: const Icon(Icons.notifications,
-                                    color: Colors.white),
+                DataRow(
+                  cells: [
+                    DataCell(
+                      Row(
+                        children: [
+                          const SizedBox(width: 5),
+                          InkWell(
+                            onTap: () {
+                              _addAmount(context, index);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.blue,
                               ),
-                              GestureDetector(
-                                onTap: () {
-                                  editCategory(context, index);
-                                },
-                                child: Text(
-                                  _editingCategoryName,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
+                              child: const Text(
+                                'Add Amount',
+                                style: TextStyle(color: Colors.white),
                               ),
-                              const SizedBox(width: 5),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  DataCell(Text(
-                    'Rp. ${_formatNumber(category['assigned'])}',
-                    style: const TextStyle(color: Colors.white),
-                  )),
-                  DataCell(Text(
-                    'Rp. ${_formatNumber(category['available'])}',
-                    style: const TextStyle(color: Colors.white),
-                  )),
-                  DataCell(
-                    SizedBox(
-                      width: 30, // adjust the width as needed
-                      child: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.white),
-                        onPressed: () async {
-                          final response = await http.delete(
-                            Uri.parse(
-                                'http://10.0.2.2:8000/api/instalments/del/${category['id']}'),
-                          );
-
-                          if (response.statusCode == 200) {
-                            setState(() {
-                              _categories.removeAt(index);
-                            });
-                          } else {
-                            if (kDebugMode) {
-                              print('Failed to delete category: ${response.statusCode}');
-                            }
-                            // Handle error
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Failed to delete category: ${response.statusCode}'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
+                        ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-              DataRow(
-                cells: [
-                  DataCell(
-                    Row(
-                      children: [
-                        const SizedBox(width: 5),
-                        InkWell(
-                          onTap: () {
-                            _addAmount(context, index);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              color: Colors.blue,
-                            ),
-                            child: const Text(
-                              'Add Amount',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const DataCell(Text('')),
-                  const DataCell(Text('')),
-                  const DataCell(Text('')),
-                ],
-              ),
-            ];
-            return rows;
-          }).toList(),
+                    const DataCell(Text('')),
+                    const DataCell(Text('')),
+                    const DataCell(Text('')),
+                  ],
+                ),
+              ];
+              return rows;
+            }).toList(),
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   void _addAmount(BuildContext context, int index) async {
     TextEditingController addAmountController = TextEditingController();
@@ -703,37 +663,50 @@ class _InstalmentContentState extends State<InstalmentContent> {
                 double addAmount =
                     double.tryParse(addAmountController.text) ?? 0.0;
                 if (addAmount > 0) {
-                  final response = await http.put(
-                    Uri.parse(
-                        'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: jsonEncode({
-                      'assigned': addAmount,
-                    }),
-                  );
+                  try {
+                    final response = await http.put(
+                      Uri.parse(
+                          'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: jsonEncode({
+                        'assigned': addAmount,
+                      }),
+                    );
 
-                  if (response.statusCode == 200) {
-                    // Update local data
-                    final Map<String, dynamic> responseData =
-                        json.decode(response.body);
-                    setState(() {
-                      _categories[index]['assigned'] =
-                          responseData['instalment']['assigned'];
-                      _categories[index]['available'] =
-                          responseData['instalment']['available'];
-                    });
-                    Navigator.of(context).pop();
-                  } else {
-                    if (kDebugMode) {
-                      print('Failed to add amount: ${response.statusCode}');
+                    if (response.statusCode == 200) {
+                      // Update local data
+                      final Map<String, dynamic> responseData =
+                          json.decode(response.body);
+                      setState(() {
+                        _categories[index]['assigned'] =
+                            responseData['instalment']['assigned'];
+                        _categories[index]['available'] =
+                            responseData['instalment']['available'];
+                      });
+                      Navigator.of(context).pop();
+                    } else {
+                      if (kDebugMode) {
+                        print('Failed to add amount: ${response.statusCode}');
+                        print('Response body: ${response.body}');
+                      }
+                      // Handle error
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Failed to add amount: ${response.statusCode}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
-                    // Handle error
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error: $e');
+                    }
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                            'Failed to add amount: ${response.statusCode}'),
+                        content: Text('Error: $e'),
                         backgroundColor: Colors.red,
                       ),
                     );

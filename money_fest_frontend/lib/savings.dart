@@ -1,27 +1,31 @@
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'user_data.dart';
 
 class SavingsContent extends StatefulWidget {
   final int userId;
-  const SavingsContent({Key? key, required this.userId}) : super(key: key);
+  final Map<String, dynamic> data; // Add this line
+
+  const SavingsContent({Key? key, required this.userId, required this.data})
+      : super(key: key); // Modify constructor
 
   @override
   _SavingsContentState createState() => _SavingsContentState();
 }
 
 class _SavingsContentState extends State<SavingsContent> {
-  final List<Map<String, dynamic>> _categories = [];
+// Add this line
+  List<Map<String, dynamic>> _categories = [];
   final List<int> _categoryIds = [];
-  final List<int> _subCategoryIds = [];
-  final int _selectedCategoryIndex = -1;
 
   @override
   void initState() {
     super.initState();
+// Add this line
     fetchCategories(widget.userId);
   }
 
@@ -38,7 +42,9 @@ class _SavingsContentState extends State<SavingsContent> {
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
-      print('Response Data: $responseData');
+      if (kDebugMode) {
+        print('Response Data: $responseData');
+      }
 
       final int categoryId = responseData['data']['id'];
 
@@ -167,7 +173,9 @@ class _SavingsContentState extends State<SavingsContent> {
             'Failed to load subcategories. Status code: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching subcategories: $error');
+      if (kDebugMode) {
+        print('Error fetching subcategories: $error');
+      }
       // Display error message
       // (You can display this error message in UI or use other method to handle errors)
     }
@@ -197,6 +205,53 @@ class _SavingsContentState extends State<SavingsContent> {
     }
   }
 
+  Future<void> deleteCategory(int categoryId) async {
+    final url = 'http://10.0.2.2:8000/api/kategori/del/$categoryId';
+    final response = await http.delete(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _categories.removeWhere((category) => category['id'] == categoryId);
+      });
+
+      if (kDebugMode) {
+        print('Kategori berhasil dihapus dengan ID: $categoryId');
+      }
+    } else {
+      if (kDebugMode) {
+        print('Gagal menghapus kategori');
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    }
+  }
+
+  Future<void> deleteSubCategory(int subCategoryId) async {
+    final url = 'http://10.0.2.2:8000/api/subkategori/del/$subCategoryId';
+    final response = await http.delete(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _categories = _categories.map((category) {
+          category['subCategories'] = category['subCategories']
+              .where((subCategory) => subCategory['id'] != subCategoryId)
+              .toList();
+          return category;
+        }).toList();
+      });
+
+      if (kDebugMode) {
+        print('Subkategori berhasil dihapus dengan ID: $subCategoryId');
+      }
+    } else {
+      if (kDebugMode) {
+        print('Gagal menghapus subkategori');
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildSavings();
@@ -220,24 +275,10 @@ class _SavingsContentState extends State<SavingsContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextButton(
-          onPressed: () {
-            setState(() {
-              // Mengosongkan daftar kategori lokal
-              _categories.clear();
-              // Memuat kembali kategori dari server
-              fetchCategories(widget.userId);
-            });
-          },
-          child: const Text(
-            'Reset',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
-            columnSpacing: 10.0,
+            columnSpacing: 20.0,
             columns: [
               DataColumn(
                 label: InkWell(
@@ -247,7 +288,7 @@ class _SavingsContentState extends State<SavingsContent> {
                   child: const Row(
                     children: [
                       Icon(Icons.add, color: Colors.white),
-                      SizedBox(width: 5),
+                      SizedBox(width: 8),
                       Text(
                         'Add Category',
                         style: TextStyle(color: Colors.white),
@@ -259,23 +300,14 @@ class _SavingsContentState extends State<SavingsContent> {
               const DataColumn(
                 label: Text('Assigned', style: TextStyle(color: Colors.white)),
               ),
-              const DataColumn(
-                label: Text('Available', style: TextStyle(color: Colors.white)),
-              ),
             ],
             rows: _categories.asMap().entries.expand((entry) {
               int index = entry.key;
               Map<String, dynamic> category = entry.value;
-              bool isEditing =
-                  category['isEditing'] != null ? category['isEditing'] : false;
-              String editingCategoryName =
-                  category['name'] != null ? category['name'] : '';
-              bool isExpanded = category['isExpanded'] != null
-                  ? category['isExpanded']
-                  : false;
-              List subCategories = category['subCategories'] != null
-                  ? category['subCategories']
-                  : [];
+              bool isEditing = category['isEditing'] ?? false;
+              String editingCategoryName = category['name'] ?? '';
+              bool isExpanded = category['isExpanded'] ?? false;
+              List subCategories = category['subCategories'] ?? [];
 
               List<DataRow> rows = [
                 DataRow(
@@ -297,7 +329,7 @@ class _SavingsContentState extends State<SavingsContent> {
                               color: Colors.white,
                             ),
                           ),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 8),
                           InkWell(
                             onTap: () {
                               if (isEditing) {
@@ -325,21 +357,25 @@ class _SavingsContentState extends State<SavingsContent> {
                                   ),
                           ),
                           const Spacer(),
+                          const SizedBox(width: 20),
                           InkWell(
                             onTap: () {
-                              _addSubCategory(index); // Using category ID
+                              _addSubCategory(index);
                             },
                             child: const Icon(Icons.add, color: Colors.white),
+                          ),
+                          const SizedBox(width: 20),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {
+                              deleteCategory(category['id']);
+                            },
                           ),
                         ],
                       ),
                     ),
                     DataCell(Text(
-                      'Rp. ${_formatNumber(category['assigned']) ?? 0}',
-                      style: const TextStyle(color: Colors.white),
-                    )),
-                    DataCell(Text(
-                      'Rp. ${_formatNumber(category['available']) ?? 0}',
+                      'Rp. ${_formatNumber(category['assigned'])}',
                       style: const TextStyle(color: Colors.white),
                     )),
                   ],
@@ -353,9 +389,9 @@ class _SavingsContentState extends State<SavingsContent> {
                       DataCell(
                         Row(
                           children: [
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 15),
                             const Icon(Icons.arrow_right, color: Colors.white),
-                            const SizedBox(width: 5),
+                            const SizedBox(width: 8),
                             InkWell(
                               onTap: () {
                                 _showSubCategoryNamePopup(
@@ -369,15 +405,18 @@ class _SavingsContentState extends State<SavingsContent> {
                                 style: const TextStyle(color: Colors.white),
                               ),
                             ),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () {
+                                deleteSubCategory(subCategory['id']);
+                              },
+                            ),
                           ],
                         ),
                       ),
                       DataCell(Text(
-                        'Rp. ${_formatNumber(subCategory['assigned']) ?? 0}',
-                        style: const TextStyle(color: Colors.white),
-                      )),
-                      DataCell(Text(
-                        'Rp. ${_formatNumber(subCategory['available']) ?? 0}',
+                        'Rp. ${_formatNumber(subCategory['assigned'])}',
                         style: const TextStyle(color: Colors.white),
                       )),
                     ],
@@ -461,8 +500,8 @@ class _SavingsContentState extends State<SavingsContent> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
-                        margin: EdgeInsets.all(10),
-                        duration: Duration(seconds: 3),
+                        margin: const EdgeInsets.all(10),
+                        duration: const Duration(seconds: 3),
                       ),
                     );
 
@@ -499,7 +538,9 @@ class _SavingsContentState extends State<SavingsContent> {
         },
       );
     } else {
-      print('Invalid categoryId: $categoryId');
+      if (kDebugMode) {
+        print('Invalid categoryId: $categoryId');
+      }
     }
   }
 

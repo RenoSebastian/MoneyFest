@@ -14,6 +14,8 @@ class KategoriModel extends Model
         'NamaKategori',
     ];
 
+    public $timestamps = true;
+
     protected static function booted()
     {
         static::saved(function ($kategori) {

@@ -12,15 +12,23 @@ class InstalmentModel extends Model
     protected $table = 'instalment';
     protected $fillable = ['user_id', 'kategori', 'assigned', 'available'];
 
+    protected $originalAssigned;
+
     protected static function boot()
     {
         parent::boot();
 
+        // Listen for the updating event to capture the original assigned value
+        static::updating(function ($instalment) {
+            $instalment->originalAssigned = $instalment->getOriginal('assigned');
+        });
+
+        // Listen for the saved event to update the balance
         static::saved(function ($instalment) {
-            // Update balance
             $balance = BalanceModel::where('user_id', $instalment->user_id)->first();
             if ($balance) {
-                $balance->balance -= $instalment->assigned;
+                $difference = $instalment->assigned - $instalment->originalAssigned;
+                $balance->balance -= $difference;
                 $balance->save();
             }
         });

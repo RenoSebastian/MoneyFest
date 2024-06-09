@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, use_build_context_synchronously, duplicate_ignore, no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

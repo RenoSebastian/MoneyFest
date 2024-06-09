@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, duplicate_ignore, unused_import
+// ignore_for_file: unused_field, duplicate_ignore, unused_import, unnecessary_import, use_build_context_synchronously
 
 import 'dart:convert';
 
@@ -38,6 +38,7 @@ Future<String> fetchBalance(int userId) async {
 class _BudgetState extends State<Budget> {
   int _selectedMonthIndex = 0;
   bool _isSavingsSelected = true; // default Savings is selected
+  Map<String, dynamic> _monthlyData = {};
 
   final List<String> _months = [
     'Jan',
@@ -60,6 +61,35 @@ class _BudgetState extends State<Budget> {
   // ignore: unused_field
   bool _balanceEntered = false;
 
+  Future<void> fetchDataForMonth(int monthIndex) async {
+    try {
+      final response = await http.get(Uri.parse(
+          'http://10.0.2.2:8000/api/data/user/${widget.userId}/month/${monthIndex + 1}'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _monthlyData = data; // Update state dengan data baru
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to load data for the selected month: ${response.reasonPhrase}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _updateBalance(String newBalance) async {
     try {
       final response = await http.post(
@@ -75,7 +105,7 @@ class _BudgetState extends State<Budget> {
       if (response.statusCode == 200) {
         // Handle jika saldo berhasil diperbarui
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Balance updated successfully'),
             backgroundColor: Colors.green,
           ),
@@ -110,7 +140,9 @@ class _BudgetState extends State<Budget> {
         });
       }).catchError((error) {
         // Handle error
-        print('Failed to fetch balance: $error');
+        if (kDebugMode) {
+          print('Failed to fetch balance: $error');
+        }
       });
     }
   }
@@ -546,6 +578,8 @@ class _BudgetState extends State<Budget> {
         setState(() {
           _selectedMonthIndex = index;
         });
+        fetchDataForMonth(
+            index); // Panggil fungsi untuk mendapatkan data sesuai bulan
       },
     );
   }
@@ -593,7 +627,7 @@ class _BudgetState extends State<Budget> {
 
   Widget _buildContent() {
     return _isSavingsSelected
-        ? SavingsContent(userId: widget.userId ?? 0)
+        ? SavingsContent(userId: widget.userId ?? 0, data: _monthlyData)
         : InstalmentContent(userId: widget.userId ?? 0);
   }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\carbon;
 
 class KategoriController extends Controller
 {
@@ -60,42 +61,42 @@ class KategoriController extends Controller
     }
 
     public function edit(Request $request, $id)
-{
-    // Validasi input
-    $validator = Validator::make($request->all(), [
-        'NamaKategori' => 'required|string|max:255', // Menjadi required dan batas panjang maksimal 255 karakter
-    ]);
+    {
+        // Validasi input
+        $validator = Validator::make($request->all(), [
+            'NamaKategori' => 'required|string|max:255', // Menjadi required dan batas panjang maksimal 255 karakter
+        ]);
 
-    // Jika validasi gagal
-    if ($validator->fails()) {
+        // Jika validasi gagal
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors(),
+                'message' => 'Gagal mengedit kategori',
+                'status' => '400'
+            ], 400);
+        }
+
+        // Temukan kategori berdasarkan ID
+        $kategori = KategoriModel::find($id);
+
+        // Jika kategori tidak ditemukan
+        if (!$kategori) {
+            return response()->json([
+                'message' => 'Kategori tidak ditemukan',
+                'status' => '404'
+            ], 404);
+        }
+
+        // Jika kategori ditemukan, perbarui NamaKategori
+        $kategori->NamaKategori = $request->input('NamaKategori');
+        $kategori->save();
+
         return response()->json([
-            'error' => $validator->errors(),
-            'message' => 'Gagal mengedit kategori',
-            'status' => '400'
-        ], 400);
+            'data' => $kategori,
+            'message' => 'Kategori berhasil diupdate',
+            'status' => '200'
+        ], 200);
     }
-
-    // Temukan kategori berdasarkan ID
-    $kategori = KategoriModel::find($id);
-
-    // Jika kategori tidak ditemukan
-    if (!$kategori) {
-        return response()->json([
-            'message' => 'Kategori tidak ditemukan',
-            'status' => '404'
-        ], 404);
-    }
-
-    // Jika kategori ditemukan, perbarui NamaKategori
-    $kategori->NamaKategori = $request->input('NamaKategori');
-    $kategori->save();
-
-    return response()->json([
-        'data' => $kategori,
-        'message' => 'Kategori berhasil diupdate',
-        'status' => '200'
-    ], 200);
-}
 
     public function destroy($id)
     {
@@ -125,33 +126,36 @@ class KategoriController extends Controller
 
 
     public function chart($userId)
-{
-    // Fetch all categories with their related expenditures for the given user
-    $categories = KategoriModel::with(['subKategoris' => function ($query) use ($userId) {
-        $query->where('user_id', $userId);
-    }])->get();
+    {
+        // Fetch all categories with their related expenditures for the given user
+        $categories = KategoriModel::with([
+            'subKategoris' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }
+        ])->get();
 
-    // Prepare data to include the sum of expenditures for each category
-    $categoriesData = $categories->map(function ($category) {
-        return [
-            'id' => $category->id,
-            'NamaKategori' => $category->NamaKategori,
-            'totalExpenditure' => $category->subKategoris->sum('uang'),
-        ];
-    });
+        // Prepare data to include the sum of expenditures for each category
+        $categoriesData = $categories->map(function ($category) {
+            return [
+                'id' => $category->id,
+                'NamaKategori' => $category->NamaKategori,
+                'totalExpenditure' => $category->subKategoris->sum('uang'),
+            ];
+        });
 
-    return response()->json([
-        'data' => $categoriesData,
-        'message' => 'Categories fetched successfully',
-        'status' => '200'
-    ], 200);
-}
+        return response()->json([
+            'data' => $categoriesData,
+            'message' => 'Categories fetched successfully',
+            'status' => '200'
+        ], 200);
+    }
 
 
     public function getCategoriesByUser($userId)
     {
         $categories = KategoriModel::with('subKategoris')
             ->where('user_id', $userId)
+            ->orderBy('created_at', 'asc') // Order by creation date
             ->get();
 
         return response()->json([
@@ -161,20 +165,24 @@ class KategoriController extends Controller
         ], 200);
     }
 
-    public function getCategoriesByMonth(Request $request, $userId)
-{
-    $month = $request->input('month');
+    public function getCategoriesByMonth($userId, $month)
+    {
+        // Parse month name to get the numeric month value
+        $date = Carbon::parse($month);
+        $monthNumber = $date->month;
 
-    $categories = KategoriModel::where('user_id', $userId)
-                    ->whereYear('created_at', date('Y', strtotime($month)))
-                    ->whereMonth('created_at', date('m', strtotime($month)))
-                    ->get();
+        // Fetch categories created in the specified month for the given user
+        $categories = KategoriModel::where('user_id', $userId)
+            ->whereMonth('created_at', $monthNumber)
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-    return response()->json([
-        'data' => $categories,
-        'message' => 'Kategori berhasil diambil berdasarkan bulan',
-        'status' => '200'
-    ], 200);
-}
+        return response()->json([
+            'data' => $categories,
+            'message' => 'Kategori berhasil diambil berdasarkan bulan ' . $month,
+            'status' => '200'
+        ], 200);
+    }
+
 
 }

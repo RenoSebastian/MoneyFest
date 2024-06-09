@@ -276,7 +276,7 @@ class _SavingsContentState extends State<SavingsContent> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+          scrollDirection: Axis.vertical,
           child: DataTable(
             columnSpacing: 20.0,
             columns: [
@@ -299,6 +299,9 @@ class _SavingsContentState extends State<SavingsContent> {
               ),
               const DataColumn(
                 label: Text('Assigned', style: TextStyle(color: Colors.white)),
+              ),
+              const DataColumn(
+                label: Text('', style: TextStyle(color: Colors.white)),
               ),
             ],
             rows: _categories.asMap().entries.expand((entry) {
@@ -357,19 +360,16 @@ class _SavingsContentState extends State<SavingsContent> {
                                   ),
                           ),
                           const Spacer(),
-                          const SizedBox(width: 20),
+                          const SizedBox(
+                              width: 20), // Add this line to create a gap
+                          const SizedBox(
+                              width: 20), // Add this line to create a gap
+                          const Spacer(),
                           InkWell(
                             onTap: () {
                               _addSubCategory(index);
                             },
                             child: const Icon(Icons.add, color: Colors.white),
-                          ),
-                          const SizedBox(width: 20),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              deleteCategory(category['id']);
-                            },
                           ),
                         ],
                       ),
@@ -378,6 +378,14 @@ class _SavingsContentState extends State<SavingsContent> {
                       'Rp. ${_formatNumber(category['assigned'])}',
                       style: const TextStyle(color: Colors.white),
                     )),
+                    DataCell(
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.white),
+                        onPressed: () {
+                          deleteCategory(category['id']);
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ];
@@ -406,12 +414,6 @@ class _SavingsContentState extends State<SavingsContent> {
                               ),
                             ),
                             const Spacer(),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                deleteSubCategory(subCategory['id']);
-                              },
-                            ),
                           ],
                         ),
                       ),
@@ -419,6 +421,14 @@ class _SavingsContentState extends State<SavingsContent> {
                         'Rp. ${_formatNumber(subCategory['assigned'])}',
                         style: const TextStyle(color: Colors.white),
                       )),
+                      DataCell(
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.white),
+                          onPressed: () {
+                            deleteSubCategory(subCategory['id']);
+                          },
+                        ),
+                      ),
                     ],
                   ));
                 }
@@ -441,24 +451,89 @@ class _SavingsContentState extends State<SavingsContent> {
           TextEditingController assignedController = TextEditingController();
 
           return AlertDialog(
-            title: const Text('Add Subcategory'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter subcategory name',
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text(
+                      "Add Subcategory",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                        color: Color(0xFF19173D),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                TextField(
-                  controller: assignedController,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter assigned value',
+                Text(
+                  'Subcategory Name:',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                    color: const Color(0xFF19173D).withOpacity(0.8),
                   ),
-                  keyboardType: TextInputType.number,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDAD9D9),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(15.0),
+                      hintText: 'Enter subcategory name',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.normal,
+                        color: const Color(0xFF19173D).withOpacity(0.5),
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Assigned Value:',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                    color: const Color(0xFF19173D).withOpacity(0.8),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDAD9D9),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: TextFormField(
+                    controller: assignedController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(15.0),
+                      hintText: 'Enter assigned value',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.normal,
+                        color: const Color(0xFF19173D).withOpacity(0.5),
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -481,7 +556,7 @@ class _SavingsContentState extends State<SavingsContent> {
                   if (newAssigned > userBalance) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Row(
+                        content: Row(
                           children: [
                             Icon(
                               Icons.warning,
@@ -551,12 +626,58 @@ class _SavingsContentState extends State<SavingsContent> {
         TextEditingController nameController = TextEditingController();
 
         return AlertDialog(
-          title: const Text('New Category'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              hintText: 'Enter category name',
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "New Category",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF19173D),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Category Name:',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.8),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter category name',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
@@ -608,33 +729,74 @@ class _SavingsContentState extends State<SavingsContent> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-              subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory'),
+            subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+              color: Color(0xFF19173D),
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter subcategory name',
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter subcategory name',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
-              TextField(
-                controller: assignedController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter assigned value',
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    assignedController.value = TextEditingValue(
-                      text: _formatNumber(value),
-                      selection: TextSelection.collapsed(
-                          offset: _formatNumber(value).length),
-                    );
-                  }
-                },
+                child: TextFormField(
+                  controller: assignedController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter assigned value',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      assignedController.value = TextEditingValue(
+                        text: _formatNumber(value),
+                        selection: TextSelection.collapsed(
+                            offset: _formatNumber(value).length),
+                      );
+                    }
+                  },
+                ),
               ),
             ],
           ),

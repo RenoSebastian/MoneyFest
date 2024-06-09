@@ -453,19 +453,6 @@ class _InstalmentContentState extends State<InstalmentContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextButton(
-          onPressed: () {
-            setState(() {
-              _categories.clear();
-              _fetchInstalments(widget.userId);
-            });
-            _resetInstalments(context);
-          },
-          child: const Text(
-            'Reset',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
         SingleChildScrollView(
           controller: _scrollController,
           scrollDirection: Axis.vertical,

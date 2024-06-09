@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\SubKategoriModel;
 use Carbon\carbon;
 
 class KategoriController extends Controller
@@ -60,6 +61,8 @@ class KategoriController extends Controller
         ]);
     }
 
+    // KategoriController.php
+
     public function edit(Request $request, $id)
     {
         // Validasi input
@@ -88,8 +91,13 @@ class KategoriController extends Controller
         }
 
         // Jika kategori ditemukan, perbarui NamaKategori
+        $oldNamaKategori = $kategori->NamaKategori; // Simpan nama kategori lama
         $kategori->NamaKategori = $request->input('NamaKategori');
         $kategori->save();
+
+        // Perbarui juga NamaKategori pada subkategori yang terkait
+        SubKategoriModel::where('kategori_id', $kategori->id)
+            ->update(['NamaKategori' => $request->input('NamaKategori')]);
 
         return response()->json([
             'data' => $kategori,
@@ -97,6 +105,7 @@ class KategoriController extends Controller
             'status' => '200'
         ], 200);
     }
+
 
     public function destroy($id)
     {

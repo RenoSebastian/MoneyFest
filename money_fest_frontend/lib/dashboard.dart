@@ -1,11 +1,13 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'user_data.dart';
 
 class Dashboard extends StatefulWidget {
   final int? userId;
+
   const Dashboard({Key? key, required this.userId}) : super(key: key);
 
   @override
@@ -39,8 +41,8 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _fetchCategories() async {
-    final response = await http
-        .get(Uri.parse('http://10.0.2.2:8000/api/chart/${widget.userId}'));
+    final response = await http.get(Uri.parse(
+        'http://10.0.2.2:8000/api/categories/${widget.userId}/by-month/${_months[_selectedMonthIndex]}'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -53,6 +55,18 @@ class _DashboardState extends State<Dashboard> {
         _isLoading = false;
       });
     }
+  }
+
+  List<dynamic> _getCategoriesBySelectedMonth() {
+    final selectedMonth = (_selectedMonthIndex + 1).toString().padLeft(2, '0');
+    return _categories.where((category) {
+      String? createdAt = category['created_at'];
+      if (createdAt != null && createdAt.length >= 10) {
+        String monthPart = createdAt.substring(5, 7);
+        return monthPart == selectedMonth;
+      }
+      return false;
+    }).toList();
   }
 
   @override
@@ -172,25 +186,38 @@ class _DashboardState extends State<Dashboard> {
   Widget _buildPieChart() {
     List<Color> categoryColors = [
       const Color.fromARGB(255, 0, 107, 195),
-      Color.fromRGBO(233, 144, 105, 1),
+      const Color.fromRGBO(233, 144, 105, 1),
       Colors.green,
       Colors.orange,
       Colors.purple,
     ];
+
+    final filteredCategories = _getCategoriesBySelectedMonth();
+
+    if (filteredCategories.isEmpty) {
+      return Center(
+        child: Text(
+          'No data available for selected month',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
 
     return SizedBox(
       width: 350,
       height: 300,
       child: PieChart(
         PieChartData(
-          sections: _categories
-              .where((category) => category['totalExpenditure'] > 0)
+          sections: filteredCategories
+              .where((category) =>
+                  category['totalExpenditure'] != null &&
+                  category['totalExpenditure'] > 0)
               .map((category) {
             int colorIndex =
-                _categories.indexOf(category) % categoryColors.length;
+                filteredCategories.indexOf(category) % categoryColors.length;
             return PieChartSectionData(
               value: category['totalExpenditure'].toDouble(),
-              title: category['NamaKategori'],
+              title: category['NamaKategori'] ?? '', // Handling null title
               color: categoryColors[colorIndex],
               radius: 140,
               titleStyle: const TextStyle(
@@ -249,6 +276,7 @@ class _DashboardState extends State<Dashboard> {
         setState(() {
           _selectedMonthIndex = index;
         });
+        _fetchCategories(); // Fetch new categories when month changes
       },
     );
   }

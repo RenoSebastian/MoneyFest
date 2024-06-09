@@ -40,6 +40,8 @@ Route::get('/balance/user/{userId}', [BalanceController::class, 'showByUserId'])
 Route::get('/kategori/user/{userId}', [KategoriController::class, 'getCategoriesByUser']);
 Route::get('/subkategori/user/{userId}/{kategoriId}', [SubKategoriController::class, 'getSubCategoriesByUserAndCategory']);
 Route::get('/categories/{userId}', [KategoriController::class, 'getCategoriesByMonth']);
+Route::get('users/{userId}/categories/by-month/{monthName}', [KategoriController::class, 'getCategoriesByMonthName']);
+Route::get('/categories/{userId}/by-month/{month}', [KategoriController::class, 'getCategoriesByMonth']);
 Route::get('/subcategories/{userId}', [SubKategoriController::class, 'getSubCategoriesByMonth']);
 Route::get('/instalments/{id}', [InstalmentController::class, 'show']);
 Route::get('/instalments/user/{userId}', [InstalmentController::class, 'getInstalmentsByUser']);

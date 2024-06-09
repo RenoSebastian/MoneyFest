@@ -17,6 +17,8 @@ class SavingsContent extends StatefulWidget {
   _SavingsContentState createState() => _SavingsContentState();
 }
 
+
+
 class _SavingsContentState extends State<SavingsContent> {
 // Add this line
   List<Map<String, dynamic>> _categories = [];
@@ -272,291 +274,267 @@ class _SavingsContentState extends State<SavingsContent> {
   }
 
   Widget _buildCategoryButton() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columnSpacing: 20.0,
-            columns: [
-              DataColumn(
-                label: InkWell(
-                  onTap: () {
-                    _addCategoryRow(context);
-                  },
-                  child: const Row(
-                    children: [
-                      Icon(Icons.add, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text(
-                        'Add Category',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          columnSpacing: 20.0,
+          columns: [
+            DataColumn(
+              label: InkWell(
+                onTap: () {
+                  _addCategoryRow(context);
+                },
+                child: const Row(
+                  children: [
+                    Icon(Icons.add, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      'Add Category',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
-              const DataColumn(
-                label: Text('Assigned', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-            rows: _categories.asMap().entries.expand((entry) {
-              int index = entry.key;
-              Map<String, dynamic> category = entry.value;
-              bool isEditing = category['isEditing'] ?? false;
-              String editingCategoryName = category['name'] ?? '';
-              bool isExpanded = category['isExpanded'] ?? false;
-              List subCategories = category['subCategories'] ?? [];
+            ),
+            const DataColumn(
+              label: Text('Assigned', style: TextStyle(color: Colors.white)),
+            ),
+            const DataColumn(
+              label: Text('', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+          rows: _categories.asMap().entries.expand((entry) {
+            int index = entry.key;
+            Map<String, dynamic> category = entry.value;
+            bool isEditing = category['isEditing']?? false;
+            String editingCategoryName = category['name']?? '';
+            bool isExpanded = category['isExpanded']?? false;
+            List subCategories = category['subCategories']?? [];
 
-              List<DataRow> rows = [
-                DataRow(
+            List<DataRow> rows = [
+              DataRow(
+                cells: [
+                  DataCell(
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              category['isExpanded'] =
+                                 !(category['isExpanded']?? false);
+                            });
+                          },
+                          child: Icon(
+                            category['isExpanded']?? false
+                               ? Icons.arrow_drop_up
+                                : Icons.arrow_drop_down,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        InkWell(
+                          onTap: () {
+                            if (isEditing) {
+                              _showCategoryNamePopup(context, index);
+                            } else {
+                              setState(() {
+                                category['isEditing'] = true;
+                              });
+                            }
+                          },
+                          child: isEditing
+                             ? TextButton(
+                                  onPressed: () {
+                                    _showCategoryNamePopup(context, index);
+                                  },
+                                  child: Text(
+                                    editingCategoryName,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              : Text(
+                                  editingCategoryName,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                        ),
+                        const Spacer(),
+                        const SizedBox(width: 20), // Add this line to create a gap
+                        const SizedBox(width: 20), // Add this line to create a gap
+                        const SizedBox(width: 20), // Add this line to create a gap
+                        InkWell(
+                          onTap: () {
+                            _addSubCategory(index);
+                          },
+                          child: const Icon(Icons.add, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  DataCell(Text(
+                    'Rp. ${_formatNumber(category['assigned'])}',
+                    style: const TextStyle(color: Colors.white),
+                  )),
+                  DataCell(
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.white),
+                      onPressed: () {
+                        deleteCategory(category['id']);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ];
+
+            if (isExpanded) {
+              for (var subCategory in subCategories) {
+                rows.add(DataRow(
                   cells: [
                     DataCell(
                       Row(
                         children: [
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                category['isExpanded'] =
-                                    !(category['isExpanded'] ?? false);
-                              });
-                            },
-                            child: Icon(
-                              category['isExpanded'] ?? false
-                                  ? Icons.arrow_drop_up
-                                  : Icons.arrow_drop_down,
-                              color: Colors.white,
-                            ),
-                          ),
+                          const SizedBox(width: 15),
+                          const Icon(Icons.arrow_right, color: Colors.white),
                           const SizedBox(width: 8),
                           InkWell(
                             onTap: () {
-                              if (isEditing) {
-                                _showCategoryNamePopup(context, index);
-                              } else {
-                                setState(() {
-                                  category['isEditing'] = true;
-                                });
-                              }
+                              _showSubCategoryNamePopup(
+                                context,
+                                index,
+                                subCategories.indexOf(subCategory),
+                              );
                             },
-                            child: isEditing
-                                ? TextButton(
-                                    onPressed: () {
-                                      _showCategoryNamePopup(context, index);
-                                    },
-                                    child: Text(
-                                      editingCategoryName,
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  )
-                                : Text(
-                                    editingCategoryName,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
+                            child: Text(
+                              subCategory['name'],
+                              style: const TextStyle(color: Colors.white),
+                            ),
                           ),
                           const Spacer(),
-                          const SizedBox(width: 20),
-                          InkWell(
-                            onTap: () {
-                              _addSubCategory(index);
-                            },
-                            child: const Icon(Icons.add, color: Colors.white),
-                          ),
-                          const SizedBox(width: 20),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () {
-                              deleteCategory(category['id']);
-                            },
-                          ),
                         ],
                       ),
                     ),
                     DataCell(Text(
-                      'Rp. ${_formatNumber(category['assigned'])}',
+                      'Rp. ${_formatNumber(subCategory['assigned'])}',
                       style: const TextStyle(color: Colors.white),
                     )),
-                  ],
-                ),
-              ];
-
-              if (isExpanded) {
-                for (var subCategory in subCategories) {
-                  rows.add(DataRow(
-                    cells: [
-                      DataCell(
-                        Row(
-                          children: [
-                            const SizedBox(width: 15),
-                            const Icon(Icons.arrow_right, color: Colors.white),
-                            const SizedBox(width: 8),
-                            InkWell(
-                              onTap: () {
-                                _showSubCategoryNamePopup(
-                                  context,
-                                  index,
-                                  subCategories.indexOf(subCategory),
-                                );
-                              },
-                              child: Text(
-                                subCategory['name'],
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            const Spacer(),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                deleteSubCategory(subCategory['id']);
-                              },
-                            ),
-                          ],
-                        ),
+                    DataCell(
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.white),
+                        onPressed: () {
+                          deleteSubCategory(subCategory['id']);
+                        },
                       ),
-                      DataCell(Text(
-                        'Rp. ${_formatNumber(subCategory['assigned'])}',
-                        style: const TextStyle(color: Colors.white),
-                      )),
-                    ],
-                  ));
-                }
+                    ),
+                  ],
+                ));
               }
+            }
 
-              return rows;
-            }).toList(),
-          ),
+            return rows;
+          }).toList(),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   void _addSubCategory(int categoryId) {
-    if (categoryId >= 0 && categoryId < _categories.length) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          TextEditingController nameController = TextEditingController();
-          TextEditingController assignedController = TextEditingController();
-
-          return AlertDialog(
-            title: const Text('Add Subcategory'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter subcategory name',
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: assignedController,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter assigned value',
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              ],
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  String newName = nameController.text;
-                  double newAssigned = double.tryParse(
-                          assignedController.text.replaceAll(',', '')) ??
-                      0.0;
-
-                  double userBalance = await _getUserBalance();
-
-                  if (newAssigned > userBalance) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Row(
-                          children: [
-                            Icon(
-                              Icons.warning,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'The assigned amount exceeds your balance!',
-                              ),
-                            ),
-                          ],
-                        ),
-                        backgroundColor: Colors.red,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        margin: const EdgeInsets.all(10),
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
-
-                    return; // Stop further execution
-                  }
-
-                  await addSubCategory(
-                      _categories[categoryId]['id'], newName, newAssigned);
-
-                  setState(() {
-                    if (_categories[categoryId]['subCategories'] == null) {
-                      _categories[categoryId]['subCategories'] = [];
-                    }
-                    _categories[categoryId]['subCategories'].add({
-                      'id': _categories[categoryId]['subCategories'].length + 1,
-                      'name': newName,
-                      'assigned': newAssigned,
-                    });
-                    double totalAssigned = 0.0;
-                    _categories[categoryId]['subCategories']
-                        .forEach((subCategory) {
-                      totalAssigned += subCategory['assigned'];
-                    });
-                    _categories[categoryId]['assigned'] = totalAssigned;
-                    _categories[categoryId]['isExpanded'] = true;
-                  });
-
-                  Navigator.of(context).pop(); // Close dialog
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      if (kDebugMode) {
-        print('Invalid categoryId: $categoryId');
-      }
-    }
-  }
-
-  void _addCategoryRow(BuildContext context) {
+  if (categoryId >= 0 && categoryId < _categories.length) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         TextEditingController nameController = TextEditingController();
+        TextEditingController assignedController = TextEditingController();
 
         return AlertDialog(
-          title: const Text('New Category'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              hintText: 'Enter category name',
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Add Subcategory",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF19173D),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Subcategory Name:',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.8),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter subcategory name',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Assigned Value:',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.8),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: assignedController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter assigned value',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
             TextButton(
@@ -566,15 +544,66 @@ class _SavingsContentState extends State<SavingsContent> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  String categoryName = nameController.text.isNotEmpty
-                      ? nameController.text
-                      : 'New Category';
+              onPressed: () async {
+                String newName = nameController.text;
+                double newAssigned = double.tryParse(
+                        assignedController.text.replaceAll(',', '')) ??
+                    0.0;
 
-                  addCategory(categoryName);
+                double userBalance = await _getUserBalance();
+
+                if (newAssigned > userBalance) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          Icon(
+                            Icons.warning,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'The assigned amount exceeds your balance!',
+                            ),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      margin: const EdgeInsets.all(10),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+
+                  return; // Stop further execution
+                }
+
+                await addSubCategory(
+                    _categories[categoryId]['id'], newName, newAssigned);
+
+                setState(() {
+                  if (_categories[categoryId]['subCategories'] == null) {
+                    _categories[categoryId]['subCategories'] = [];
+                  }
+                  _categories[categoryId]['subCategories'].add({
+                    'id': _categories[categoryId]['subCategories'].length + 1,
+                    'name': newName,
+                    'assigned': newAssigned,
+                  });
+                  double totalAssigned = 0.0;
+                  _categories[categoryId]['subCategories']
+                      .forEach((subCategory) {
+                    totalAssigned += subCategory['assigned'];
+                  });
+                  _categories[categoryId]['assigned'] = totalAssigned;
+                  _categories[categoryId]['isExpanded'] = true;
                 });
-                Navigator.of(context).pop();
+
+                Navigator.of(context).pop(); // Close dialog
               },
               child: const Text('Save'),
             ),
@@ -582,7 +611,98 @@ class _SavingsContentState extends State<SavingsContent> {
         );
       },
     );
+  } else {
+          if (kDebugMode) {
+        print('Invalid categoryId: $categoryId');
+      }
+    }
   }
+
+  void _addCategoryRow(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      TextEditingController nameController = TextEditingController();
+
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                child: Text(
+                  "New Category",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    color: Color(0xFF19173D),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Category Name:',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.normal,
+                color: const Color(0xFF19173D).withOpacity(0.8),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFDAD9D9),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(15.0),
+                  hintText: 'Enter category name',
+                  hintStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                    color: const Color(0xFF19173D).withOpacity(0.5),
+                  ),
+                ),
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                String categoryName = nameController.text.isNotEmpty
+                   ? nameController.text
+                    : 'New Category';
+
+                addCategory(categoryName);
+              });
+              Navigator.of(context).pop();
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   void _showSubCategoryNamePopup(
       BuildContext context, int categoryIndex, int subCategoryIndex) {
@@ -608,33 +728,74 @@ class _SavingsContentState extends State<SavingsContent> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-              subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory'),
+              subCategoryIndex != -1 ? 'Edit Subcategory' : 'Add Subcategory',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+                color: Color(0xFF19173D),
+              ),
+            ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter subcategory name',
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter subcategory name',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
-              TextField(
-                controller: assignedController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter assigned value',
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  if (value.isNotEmpty) {
-                    assignedController.value = TextEditingValue(
-                      text: _formatNumber(value),
-                      selection: TextSelection.collapsed(
-                          offset: _formatNumber(value).length),
-                    );
-                  }
-                },
+                child: TextFormField(
+                  controller: assignedController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter assigned value',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      assignedController.value = TextEditingValue(
+                        text: _formatNumber(value),
+                        selection: TextSelection.collapsed(
+                            offset: _formatNumber(value).length),
+                      );
+                    }
+                  },
+                ),
               ),
             ],
           ),

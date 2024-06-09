@@ -21,7 +21,6 @@ class ReminderController extends Controller
 
         $user_id = $request->user_id;
 
-
         $reminder = ReminderModel::create([
             'user_id' => $user_id,
             'instalment_id' => $instalmentId,
@@ -31,10 +30,9 @@ class ReminderController extends Controller
         ]);
 
         // Send email notification
-        // $user = User::find($user_id); // Menggunakan User model untuk mendapatkan pengguna berdasarkan ID
-        // $email = $user->email; // Mendapatkan alamat email pengguna
+        // $user = User::find($user_id);
+        // $email = $user->email;
         // Mail::to($email)->send(new ReminderNotification($reminder));
-
 
         return response()->json([
             'reminder' => $reminder,

@@ -91,8 +91,8 @@ class AuthService {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          margin: EdgeInsets.all(10),
-          duration: Duration(seconds: 3),
+          margin: const EdgeInsets.all(10),
+          duration: const Duration(seconds: 3),
         ),
       );
     } else {
@@ -102,7 +102,7 @@ class AuthService {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
               Icon(
                 Icons.error,
@@ -117,8 +117,8 @@ class AuthService {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          margin: EdgeInsets.all(10),
-          duration: Duration(seconds: 3),
+          margin: const EdgeInsets.all(10),
+          duration: const Duration(seconds: 3),
         ),
       );
     }

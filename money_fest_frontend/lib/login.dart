@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, duplicate_ignore
+
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
@@ -50,8 +52,8 @@ class Login extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          margin: EdgeInsets.all(10),
-          duration: Duration(seconds: 3),
+          margin: const EdgeInsets.all(10),
+          duration: const Duration(seconds: 3),
         ),
       );
 

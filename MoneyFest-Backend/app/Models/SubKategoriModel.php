@@ -18,6 +18,8 @@ class SubKategoriModel extends Model
         'kategori_id',
     ];
 
+    public $timestamps = true;
+
     protected static function boot()
     {
         parent::boot();

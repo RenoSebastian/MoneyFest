@@ -2,34 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BalanceModel;
 use Illuminate\Http\Request;
 use App\Models\InstalmentModel;
 use Illuminate\Support\Facades\Auth;
 
 class InstalmentController extends Controller
 {
-
-    public function show($id)
-    {
-        // Temukan instalment berdasarkan ID
-        $instalment = InstalmentModel::find($id);
-
-        // Jika instalment tidak ditemukan
-        if (!$instalment) {
-            return response()->json([
-                'message' => 'Instalment tidak ditemukan',
-                'status' => '404'
-            ], 404);
-        }
-
-        // Jika instalment ditemukan
-        return response()->json([
-            'data' => $instalment,
-            'message' => 'Instalment berhasil ditemukan',
-            'status' => '200'
-        ], 200);
-    }
-
     public function index(Request $request)
     {
         // Ambil ID pengguna dari permintaan
@@ -69,16 +48,16 @@ class InstalmentController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validasi input
+        // Validate input
         $request->validate([
             'assigned' => 'required|numeric|min:0',
         ]);
 
-        // Temukan instalment berdasarkan ID
+        // Find the instalment by ID
         $instalment = InstalmentModel::findOrFail($id);
 
-        // Perbarui nilai assigned dan available
-        $assigned = $request->assigned;
+        // Update the instalment
+        $assigned = $request->input('assigned');
         $available = $instalment->available - $assigned;
 
         if ($available < 0) {
@@ -102,48 +81,23 @@ class InstalmentController extends Controller
 
     public function edit(Request $request, $id)
     {
-        // Validasi input
+        // Validate input
         $request->validate([
-            'kategori' => 'required|string',
+            'kategori' => 'required|string|max:255',
         ]);
 
-        // Temukan instalment berdasarkan ID
-        $instalment = InstalmentModel::find($id);
+        // Find the instalment by ID
+        $instalment = InstalmentModel::findOrFail($id);
 
-        if (!$instalment) {
-            return response()->json([
-                'message' => 'Instalment tidak ditemukan',
-                'status' => '404'
-            ], 404);
-        }
+        // Update the category name
+        $instalment->update([
+            'kategori' => $request->input('kategori'),
+        ]);
 
-        // Perbarui nama kategori
-        $instalment->kategori = $request->input('kategori');
-        $instalment->save();
-
+        // Return a success response with the updated instalment data
         return response()->json([
-            'data' => $instalment,
-            'message' => 'Instalment berhasil diperbarui',
-            'status' => 200
-        ], 200);
-    }
-
-    public function destroy($id)
-    {
-        $instalment = InstalmentModel::find($id);
-
-        if (!$instalment) {
-            return response()->json([
-                'message' => 'Instalment tidak ditemukan',
-                'status' => '404'
-            ], 404);
-        }
-
-        $instalment->delete();
-
-        return response()->json([
-            'message' => 'Instalment berhasil dihapus',
-            'status' => 200
+            'instalment' => $instalment,
+            'message'    => 'Category name updated successfully',
         ], 200);
     }
 
@@ -158,6 +112,34 @@ class InstalmentController extends Controller
         ], 200);
     }
 
+    public function destroy($id)
+{
+    // Find the instalment by ID
+    $instalment = InstalmentModel::findOrFail($id);
+
+    // Retrieve the assigned amount
+    $assignedAmount = $instalment->assigned;
+
+    // Find the user's balance
+    $balance = BalanceModel::where('user_id', $instalment->user_id)->first();
+
+    if ($balance) {
+        // Increment the user's balance by the assigned amount
+        $balance->balance += $assignedAmount;
+        $balance->save();
+    }
+
+    // Delete the instalment
+    $instalment->delete();
+
+    // Return a success response
+    return response()->json([
+        'message' => 'Instalment berhasil dihapus dan uang dikembalikan ke balance'
+    ]);
+}
+
+    
+
     public function reset()
 {
     // Hapus semua data instalment dari database
@@ -168,5 +150,6 @@ class InstalmentController extends Controller
         'message' => 'Semua data instalment berhasil dihapus'
     ]);
 }
+
 
 }

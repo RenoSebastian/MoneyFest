@@ -31,24 +31,55 @@ class _InstalmentContentState extends State<InstalmentContent> {
   // ignore: unused_field
   int _selectedReminderCategoryIndex = -1; // Added this line
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    _fetchInstalments();
+    _fetchInstalments(widget.userId);
+  }
+
+  Future<void> _fetchInstalments(int userId) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/api/instalments/user/$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data =
+          json.decode(response.body)['data'] as List<dynamic>;
+      setState(() {
+        _categories.clear();
+        _categories.addAll(data
+            .map((instalment) => {
+                  'id': instalment['id'],
+                  'name': instalment['kategori'],
+                  'assigned': instalment['assigned'],
+                  'available': instalment['available'],
+                  'isEditing': false,
+                  'isExpanded': false,
+                  'reminders': [],
+                })
+            .toList());
+      });
+    } else {
+      throw Exception('Failed to load categories');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildInstalment(),
-          ],
-        ),
-        // Add your instalment content here
-      ],
+    return SingleChildScrollView(
+      controller: _scrollController,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildInstalment(),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -61,64 +92,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
             _buildCategoryButton(),
           ],
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columnSpacing: 10.0,
-            columns: const [
-              DataColumn(
-                label: Text(
-                  '',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-            rows: _categories.asMap().entries.map((entry) {
-              int index = entry.key;
-              Map<String, dynamic> category = entry.value;
-              return DataRow(
-                cells: [
-                  DataCell(
-                    Text(
-                      category['name'],
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
       ],
     );
-  }
-
-  void _fetchInstalments() async {
-    final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8000/api/instalments?user_id=${widget.userId}'));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        _categories.clear();
-        _categoryIds.clear();
-        for (var instalment in data['instalments']) {
-          _categories.add({
-            'id': instalment['id'],
-            'name': instalment['kategori'],
-            'assigned': instalment['assigned'],
-            'available': instalment['available'],
-            'isEditing': false,
-            'isExpanded': false,
-            'reminders': [],
-          });
-          _categoryIds.add(instalment['id']);
-        }
-      });
-    } else {
-      if (kDebugMode) {
-        print('Failed to fetch instalments: ${response.statusCode}');
-      }
-    }
   }
 
   void _addCategoryRow(BuildContext context, int userId) async {
@@ -366,6 +341,114 @@ class _InstalmentContentState extends State<InstalmentContent> {
     );
   }
 
+  void editCategory(BuildContext context, int index) {
+    TextEditingController nameController =
+        TextEditingController(text: _categories[index]['name']);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Center(
+                  child: Text(
+                    "Edit Category",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF19173D),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Category Name:',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.normal,
+                  color: const Color(0xFF19173D).withOpacity(0.8),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDAD9D9),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(15.0),
+                    hintText: 'Enter category name',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.normal,
+                      color: const Color(0xFF19173D).withOpacity(0.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final response = await http.put(
+                  Uri.parse(
+                      'http://10.0.2.2:8000/api/instalments/edit/${_categories[index]['id']}'),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: jsonEncode({
+                    'kategori': nameController.text,
+                  }),
+                );
+
+                if (response.statusCode == 200) {
+                  setState(() {
+                    _categories[index]['name'] = nameController.text;
+                  });
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  if (kDebugMode) {
+                    print('Failed to edit category: ${response.statusCode}');
+                  }
+                  // Handle error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                          'Failed to edit category: ${response.statusCode}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildCategoryButton() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,6 +457,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
           onPressed: () {
             setState(() {
               _categories.clear();
+              _fetchInstalments(widget.userId);
             });
             _resetInstalments(context);
           },
@@ -383,7 +467,8 @@ class _InstalmentContentState extends State<InstalmentContent> {
           ),
         ),
         SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
+          controller: _scrollController,
+          scrollDirection: Axis.vertical,
           child: DataTable(
             columnSpacing: 10.0,
             columns: [
@@ -422,6 +507,9 @@ class _InstalmentContentState extends State<InstalmentContent> {
                   ),
                 ),
               ),
+              DataColumn(
+                label: const Text(''),
+              ),
             ],
             rows: _categories.asMap().entries.expand((entry) {
               int index = entry.key;
@@ -451,11 +539,16 @@ class _InstalmentContentState extends State<InstalmentContent> {
                                   child: const Icon(Icons.notifications,
                                       color: Colors.white),
                                 ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  _editingCategoryName,
-                                  style: const TextStyle(color: Colors.white),
+                                GestureDetector(
+                                  onTap: () {
+                                    editCategory(context, index);
+                                  },
+                                  child: Text(
+                                    _editingCategoryName,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
+                                const SizedBox(width: 5),
                               ],
                             ),
                           ),
@@ -470,6 +563,39 @@ class _InstalmentContentState extends State<InstalmentContent> {
                       'Rp. ${_formatNumber(category['available'])}',
                       style: const TextStyle(color: Colors.white),
                     )),
+                    DataCell(
+                      SizedBox(
+                        width: 30, // adjust the width as needed
+                        child: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.white),
+                          onPressed: () async {
+                            final response = await http.delete(
+                              Uri.parse(
+                                  'http://10.0.2.2:8000/api/instalments/del/${category['id']}'),
+                            );
+
+                            if (response.statusCode == 200) {
+                              setState(() {
+                                _categories.removeAt(index);
+                              });
+                            } else {
+                              if (kDebugMode) {
+                                print(
+                                    'Failed to delete category: ${response.statusCode}');
+                              }
+                              // Handle error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Failed to delete category: ${response.statusCode}'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 DataRow(
@@ -480,10 +606,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                           const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
-                              _addAmount(
-                                context,
-                                index,
-                              );
+                              _addAmount(context, index);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -501,6 +624,7 @@ class _InstalmentContentState extends State<InstalmentContent> {
                         ],
                       ),
                     ),
+                    const DataCell(Text('')),
                     const DataCell(Text('')),
                     const DataCell(Text('')),
                   ],
@@ -539,27 +663,53 @@ class _InstalmentContentState extends State<InstalmentContent> {
                 double addAmount =
                     double.tryParse(addAmountController.text) ?? 0.0;
                 if (addAmount > 0) {
-                  final response = await http.put(
-                    Uri.parse(
-                        'http://10.0.2.2:8000/api/instalments/${_categoryIds[index]}'),
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: jsonEncode({
-                      'assigned': addAmount,
-                    }),
-                  );
+                  try {
+                    final response = await http.put(
+                      Uri.parse(
+                          'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}'),
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: jsonEncode({
+                        'assigned': addAmount,
+                      }),
+                    );
 
-                  if (response.statusCode == 200) {
-                    setState(() {
-                      _categories[index]['assigned'] += addAmount;
-                      _categories[index]['available'] -= addAmount;
-                    });
-                    Navigator.of(context).pop();
-                  } else {
-                    if (kDebugMode) {
-                      print('Failed to add amount: ${response.statusCode}');
+                    if (response.statusCode == 200) {
+                      // Update local data
+                      final Map<String, dynamic> responseData =
+                          json.decode(response.body);
+                      setState(() {
+                        _categories[index]['assigned'] =
+                            responseData['instalment']['assigned'];
+                        _categories[index]['available'] =
+                            responseData['instalment']['available'];
+                      });
+                      Navigator.of(context).pop();
+                    } else {
+                      if (kDebugMode) {
+                        print('Failed to add amount: ${response.statusCode}');
+                        print('Response body: ${response.body}');
+                      }
+                      // Handle error
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Failed to add amount: ${response.statusCode}'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print('Error: $e');
+                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 }
               },
@@ -607,15 +757,10 @@ class _InstalmentContentState extends State<InstalmentContent> {
       'Sunday',
     ];
 
-    DateTime? instalmentDeadline; // Ubah tipe data menjadi DateTime
-    String? remindFrequency;
+    DateTime? instalmentDeadline;
+    String? remindFrequency = reminderOptions.first;
     String notes = '';
 
-    remindFrequency =
-        reminderOptions.first; // Inisialisasi remindFrequency di sini
-
-    // Function to handle the selection of instalment deadline
-    // ignore: unused_element, no_leading_underscores_for_local_identifiers
     Future<void> _selectInstalmentDeadline() async {
       final DateTime? picked = await showDatePicker(
         context: context,
@@ -625,8 +770,6 @@ class _InstalmentContentState extends State<InstalmentContent> {
       );
       if (picked != null && picked != instalmentDeadline) {
         setState(() {
-          _selectedReminderCategoryIndex =
-              index; // Update selected category index
           instalmentDeadline = picked;
         });
       }
@@ -638,47 +781,108 @@ class _InstalmentContentState extends State<InstalmentContent> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              // Konten dialog dan aksi di sini
-
-              actions: [
-                TextButton(
-                  onPressed: () async {
-                    // Buat objek Map yang berisi data pengingat
-                    final Map<String, dynamic> reminderData = {
-                      'deadline': instalmentDeadline
-                          .toString(), // Sesuaikan dengan kolom di database
-                      'frequency': remindFrequency,
-                      'notes': notes,
-                    };
-
-                    // Kirim data pengingat ke backend
-                    final response = await http.post(
-                      Uri.parse(
-                          'http://10.0.2.2:8000/api/instalments/$index/reminders'),
-                      body: reminderData,
-                    );
-
-                    if (response.statusCode == 201) {
-                      // Pengingat berhasil disimpan
-                      if (kDebugMode) {
-                        print('Reminder saved successfully');
-                      }
-                      // Reset selected category index after saving reminders
+              title: Text('Set Reminder'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Select Instalment Deadline:'),
+                  TextButton(
+                    onPressed: _selectInstalmentDeadline,
+                    child: Text(
+                      instalmentDeadline == null
+                          ? 'Select Deadline'
+                          : DateFormat('dd/MM/yyyy')
+                              .format(instalmentDeadline!),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Reminder Frequency:'),
+                  DropdownButton<String>(
+                    value: remindFrequency,
+                    onChanged: (String? value) {
                       setState(() {
-                        _selectedReminderCategoryIndex = -1;
+                        remindFrequency = value;
                       });
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pop(); // Tutup dialog
-                    } else {
-                      // Gagal menyimpan pengingat
-                      if (kDebugMode) {
-                        print(
-                            'Failed to save reminder: ${response.statusCode}');
-                      }
-                      // Tampilkan pesan atau tindakan lain sesuai kebutuhan aplikasi Anda
-                    }
+                    },
+                    items: reminderOptions
+                        .map((String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ))
+                        .toList(),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Notes:'),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFDAD9D9),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: TextFormField(
+                      onChanged: (value) {
+                        notes = value;
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(15.0),
+                        hintText: 'Add notes (optional)',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   },
-                  child: const Text("Save"),
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: instalmentDeadline == null
+                      ? null
+                      : () async {
+                          final Map<String, dynamic> reminderData = {
+                            'user_id': widget.userId, // add user_id
+                            'instalment_id': _categories[index]
+                                ['id'], // add instalment_id
+                            'deadline': instalmentDeadline!.toIso8601String(),
+                            'frequency': remindFrequency,
+                            'notes': notes,
+                          };
+
+                          print('Reminder Data: $reminderData'); // Debugging
+
+                          final response = await http.post(
+                            Uri.parse(
+                                'http://10.0.2.2:8000/api/instalments/${_categories[index]['id']}/reminders'),
+                            body: json.encode(reminderData),
+                            headers: {'Content-Type': 'application/json'},
+                          );
+
+                          print(
+                              'Response Status: ${response.statusCode}'); // Debugging
+                          print('Response Body: ${response.body}'); // Debugging
+
+                          if (response.statusCode == 201) {
+                            setState(() {
+                              _categories[index]['reminders'].add(reminderData);
+                            });
+                            Navigator.of(context).pop();
+                          } else {
+                            print(
+                                'Failed to save reminder: ${response.statusCode}');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'Failed to save reminder: ${response.statusCode}'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                  child: Text('Save'),
                 ),
               ],
             );

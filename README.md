@@ -123,23 +123,23 @@ php artisan db:seed UserSeeder
 #### 3.2 Savings
 
 * Di dalam fitur ini anda dapat menambahkan target tabungan anda dimana nantinya di sesuaikan dengan saldo yang anda miliki
-* 3.2.1 Add Category:
+  3.2.1 Add Category:
 	+ Masukan Nama Category
-* 3.2.2 Add Sub Category:
+  3.2.2 Add Sub Category:
 	+ Masukan Nama Sub Category
 	+ Masukan Jumlah yang anda Butuhkan untuk menabung
-* 3.2.3 Anda Dapat menghapus per category
-* 3.2.4 Anda dapat melakukan perubahan pada category dan sub category
+  3.2.3 Anda Dapat menghapus per category
+  3.2.4 Anda dapat melakukan perubahan pada category dan sub category
 
 #### 3.3 Instalment
 
 * Di dalam fitur ini anda dapat menambahkan target cicilan anda dimana nantinya di sesuaikan dengan saldo yang anda miliki
-* 3.3.1 Add Category:
+  3.3.1 Add Category:
 	+ Masukan Nama Category
 	+ Masukan Jumlah target yang anda akan cicil
-* 3.3.2 Anda Dapat menghapus per category
-* 3.3.3 Anda dapat melakukan perubahan pada category
-* 3.3.4 Atur Pengingat:
+  3.3.2 Anda Dapat menghapus per category
+  3.3.3 Anda dapat melakukan perubahan pada category
+  3.3.4 Atur Pengingat:
 	+ Klik icon lonceng atau notifikasi
 	+ Anda akan diarahkan ke pop up dan mengisi sesuai dengan target deadline anda
 	+ Save
@@ -152,11 +152,12 @@ php artisan db:seed UserSeeder
 
 ### 5. Logout
 
-* 5.1 Kembali ke halaman profile
-* 5.2 Klik Titik 3 di pojok kanan atas
-* 5.3 Klik Logout
+5.1 Kembali ke halaman profile
+5.2 Klik Titik 3 di pojok kanan atas
+5.3 Klik Logout
 
 ### Informasi Tambahan
 
-* Anda dapat masuk ke akun yang sudah anda buat sebelumnya dan data-data nya akan tetap ada di akun terse
+* Anda dapat masuk ke akun yang sudah anda buat sebelumnya dan data-data nya akan tetap ada di akun tersebut.
+* Anda akan mendapatkan notifikasi pengingat harian.
 

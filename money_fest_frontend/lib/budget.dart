@@ -40,21 +40,6 @@ class _BudgetState extends State<Budget> {
   bool _isSavingsSelected = true; // default Savings is selected
   Map<String, dynamic> _monthlyData = {};
 
-  final List<String> _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec'
-  ];
-
   // Dummy balance data, replace with your actual balance data
   String _balance = 'Add your balance';
   String newBalance = '';
@@ -168,8 +153,6 @@ class _BudgetState extends State<Budget> {
                     const SizedBox(height: 8),
                     _buildBalanceText(),
                     const SizedBox(height: 16),
-                    _buildMonthSelector(),
-                    const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -570,20 +553,6 @@ class _BudgetState extends State<Budget> {
     );
   }
 
-  Widget _buildMonthSelector() {
-    return MonthSelector(
-      months: _months,
-      selectedMonthIndex: _selectedMonthIndex,
-      onMonthSelected: (index) {
-        setState(() {
-          _selectedMonthIndex = index;
-        });
-        fetchDataForMonth(
-            index); // Panggil fungsi untuk mendapatkan data sesuai bulan
-      },
-    );
-  }
-
   Widget _buildOption(String text, bool isSelected) {
     return Expanded(
       child: GestureDetector(
@@ -629,121 +598,5 @@ class _BudgetState extends State<Budget> {
     return _isSavingsSelected
         ? SavingsContent(userId: widget.userId ?? 0, data: _monthlyData)
         : InstalmentContent(userId: widget.userId ?? 0);
-  }
-}
-
-class MonthSelector extends StatefulWidget {
-  final List<String> months;
-  final int selectedMonthIndex;
-  final Function(int) onMonthSelected;
-
-  const MonthSelector({
-    super.key,
-    required this.months,
-    required this.selectedMonthIndex,
-    required this.onMonthSelected,
-  });
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _MonthSelectorState createState() => _MonthSelectorState();
-}
-
-class _MonthSelectorState extends State<MonthSelector> {
-  late ScrollController _scrollController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController(
-      initialScrollOffset: (widget.selectedMonthIndex * 60).toDouble(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(2),
-      margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: const Color.fromARGB(255, 158, 158, 158),
-          width: 0.5,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: widget.selectedMonthIndex > 0
-                ? () => _scrollToMonth(widget.selectedMonthIndex - 1)
-                : null,
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              controller: _scrollController,
-              child: Row(
-                children: widget.months.map((month) {
-                  final index = widget.months.indexOf(month);
-                  return GestureDetector(
-                    onTap: () => widget.onMonthSelected(index),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        gradient: widget.selectedMonthIndex == index
-                            ? const LinearGradient(
-                                colors: [
-                                  Color.fromRGBO(13, 166, 194, 1),
-                                  Color.fromRGBO(33, 78, 226, 1)
-                                ], // Ubah warna gradient sesuai kebutuhan Anda
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              )
-                            : null,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        month,
-                        style: TextStyle(
-                          color: widget.selectedMonthIndex == index
-                              ? Colors.white
-                              : const Color.fromARGB(255, 158, 158, 158),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            onPressed: widget.selectedMonthIndex < widget.months.length - 1
-                ? () => _scrollToMonth(widget.selectedMonthIndex + 1)
-                : null,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _scrollToMonth(int index) {
-    _scrollController.animateTo(
-      index * 65.0,
-      duration: const Duration(milliseconds: 550),
-      curve: Curves.easeInOut,
-    );
-    widget.onMonthSelected(index);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 }

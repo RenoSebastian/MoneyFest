@@ -176,8 +176,8 @@ class KategoriController extends Controller
 
     public function getCategoriesByMonth($userId, $month)
     {
-        // Parse month name to get the numeric month value
-        $date = Carbon::parse($month);
+        // Parse month to get the numeric month value
+        $date = Carbon::createFromFormat('Y-m', $month);
         $monthNumber = $date->month;
 
         // Fetch categories created in the specified month for the given user
@@ -188,10 +188,11 @@ class KategoriController extends Controller
 
         return response()->json([
             'data' => $categories,
-            'message' => 'Kategori berhasil diambil berdasarkan bulan ' . $month,
+            'message' => 'Kategori berhasil diambil berdasarkan bulan ' . $date->format('F Y'), // Format pesan untuk menampilkan bulan dan tahun
             'status' => '200'
         ], 200);
     }
+
 
 
 }

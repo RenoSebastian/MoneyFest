@@ -40,19 +40,41 @@ class _DashboardState extends State<Dashboard> {
     _fetchCategories();
   }
 
-  Future<void> _fetchCategories() async {
-    final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8000/api/categories/${widget.userId}/by-month/${_months[_selectedMonthIndex]}'));
+// Kemudian, Anda dapat menggunakannya di dalam fungsi atau bagian lain yang sesuai
+  void _fetchCategories() async {
+    // Deklarasi variabel _errorMessage
+    // ignore: unused_local_variable
+    String errorMessage = '';
+    setState(() {
+      _isLoading = true;
+      errorMessage = ''; // Bersihkan pesan error sebelum mengambil data baru
+    });
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    try {
+      final formattedMonth =
+          '${DateTime.now().year}-${(_selectedMonthIndex + 1).toString().padLeft(2, '0')}';
+      final url =
+          'http://10.0.2.2:8000/api/categories/${widget.userId}/by-month/$formattedMonth';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _categories = data['data'];
+          _isLoading =
+              false; // Berhenti memuat setelah berhasil mendapatkan data
+        });
+      } else {
+        setState(() {
+          _isLoading = false; // Berhenti memuat karena gagal mendapatkan data
+          errorMessage =
+              'Gagal mengambil data. Status code: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
       setState(() {
-        _categories = data['data'];
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
+        _isLoading = false; // Berhenti memuat karena terjadi kesalahan
+        errorMessage = 'Terjadi kesalahan saat mengambil data: $e';
       });
     }
   }
@@ -192,41 +214,56 @@ class _DashboardState extends State<Dashboard> {
       Colors.purple,
     ];
 
+    // Get categories for selected month
     final filteredCategories = _getCategoriesBySelectedMonth();
 
-    // if (filteredCategories.isEmpty) {
-    //   return Center(
-    //     child: Text(
-    //       'No data available for selected month',
-    //       style: TextStyle(color: Colors.white),
-    //     ),
-    //   );
-    // }
+    // Print filteredCategories to check its content
+    print('Filtered Categories: $filteredCategories');
 
+    // Filter and prepare data for PieChart
+    List<PieChartSectionData> pieChartData = filteredCategories
+        .where(
+            (category) => category['jumlah'] != null && category['jumlah'] > 0)
+        .map((category) {
+      // Determine color index based on category index
+      int colorIndex =
+          filteredCategories.indexOf(category) % categoryColors.length;
+
+      // Create PieChartSectionData
+      return PieChartSectionData(
+        value: category['jumlah'].toDouble(), // Convert jumlah to double
+        title: category['NamaKategori'] ?? '', // Handling null title
+        color: categoryColors[colorIndex],
+        radius: 140,
+        titleStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      );
+    }).toList();
+
+    // Print pieChartData to check its content
+    print('Pie Chart Data: $pieChartData');
+
+    // Check if there is any valid data for PieChart
+    if (pieChartData.isEmpty) {
+      print('No valid data for PieChart');
+      return Center(
+        child: Text(
+          'No valid data for PieChart',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
+    // Return the PieChart widget
     return SizedBox(
       width: 350,
       height: 300,
       child: PieChart(
         PieChartData(
-          sections: filteredCategories
-              .where((category) =>
-                  category['totalExpenditure'] != null &&
-                  category['totalExpenditure'] > 0)
-              .map((category) {
-            int colorIndex =
-                filteredCategories.indexOf(category) % categoryColors.length;
-            return PieChartSectionData(
-              value: category['totalExpenditure'].toDouble(),
-              title: category['NamaKategori'] ?? '', // Handling null title
-              color: categoryColors[colorIndex],
-              radius: 140,
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            );
-          }).toList(),
+          sections: pieChartData,
           sectionsSpace: 2,
           centerSpaceRadius: 1,
           borderData: FlBorderData(show: false),

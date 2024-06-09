@@ -36,7 +36,6 @@ Route::post('/kategori', [KategoriController::class, 'store']);
 Route::get('/kategori/{id}', [KategoriController::class, 'show']);
 Route::get('/kategori/user/{userId}', [KategoriController::class, 'getCategoriesByUser']);
 Route::get('/categories/{userId}', [KategoriController::class, 'getCategoriesByMonth']);
-Route::get('users/{userId}/categories/by-month/{monthName}', [KategoriController::class, 'getCategoriesByMonthName']);
 Route::get('/categories/{userId}/by-month/{month}', [KategoriController::class, 'getCategoriesByMonth']);
 Route::get('/subcategories/{userId}', [SubKategoriController::class, 'getSubCategoriesByMonth']);
 Route::get('/instalments/{id}', [InstalmentController::class, 'show']);

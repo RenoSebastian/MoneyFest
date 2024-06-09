@@ -194,14 +194,14 @@ class _DashboardState extends State<Dashboard> {
 
     final filteredCategories = _getCategoriesBySelectedMonth();
 
-    if (filteredCategories.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available for selected month',
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    }
+    // if (filteredCategories.isEmpty) {
+    //   return Center(
+    //     child: Text(
+    //       'No data available for selected month',
+    //       style: TextStyle(color: Colors.white),
+    //     ),
+    //   );
+    // }
 
     return SizedBox(
       width: 350,

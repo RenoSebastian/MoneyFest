@@ -96,3 +96,67 @@ php artisan migrate
 php artisan db:seed UserSeeder
 ```
 
+## Penggunaan Aplikasi
+
+### 1. Login
+
+1.1 Jika memakai seeder yang telah kita sediakan :
+* Username: timsar
+* Password: 123456
+
+1.2 Jika ingin membuat akun baru:
+* Melakukan registrasi
+* Mengisi data yang sesuai
+* Masuk ke Aplikasi
+
+### 2. Profile
+
+* Anda akan diarahkan ke tampilan profile
+* Anda bisa menambahkan foto sesuai dengan yang anda inginkan
+
+### 3. Budget
+
+#### 3.1 Add Balance
+
+* Dimana anda bisa menginputkan jumlah saldo yang anda miliki saat itu
+
+#### 3.2 Savings
+
+* Di dalam fitur ini anda dapat menambahkan target tabungan anda dimana nantinya di sesuaikan dengan saldo yang anda miliki
+* 3.2.1 Add Category:
+	+ Masukan Nama Category
+* 3.2.2 Add Sub Category:
+	+ Masukan Nama Sub Category
+	+ Masukan Jumlah yang anda Butuhkan untuk menabung
+* 3.2.3 Anda Dapat menghapus per category
+* 3.2.4 Anda dapat melakukan perubahan pada category dan sub category
+
+#### 3.3 Instalment
+
+* Di dalam fitur ini anda dapat menambahkan target cicilan anda dimana nantinya di sesuaikan dengan saldo yang anda miliki
+* 3.3.1 Add Category:
+	+ Masukan Nama Category
+	+ Masukan Jumlah target yang anda akan cicil
+* 3.3.2 Anda Dapat menghapus per category
+* 3.3.3 Anda dapat melakukan perubahan pada category
+* 3.3.4 Atur Pengingat:
+	+ Klik icon lonceng atau notifikasi
+	+ Anda akan diarahkan ke pop up dan mengisi sesuai dengan target deadline anda
+	+ Save
+
+### 4. Report
+
+* Anda Dapat Melihat:
+	+ Pengeluaran anda setiap bulan dengan diagram untuk mengetahui persentasenya
+	+ Agar anda dapat lebih teratur
+
+### 5. Logout
+
+* 5.1 Kembali ke halaman profile
+* 5.2 Klik Titik 3 di pojok kanan atas
+* 5.3 Klik Logout
+
+### Informasi Tambahan
+
+* Anda dapat masuk ke akun yang sudah anda buat sebelumnya dan data-data nya akan tetap ada di akun terse
+

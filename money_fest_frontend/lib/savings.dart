@@ -252,42 +252,6 @@ class _SavingsContentState extends State<SavingsContent> {
     }
   }
 
-  Future<void> updateCategory(int categoryId, String newName) async {
-    final url =
-        'https://10.0.2.2:8000/api/kategori/edit/$categoryId'; // Sesuaikan URL dengan endpoint API Anda
-    final response = await http.put(Uri.parse(url), body: {
-      'NamaKategori': newName,
-    });
-
-    if (response.statusCode == 200) {
-      // Berhasil mengubah kategori
-      print('Kategori berhasil diupdate');
-    } else {
-      // Gagal mengubah kategori
-      print('Gagal mengupdate kategori: ${response.body}');
-      throw Exception('Failed to update category');
-    }
-  }
-
-  Future<void> updateSubCategory(int categoryId, int subCategoryId,
-      String newName, double newAssigned) async {
-    final url =
-        'https://10.0.2.2:8000/api/kategori/$categoryId/subkategori/edit/$subCategoryId'; // Sesuaikan URL dengan endpoint API Anda
-    final response = await http.put(Uri.parse(url), body: {
-      'NamaSub': newName,
-      'Assigned': newAssigned.toString(),
-    });
-
-    if (response.statusCode == 200) {
-      // Berhasil mengubah subkategori
-      print('Subkategori berhasil diupdate');
-    } else {
-      // Gagal mengubah subkategori
-      print('Gagal mengupdate subkategori: ${response.body}');
-      throw Exception('Failed to update subcategory');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return _buildSavings();
@@ -844,36 +808,19 @@ class _SavingsContentState extends State<SavingsContent> {
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () async {
-                String newName = nameController.text;
-                double newAssigned = double.tryParse(
-                        assignedController.text.replaceAll(',', '')) ??
-                    0.0;
+              onPressed: () {
+                setState(() {
+                  String newName = nameController.text;
+                  double newAssigned = double.tryParse(
+                          assignedController.text.replaceAll(',', '')) ??
+                      0.0;
 
-                if (subCategoryIndex != -1) {
-                  await updateSubCategory(
-                      _categories[categoryIndex]['id'],
-                      _categories[categoryIndex]['subCategories']
-                          [subCategoryIndex]['id'],
-                      newName,
-                      newAssigned);
-                  setState(() {
+                  if (subCategoryIndex != -1) {
                     _categories[categoryIndex]['subCategories']
                         [subCategoryIndex]['name'] = newName;
                     _categories[categoryIndex]['subCategories']
                         [subCategoryIndex]['assigned'] = newAssigned;
-                  });
-                } else {
-                  await updateSubCategory(
-                      _categories[categoryIndex]['id'],
-                      -1, // ID subkategori akan dibuat oleh backend
-                      newName,
-                      newAssigned);
-
-                  setState(() {
-                    if (_categories[categoryIndex]['subCategories'] == null) {
-                      _categories[categoryIndex]['subCategories'] = [];
-                    }
+                  } else {
                     _categories[categoryIndex]['subCategories'].add({
                       'name': newName,
                       'assigned': newAssigned,
@@ -885,9 +832,8 @@ class _SavingsContentState extends State<SavingsContent> {
                       totalAssigned += subCategory['assigned'];
                     });
                     _categories[categoryIndex]['assigned'] = totalAssigned;
-                  });
-                }
-
+                  }
+                });
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),
@@ -937,8 +883,7 @@ class _SavingsContentState extends State<SavingsContent> {
               child: const Text("Cancel"),
             ),
             TextButton(
-              onPressed: () async {
-                await updateCategory(_categories[index]['id'], newCategoryName);
+              onPressed: () {
                 setState(() {
                   _categories[index]['name'] = newCategoryName;
                 });

@@ -70,6 +70,8 @@ class SubKategoriController extends Controller
         ]);
     }
 
+    // SubKategoriController.php
+
     public function edit(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -93,15 +95,17 @@ class SubKategoriController extends Controller
             ], 404);
         }
 
+        $oldNamaSub = $subKategori->NamaSub; // Simpan nama sub kategori lama
         $subKategori->NamaSub = $request->input('NamaSub');
         $subKategori->save();
 
         return response()->json([
             'data' => $subKategori,
             'message' => 'Subkategori berhasil diupdate',
-            'status' => 200
+            'status' => '200'
         ]);
     }
+
 
     public function destroy($id)
     {
